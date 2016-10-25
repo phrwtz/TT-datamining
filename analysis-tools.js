@@ -1,3 +1,5 @@
+//This is where we do all the analysis of the files
+
 function analyze(rowObjs) {
     for (var i = 0; i < rowObjs.length; i++) {
         try {
