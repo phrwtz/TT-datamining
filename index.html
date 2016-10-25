@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>TestCSV</title>
+</head>
+<h1>CSV File Reader</h1>
+
+
+<body>
+    <input type="file" id="fileInput">
+    <button type="button" onclick="parseCSV()">Analyze file</button>
+    <script src="utils.js"></script>
+    <script src="analysis-tools.js"></script>
+    <script src="PapaParse-4.1.2/papaparse.js"></script>
+    <pre id="fileDisplayArea"></pre>
+</body>
+
+<div id="radio" style="color:blue">
+</div>
+
+<p id="demo"></p>
+
+<script>
+    var team = function() {};
+    var level = function() {};
+    var member = function() {};
+    var rChange = function() {};
+    var message = function() {};
+    var action = function() {};
+    var teams = [];
+
+    function parseCSV() {
+        var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.csv)$/;
+        if (regex.test(fileInput.value)) {
+            if (typeof(FileReader) != "undefined") {
+                var reader = new FileReader();
+                reader.onerror = function(err) {
+                    console.log(err);
+                }
+                reader.onloadend = function(e) {
+                    console.log("file loaded");
+                    var obj = Papa.parse(e.target.result);
+                    console.log("data parsed");
+                    rowObjs = arrayToObjects(obj.data);
+                    console.log("row objects created");
+                    teams = makeTeams(rowObjs);
+                    console.log("teams generated");
+
+                    // var rb1 = document.createElement("INPUT");
+                    // var t1 = document.createTextNode(teams[0].name);
+                    // var br1 = document.createElement('BR');
+                    // rb1.setAttribute("type", "radio");
+                    // rb1.setAttribute("value", teams[0].name);
+                    // document.body.appendChild(radio);
+                    // radio.appendChild(rb1);
+                    // radio.appendChild(t1);
+                    // radio.appendChild(br1);
+                    //
+                    // var rb2 = document.createElement("INPUT");
+                    // var t2 = document.createTextNode(teams[1].name);
+                    // var br2 = document.createElement('BR');
+                    // rb2.setAttribute("type", "radio");
+                    // rb2.setAttribute("value", teams[1].name);
+                    // document.body.appendChild(radio);
+                    // radio.appendChild(rb2);
+                    // radio.appendChild(t2);
+                    // radio.appendChild(br2);
+                    //
+                    // var rb3 = document.createElement("INPUT");
+                    // var t3 = document.createTextNode(teams[2].name);
+                    // var br3 = document.createElement('BR');
+                    // rb3.setAttribute("type",
+                    //     "radio");
+                    // rb3.setAttribute("value", teams[2].name);
+                    // document.body.appendChild(radio);
+                    // radio.appendChild(rb3);
+                    // radio.appendChild(t3);
+                    // radio.appendChild(br3);
+
+                    changes = analyze(rowObjs);
+                    console.log("analysis complete");
+
+                    var acts = teams[0].levels[0].actions;
+                    for (var i = 0; i < acts.length; i++) {
+                        var act = acts[i];
+                        if (act.type == "message") {
+                            document.getElementById("demo").innerHTML += (act.pTime + ": \"" + act.msg + "\"<br>");
+                        } else {
+                            if (act.type == "resistorChange") {
+                                document.getElementById("demo").innerHTML += (act.pTime + ": " + act.actor + " changed " +
+                                act.changedRName + " from " + act.changedROld + " to " + act.changedRNew + "<br>");
+                            }
+                        }
+                    }
+                }
+                reader.readAsText(fileInput.files[0]);
+            } else {
+                alert("This browser does not support HTML5.");
+            }
+        } else {
+            alert("Please upload a valid CSV file.");
+        }
+    }
+</script>
