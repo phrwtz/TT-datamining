@@ -1,3 +1,12 @@
+function highlight(text) {
+    var newText = text;
+    var pattern = new RegExp(/[0-9]+./g);
+    while ((match = pattern.exec(text)) != null) {
+        newText = newText.replace(match[0], "<mark>" + match[0] + "</mark>");
+    }
+    return newText;
+}
+
 function makeTeams(rowObjs) { //parse the row objects array looking for and populating teams
     try {
         for (i = 0; i < rowObjs.length; i++) {
@@ -59,6 +68,7 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
             myLevel.startTime = ro["time"];
             myLevel.startPTime = unixTimeConversion(myLevel.startTime);
             myLevel.number = number;
+            myLevel.label = getAlphabeticLabel(number);
             myLevel.team = myTeam;
             myLevel.E = parseInt(po["E"]);
             myLevel.R0 = parseInt(po["R"]);
@@ -112,18 +122,20 @@ function addMember(myTeam, ro) { //construct a new member from ro and add it to 
     }
 }
 
+//Check to see whether the team at this row is in the teams array
 function findTeam(teams, ro) {
     var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    var name = po["groupname"];
+    var teamName = po["groupname"];
     for (var i = 0; i < teams.length; i++) {
-        if (teams[i].name == name) {
-            return teams[i]
+        if (teams[i].name == teamName) {
+            return teams[i];
         } else {
-            alert("No such team!")
+            alert("No such team!");
         }
     }
 }
 
+//Check to see whether the level at this row is in the levels array for this team
 function findLevel(team, ro) {
     var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
     var number = po["levelName"].charAt(po["levelName"].length - 1);
@@ -136,6 +148,8 @@ function findLevel(team, ro) {
     }
 }
 
+
+//Check to see whether name is in members array for this team
 function findMember(team, name) {
     for (var i = 0; i < team.members.length; i++) {
         if (team.members[i].name == name) {
@@ -143,37 +157,6 @@ function findMember(team, name) {
         } else {
             alert("no such member!")
         }
-    }
-}
-
-function generateReport(rowObjs) {
-    try {
-        for (i = 0; i < rowObjs.length; i++) {
-            var ro = rowObjs[i];
-            var ev = ro["event"];
-            var gn = ro["groupname"]
-            var eval = ro["event_value"];
-            var time = ro["time"];
-            var pTime = unixTimeConversion(time);
-            // if ((ev == "Changed circuit") && (gn == "Dogs")) {
-            //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-            //     if ((po["type"] == "changed component value") && (po["currentFlowing"])) {
-            //         console.log(po["username"] + " (board " + (parseInt(po["board"]) + 1) + ") " + po["type"] + " at row " + (i + 2) +
-            //             ". r1 = " + po["r1"] + ", r2 = " + po["r2"] + ", r3 = " + po["r3"] +
-            //             ", time = " + time + ", type = " + po["type"] + ", current flowing " + po["currentFlowing"]);
-            //     }
-            // }
-            if (ev == "model values") {
-                var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-                if (gn == "Dogs") {
-                    console.log(pTime + ", " + gn + ", level " + po["levelName"].charAt(po["levelName"].length - 1) + " formed at row " + i +
-                        ". E = " + po["E"] + ", R0 = " + po["R"] + ", username " + po["username"]);
-                }
-
-            }
-        }
-    } catch (err) {
-        console.log(err + ", i = " + i + ", parameters = " + p2);
     }
 }
 
@@ -210,4 +193,27 @@ function arrayToObjects(rows) {
         rowObjs.push(currentRow);
     }
     return rowObjs;
+}
+
+//returns A for level 2, B for level 3, and so forth
+function getAlphabeticLabel(index) {
+    var alphaArray = ["A", "B", "C", "D"];
+    if ((index >= 2) && (index <= 5)) {
+        return alphaArray[index - 2];
+    } else {
+        alert("Alphabetic label array index out of range." + index)
+    }
+}
+
+function computeVoltages(level, R1, R2, R3) {
+    var voltages = [];
+    var Rtot = level.R0 + R1 + R2 + R3;
+    var E = level.E;
+    var R0 = level.R0;
+
+    voltages[0] = E * R0 / Rtot;
+    voltages[1] = E * R1 / Rtot;
+    voltages[2] = E * R2 / Rtot;
+    voltages[3] = E * R3 / Rtot;
+    return voltages;
 }

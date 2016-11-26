@@ -4,7 +4,7 @@
 <head>
     <title>TestCSV</title>
 </head>
-<h1>CSV File Reader</h1>
+<h1>Log file analysis</h1>
 
 
 <body>
@@ -13,7 +13,6 @@
     <script src="utils.js"></script>
     <script src="analysis-tools.js"></script>
     <script src="PapaParse-4.1.2/papaparse.js"></script>
-    <pre id="fileDisplayArea"></pre>
 </body>
 
 <div id="radio" style="color:blue">
@@ -80,19 +79,8 @@
 
                     changes = analyze(rowObjs);
                     console.log("analysis complete");
+                    reportResults(teams);
 
-                    var acts = teams[0].levels[0].actions;
-                    for (var i = 0; i < acts.length; i++) {
-                        var act = acts[i];
-                        if (act.type == "message") {
-                            document.getElementById("demo").innerHTML += (act.pTime + ": \"" + act.msg + "\"<br>");
-                        } else {
-                            if (act.type == "resistorChange") {
-                                document.getElementById("demo").innerHTML += (act.pTime + ": " + act.actor + " changed " +
-                                act.changedRName + " from " + act.changedROld + " to " + act.changedRNew + "<br>");
-                            }
-                        }
-                    }
                 }
                 reader.readAsText(fileInput.files[0]);
             } else {
