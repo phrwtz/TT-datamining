@@ -10,12 +10,13 @@ function highlight(act, text) {
 function compareNumbers(act, numStr) { //Takes extracted number string, converts it, and compares to known numbers.
     //Returns the variable label if a match is found.
     var num = parseFloat(numStr);
-    level = act.level;
+    var level = act.level;
+    if (level.label == "B") {
+        var stop = "stop";
+    };
+    var returnStr = "";
     var E = level.E,
         R0 = level.R0,
-        goalR1 = level.goalR1,
-        goalR2 = level.goalR2,
-        goalR3 = level.goalR3,
         goalV1 = level.goalV1,
         goalV2 = level.goalV2,
         goalV3 = level.goalV3,
@@ -41,15 +42,6 @@ function compareNumbers(act, numStr) { //Takes extracted number string, converts
             break;
         case R3:
             return "[R3]";
-            break;
-        case goalR1:
-            return "[gR1]";
-            break;
-        case goalR2:
-            return "[gR2]";
-            break;
-        case goalR3:
-            return "[gR3]";
             break;
         case goalV1:
             return "[gV1]";
