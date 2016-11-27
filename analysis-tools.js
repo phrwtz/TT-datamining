@@ -130,6 +130,7 @@ function reportResults(teams) {
             var acts = level.actions;
             var goalVoltages = [level.goalV1, level.goalV2, level.goalV3];
             document.getElementById("demo").innerHTML += ("<br>" + team.name + ", level " + level.label +
+                ". E = " + level.E + ", R0 = " + level.R0 +
                 ", goalV1 = " + goalVoltages[0] + ", goalV2 = " + goalVoltages[1] + ", goalV3 = " + goalVoltages[2] + "<br><br>");
             for (var i = 0; i < acts.length; i++) {
                 var act = acts[i];
@@ -137,7 +138,7 @@ function reportResults(teams) {
                 switch (act.type) {
                     case "message":
                         document.getElementById("demo").innerHTML += (act.pTime + ": " +
-                            act.actor + " said: " + "\"" + highlight(act.msg) + "\"<br>");
+                            act.actor + " said: " + "\"" + highlight(act, act.msg) + "\"<br>");
                         break;
                     case "resistorChange":
                         var oldVoltages = computeVoltages(level, act.oldR1, act.oldR2, act.oldR3);
@@ -153,7 +154,7 @@ function reportResults(teams) {
                         break;
                     case "calculation":
                         document.getElementById("demo").innerHTML += (act.pTime + ": " + act.actor +
-                            " (board " + bd + ") performed the calculation  " + highlight(act.calculation) +
+                            " (board " + bd + ") performed the calculation  " + highlight(act, act.calculation) +
                             " and got the result " + Math.round(100 * act.result) / 100 + ".<br>");
                         break;
                 }
