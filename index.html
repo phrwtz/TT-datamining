@@ -27,11 +27,11 @@
             <td>
                 <input type="checkbox" name="team" id="all-teams" onchange="toggleSelectAll('team')"> All teams
                 <br>
-                <input type="checkbox" name="team" id="team-weather"> Weather
+                <input type="checkbox" name="team" id="team-Weather"> Weather
                 <br>
-                <input type="checkbox" name="team" id="team-pets"> Pets
+                <input type="checkbox" name="team" id="team-Pets"> Pets
                 <br>
-                <input type="checkbox" name="team" id="team-dogs"> Dogs
+                <input type="checkbox" name="team" id="team-Dogs"> Dogs
                 <br>
             </td>
             <td>
@@ -49,11 +49,11 @@
             <td>
                 <input type="checkbox" name="action" id="all-actions" onchange="toggleSelectAll('action')"> All actions
                 <br>
-                <input type="checkbox" name="action" id="chats"> Chats
+                <input type="checkbox" name="action" id="action-message"> Chats
                 <br>
-                <input type="checkbox" name="action" id=calculations> Calculations
+                <input type="checkbox" name="action" id=action-calculation> Calculations
                 <br>
-                <input type="checkbox" name="action" id="changes"> Resistor Changes
+                <input type="checkbox" name="action" id="action-resistorChange"> Resistor Changes
                 <br>
             </td>
         </tr>
@@ -86,6 +86,7 @@
         }
 
         function parseCSV(theForm) {
+            document.getElementById("demo").innerHTML = "";
             var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.csv)$/;
             if (regex.test(fileInput.value)) {
                 if (typeof(FileReader) != "undefined") {
@@ -103,7 +104,7 @@
                         console.log("teams generated");
                         changes = analyze(rowObjs);
                         console.log("analysis complete");
-                        reportResults(teams, theForm);
+                        reportResults(teams);
 
                     }
                     reader.readAsText(fileInput.files[0]);

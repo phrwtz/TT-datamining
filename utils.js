@@ -1,4 +1,4 @@
-function highlight(act, text) {
+function highlight(act, text) { //Highlights the variable names, if any, in chats
     var newText = text.toString();
     var pattern = new RegExp(/([0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
     while ((match = pattern.exec(text)) != null) {

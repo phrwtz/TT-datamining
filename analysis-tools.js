@@ -125,38 +125,49 @@ function addCalculation(ro) {
 function reportResults(teams) {
     for (var k = 0; k < teams.length; k++) {
         var team = teams[k];
-        for (var j = 0; j < team.levels.length; j++) {
-            var level = team.levels[j];
-            var acts = level.actions;
-            var goalVoltages = [level.goalV1, level.goalV2, level.goalV3];
-            document.getElementById("demo").innerHTML += ("<br>" + team.name + ", level " + level.label +
-                ". E = " + level.E + ", R0 = " + level.R0 +
-                ", goalV1 = " + goalVoltages[0] + ", goalV2 = " + goalVoltages[1] + ", goalV3 = " + goalVoltages[2] + "<br><br>");
-            for (var i = 0; i < acts.length; i++) {
-                var act = acts[i];
-                var bd = act.board;
-                switch (act.type) {
-                    case "message":
-                        document.getElementById("demo").innerHTML += (act.pTime + ": " +
-                            act.actor + " said: " + "\"" + highlight(act, act.msg) + "\"<br>");
-                        break;
-                    case "resistorChange":
-                        var oldVoltages = computeVoltages(level, act.oldR1, act.oldR2, act.oldR3);
-                        var newVoltages = computeVoltages(level, act.newR1, act.newR2, act.newR3);
-                        var oldV = Math.round(oldVoltages[bd] * 100) / 100;
-                        var newV = Math.round(newVoltages[bd] * 100) / 100;
-                        var gV = goalVoltages[bd - 1];
-                        var closer = ((Math.abs(oldV - gV) > Math.abs(newV - gV)) ? " Getting closer to " : " Getting further away from ");
-                        document.getElementById("demo").innerHTML += (act.pTime + ": " + act.actor +
-                            ", board " + bd + " changed " + act.changedRName +
-                            " from " + act.changedROld + " to " + act.changedRNew +
-                            ", voltage changed from " + oldV + " volts to " + newV + " volts." + closer + gV + " volts.<br>");
-                        break;
-                    case "calculation":
-                        document.getElementById("demo").innerHTML += (act.pTime + ": " + act.actor +
-                            " (board " + bd + ") performed the calculation  " + highlight(act, act.calculation) +
-                            " and got the result " + Math.round(100 * act.result) / 100 + ".<br>");
-                        break;
+        if ($("#all-teams")[0].checked || $("#team-" + team.name)[0].checked) {
+            for (var j = 0; j < team.levels.length; j++) {
+                var level = team.levels[j];
+                if ($("#all-levels")[0].checked || $("#level-" + level.label)[0].checked) {
+                    var acts = level.actions;
+                    var goalVoltages = [level.goalV1, level.goalV2, level.goalV3];
+                    document.getElementById("demo").innerHTML += ("<br><mark>" + team.name + ", level " + level.label +
+                        ":  E = " + level.E + ", R0 = " + level.R0 +
+                        ", goalV1 = " + goalVoltages[0] + ", goalV2 = " + goalVoltages[1] + ", goalV3 = " + goalVoltages[2] +
+                        "</mark><br><br>");
+                    for (var i = 0; i < acts.length; i++) {
+                        var act = acts[i];
+                        var bd = act.board;
+                        switch (act.type) {
+                            case "message":
+                                if ($("#all-actions")[0].checked || $("#action-" + act.type)[0].checked) {
+                                    document.getElementById("demo").innerHTML += (act.pTime + ": " +
+                                        act.actor + " said: " + "\"" + highlight(act, act.msg) + "\"<br>");
+                                    break;
+                                }
+                            case "resistorChange":
+                                if ($("#all-actions")[0].checked || $("#action-" + act.type)[0].checked) {
+                                    var oldVoltages = computeVoltages(level, act.oldR1, act.oldR2, act.oldR3);
+                                    var newVoltages = computeVoltages(level, act.newR1, act.newR2, act.newR3);
+                                    var oldV = Math.round(oldVoltages[bd] * 100) / 100;
+                                    var newV = Math.round(newVoltages[bd] * 100) / 100;
+                                    var gV = goalVoltages[bd - 1];
+                                    var closer = ((Math.abs(oldV - gV) > Math.abs(newV - gV)) ? " Getting closer to " : " Getting further away from ");
+                                    document.getElementById("demo").innerHTML += (act.pTime + ": " + act.actor +
+                                        ", board " + bd + " changed " + act.changedRName +
+                                        " from " + act.changedROld + " to " + act.changedRNew +
+                                        ", voltage changed from " + oldV + " volts to " + newV + " volts." + closer + gV + " volts.<br>");
+                                    break;
+                                }
+                            case "calculation":
+                                if ($("#all-actions")[0].checked || $("#action-" + act.type)[0].checked) {
+                                    document.getElementById("demo").innerHTML += (act.pTime + ": " + act.actor +
+                                        " (board " + bd + ") performed the calculation  " + highlight(act, act.calculation) +
+                                        " and got the result " + Math.round(100 * act.result) / 100 + ".<br>");
+                                    break;
+                                }
+                        }
+                    }
                 }
             }
         }
