@@ -125,7 +125,7 @@ function addCalculation(ro) {
 function reportResults(teams) {
     for (var k = 0; k < teams.length; k++) {
         var team = teams[k];
-        for (var j = 0; j < teams[k].levels.length; j++) {
+        for (var j = 0; j < team.levels.length; j++) {
             var level = team.levels[j];
             var acts = level.actions;
             var goalVoltages = [level.goalV1, level.goalV2, level.goalV3];

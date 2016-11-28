@@ -179,7 +179,7 @@ function findTeam(teams, ro) {
         if (teams[i].name == teamName) {
             return teams[i];
         } else {
-            alert("No such team!");
+            //            console.log("No such team!" + teamName);
         }
     }
 }
@@ -192,7 +192,7 @@ function findLevel(team, ro) {
         if (team.levels[i].number == number) {
             return team.levels[i];
         } else {
-            alert("No such level!")
+            //            console.log("No such level!" + number);
         }
     }
 }
@@ -204,7 +204,7 @@ function findMember(team, name) {
         if (team.members[i].name == name) {
             return team.members[i].name;
         } else {
-            alert("no such member!")
+            //        console.log("no such member!" + name);
         }
     }
 }
