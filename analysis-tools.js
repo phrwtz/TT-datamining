@@ -20,6 +20,12 @@ function analyze(rowObjs) {
                 case ("Unknown Values Submitted"):
                     addSubmit(ro);
                     break;
+                case ("Attached probe"):
+                    addAttachProbe(ro);
+                    break;
+                case ("Detached probe"):
+                    addDetachProbe(ro);
+                    break;
             }
         } catch (err) {
             console.log("In analyze " + err);
@@ -166,4 +172,38 @@ function addSubmit(ro) {
         myAction.type = "submitClicked";
         level.actions.push(myAction);
     }
+}
+
+function addAttachProbe(ro) {
+    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+    var team = findTeam(teams, ro);
+    var level = findLevel(team, ro);
+    var myAction = new action;
+    myAction.type = "attach-probe";
+    myAction.team = team;
+    myAction.level = level;
+    myAction.time = ro["time"];
+    myAction.pTime = unixTimeConversion(myAction.time);
+    myAction.board = parseInt(ro["board"]) + 1;
+    myAction.actor = findMember(team, po["username"]);
+    myAction.location = po["location"];
+    myAction.currentFlowing = ro["currentFlowing"]
+    level.actions.push(myAction);
+}
+
+function addDetachProbe(ro) {
+    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+    var team = findTeam(teams, ro);
+    var level = findLevel(team, ro);
+    var myAction = new action;
+    myAction.type = "detach-probe";
+    myAction.team = team;
+    myAction.level = level;
+    myAction.time = ro["time"];
+    myAction.pTime = unixTimeConversion(myAction.time);
+    myAction.board = parseInt(ro["board"]) + 1;
+    myAction.actor = findMember(team, po["username"]);
+    myAction.location = po["location"];
+    myAction.currentFlowing = ro["currentFlowing"]
+    level.actions.push(myAction);
 }

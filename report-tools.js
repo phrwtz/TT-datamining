@@ -34,7 +34,7 @@ function reportResults(teams) {
 
                             case "submitCorrect":
                                 if ($("#action-submit")[0].checked) {
-                                    document.getElementById("demo").innerHTML += (act.time + ": " +
+                                    document.getElementById("demo").innerHTML += (act.pTime + ": " +
                                         styledName + " submitted correct answers.<br>");
                                 }
                                 break;
@@ -47,7 +47,7 @@ function reportResults(teams) {
                                     var newV = Math.round(newVoltages[bd] * 100) / 100;
                                     var gV = goalVoltages[bd - 1];
                                     var closer = ((Math.abs(oldV - gV) > Math.abs(newV - gV)) ? " Getting closer to " : " Getting further away from ");
-                                    document.getElementById("demo").innerHTML += (act.time + ": " + styledName +
+                                    document.getElementById("demo").innerHTML += (act.pTime + ": " + styledName +
                                         " changed " + act.changedRName + " from " + act.changedROld + " to " + act.changedRNew +
                                         ", voltage changed from " + oldV + " volts to " + newV + " volts." + closer + gV + " volts.<br>");
                                 }
@@ -82,23 +82,40 @@ function reportResults(teams) {
                                     } else {
                                         RMsg += " R units incorrect."
                                     }
-                                    document.getElementById("demo").innerHTML += (act.time + ": " +
+                                    document.getElementById("demo").innerHTML += (act.pTime + ": " +
                                         styledName + " submitted incorrect values." +
                                         EMsg + RMsg + "<br>")
                                 }
                                 break;
                             case "message":
                                 if ($("#action-message")[0].checked) {
-                                    document.getElementById("demo").innerHTML += (act.time + ": " +
+                                    document.getElementById("demo").innerHTML += (act.pTime + ": " +
                                         styledName + " said: " + "\"" + highlight(act, act.msg) + "\"<br>");
                                 }
                                 break;
 
                             case "calculation":
                                 if ($("#action-calculation")[0].checked) {
-                                    document.getElementById("demo").innerHTML += (act.time + ": " + styledName +
+                                    document.getElementById("demo").innerHTML += (act.pTime + ": " + styledName +
                                         " performed the calculation  " + highlight(act, act.calculation) +
                                         " and got the result " + Math.round(1000 * act.result) / 1000 + ".<br>");
+                                }
+                                break;
+
+                            case "attach-probe":
+                                if ($("#action-attach-probe")[0].checked) {
+                                    currentMsg = (act.currentFlowing == "TRUE" ? ". Current is flowing. " : ". Current is not flowing.")
+                                    document.getElementById("demo").innerHTML += (act.pTime + ": " + styledName +
+                                        ", board " + act.board +
+                                        ", attached a probe to " + act.location + currentMsg + "<br>");
+                                }
+                                break;
+                            case "detach-probe":
+                                if ($("#action-detach-probe")[0].checked) {
+                                    currentMsg = (act.currentFlowing == "TRUE" ? ". Current is flowing. " : ". Current is not flowing.")
+                                    document.getElementById("demo").innerHTML += (act.pTime + ": " + styledName +
+                                        ", board " + act.board +
+                                        ", detached a probe from " + act.location + currentMsg + "<br>");
                                 }
                                 break;
                         }
