@@ -9,9 +9,9 @@
 
 <body>
     <input type="file" id="fileInput">
-    <button type="button" onclick="parseCSV()">analyze</button>
     <script src="utils.js"></script>
     <script src="analysis-tools.js"></script>
+    <script src="report-tools.js"></script>
     <script src="PapaParse-4.1.2/papaparse.js"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
 </body>
@@ -54,6 +54,10 @@
                 <input type="checkbox" name="action" id=action-calculation> Calculations
                 <br>
                 <input type="checkbox" name="action" id="action-resistorChange"> Resistor Changes
+                <br>
+                <input type="checkbox" name="action" id="action-attach-probe"> Attach Probe
+                <br>
+                <input type="checkbox" name="action" id="action-detach-probe"> Dettach Probe
                 <br>
                 <input type="checkbox" name="action" id="action-submit"> Submits
                 <br>

@@ -1,10 +1,14 @@
 function highlight(act, text) { //Highlights the variable names, if any, in chats
-    var newText = text.toString();
-    var pattern = new RegExp(/([0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
-    while ((match = pattern.exec(text)) != null) {
-        newText = newText.replace(match[0], match[0] + " <mark>" + compareNumbers(act, match[0]) + "</mark>");
+    try {
+        var newText = (typeof(text) === "string" ? text : text.toString());
+        var pattern = new RegExp(/([0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
+        while ((match = pattern.exec(text)) != null) {
+            newText = newText.replace(match[0], match[0] + " <mark>" + compareNumbers(act, match[0]) + "</mark>");
+        }
+        return newText;
+    } catch (err) {
+        console.log(err + ", act.type = " + act.type);
     }
-    return newText;
 }
 
 function compareNumbers(act, numStr) { //Takes extracted number string, converts it, and compares to known numbers.
@@ -86,6 +90,8 @@ function addTeam(ro, teams) { //construct a new team from ro and add it to teams
         if (!inTeams) { //a team with this name is not in the teams array
             myTeam = new team; //make a new one
             myTeam.name = ro["groupname"];
+            myTeam.levels = [];
+            myTeam.members = [];
         }
         addLevel(myTeam, ro); //add level, if new
         addMember(myTeam, ro); //add member, if new
@@ -134,10 +140,9 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
             myLevel.goalV2 = parseFloat(po["V2"]);
             myLevel.goalV3 = parseFloat(po["V3"]);
             myLevel.actions = [];
+            myLevel.success = false;
             myTeam.levels.push(myLevel);
-
         }
-
     } catch (err) {
         console.log("In addLevel " + err);
     }
@@ -159,11 +164,16 @@ function addMember(myTeam, ro) { //construct a new member from ro and add it to 
             }
         }
         if (!inMembers) { //if not, add this level
+            var colIndex = myTeam.members.length // will be 0, 1, or 2
+            var colorArray = ["DarkTurquoise", "Gold", "GreenYellow"];
             myMember = new member;
             myMember.startTime = ro["time"];
             myMember.startPTime = unixTimeConversion(myMember.startTime);
             myMember.board = parseInt(po["board"]) + 1;
-            myMember.name = po["username"];
+            myMember.color = colorArray[colIndex];
+            myMember.name = name;
+            myMember.styledName = "<span style= \"background-color: " + myMember.color + "\">" + name + "</span>";
+            myMember.team = myTeam;
             myTeam.members.push(myMember);
         }
     } catch (err) {
@@ -198,11 +208,11 @@ function findLevel(team, ro) {
 }
 
 
-//Check to see whether name is in members array for this team
+//Check to see whether name is in members array for this team. If so, return the member.
 function findMember(team, name) {
     for (var i = 0; i < team.members.length; i++) {
         if (team.members[i].name == name) {
-            return team.members[i].name;
+            return team.members[i];
         } else {
             //        console.log("no such member!" + name);
         }
