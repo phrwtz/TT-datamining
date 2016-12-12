@@ -199,7 +199,7 @@ function addSubmit(ro) {
     if (myAction.type == "submitCorrect") {
         if (!level.success) {
             myAction.level.success = true;
-            console.log("success at level " + myAction.level.label + "!");
+            //        console.log("success at level " + myAction.level.label + "!");
         }
     } else if (myAction.type == "submitUnknown") {
         myAction.rNeed = ro["R: Need"];
