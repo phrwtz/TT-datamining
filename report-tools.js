@@ -1,4 +1,5 @@
 function reportResults(teams) {
+    document.getElementById("demo").innerHTML = "";
     for (var k = 0; k < teams.length; k++) {
         var team = teams[k];
         if ($("#team-" + team.name)[0].checked) {
@@ -34,7 +35,7 @@ function reportResults(teams) {
 
                             case "submitCorrect":
                                 if ($("#action-submit")[0].checked) {
-                                    document.getElementById("demo").innerHTML += (act.pTime + ": " +
+                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " +
                                         styledName + " submitted correct answers.<br>");
                                 }
                                 break;
@@ -47,7 +48,7 @@ function reportResults(teams) {
                                     var newV = Math.round(newVoltages[bd] * 100) / 100;
                                     var gV = goalVoltages[bd - 1];
                                     var closer = ((Math.abs(oldV - gV) > Math.abs(newV - gV)) ? " Getting closer to " : " Getting further away from ");
-                                    document.getElementById("demo").innerHTML += (act.pTime + ": " + styledName +
+                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " + styledName +
                                         " changed " + act.changedRName + " from " + act.changedROld + " to " + act.changedRNew +
                                         ", voltage changed from " + oldV + " volts to " + newV + " volts." + closer + gV + " volts.<br>");
                                 }
@@ -82,21 +83,21 @@ function reportResults(teams) {
                                     } else {
                                         RMsg += " R units incorrect."
                                     }
-                                    document.getElementById("demo").innerHTML += (act.pTime + ": " +
+                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " +
                                         styledName + " submitted incorrect values." +
                                         EMsg + RMsg + "<br>")
                                 }
                                 break;
                             case "message":
                                 if ($("#action-message")[0].checked) {
-                                    document.getElementById("demo").innerHTML += (act.pTime + ": " +
+                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " +
                                         styledName + " said: " + "\"" + highlight(act, act.msg) + "\"<br>");
                                 }
                                 break;
 
                             case "calculation":
                                 if ($("#action-calculation")[0].checked) {
-                                    document.getElementById("demo").innerHTML += (act.pTime + ": " + styledName +
+                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " + styledName +
                                         " performed the calculation  " + highlight(act, act.calculation) +
                                         " and got the result " + Math.round(1000 * act.result) / 1000 + ".<br>");
                                 }
@@ -104,20 +105,43 @@ function reportResults(teams) {
 
                             case "attach-probe":
                                 if ($("#action-attach-probe")[0].checked) {
-                                    currentMsg = (act.currentFlowing == "TRUE" ? ". Current is flowing. " : ". Current is not flowing.")
-                                    document.getElementById("demo").innerHTML += (act.pTime + ": " + styledName +
+                                    currentMsg = (act.currentFlowing == "true" ? ". Current is flowing. " : ". Current is not flowing.");
+                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " + styledName +
                                         ", board " + act.board +
                                         ", attached a probe to " + act.location + currentMsg + "<br>");
                                 }
                                 break;
                             case "detach-probe":
                                 if ($("#action-detach-probe")[0].checked) {
-                                    currentMsg = (act.currentFlowing == "TRUE" ? ". Current is flowing. " : ". Current is not flowing.")
-                                    document.getElementById("demo").innerHTML += (act.pTime + ": " + styledName +
+                                    currentMsg = (act.currentFlowing == "true" ? ". Current is flowing. " : ". Current is not flowing.");
+                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " + styledName +
                                         ", board " + act.board +
                                         ", detached a probe from " + act.location + currentMsg + "<br>");
                                 }
                                 break;
+                            case "connect-lead":
+                                if ($("#action-connect-lead")[0].checked) {
+                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " + styledName +
+                                        ", board " + act.board +
+                                        ", connected a lead to " + act.location + "<br>");
+                                }
+                                break;
+
+                            case "disconnect-lead":
+                                if ($("#action-disconnect-lead")[0].checked) {
+                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " + styledName +
+                                        ", board " + act.board +
+                                        ", disconnected a lead from " + act.location + "<br>");
+                                }
+                                break;
+                            case "joined-group":
+                                if ($("#action-joined-group")[0].checked) {
+                                    document.getElementById("demo").innerHTML += (act.time + ", " + act.uTime + ": " + styledName +
+                                        ", board " + act.board +
+                                        ", joined team " + team.name + "<br>");
+                                }
+                                break;
+
                         }
                     }
                 }
