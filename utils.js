@@ -74,7 +74,8 @@ function makeTeams(rowObjs) { //parse the row objects array looking for and popu
     }
 }
 
-function addTeam(ro, teams) { //construct a new team from ro and add it to teams
+function addTeam(ro, teams) { //construct a new team from ro and add it to teams array.
+    //If we already have a team with that name, use it.
     var inTeams = false;
     try {
         if (!teams) { //if we don't have a teams array yet
@@ -95,7 +96,7 @@ function addTeam(ro, teams) { //construct a new team from ro and add it to teams
         }
         addLevel(myTeam, ro); //add level, if new
         addMember(myTeam, ro); //add member, if new
-        if (!inTeams) { //add it to the array if it's new
+        if (!inTeams) { //add the team to the teams array if it's new
             teams.push(myTeam);
         }
     } catch (err) {
@@ -103,7 +104,8 @@ function addTeam(ro, teams) { //construct a new team from ro and add it to teams
     }
 }
 
-function addLevel(myTeam, ro) { //construct a new level from ro and add it to levels
+function addLevel(myTeam, ro) { //construct a new level from ro and add it to levels array.
+    //If we already have a level with that number, use it.
     try {
         var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
         var number = po["levelName"].charAt(po["levelName"].length - 1);

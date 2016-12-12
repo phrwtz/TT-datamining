@@ -1,164 +1,207 @@
 //This is where we do all the analysis of the files once the raw data has been parsed
 function analyze(rowObjs) {
     for (var i = 0; i < rowObjs.length; i++) {
-        try {
-            var ro = rowObjs[i];
-            var ev = ro["event"];
-            switch (ev) {
-                case "Changed circuit":
-                    addComponentChange(ro);
-                    break;
-                case "Sent message":
-                    addMessage(ro);
-                    break;
-                case "Calculation performed":
-                    addCalculation(ro);
-                    break;
-                case ("Submit clicked when all correct"):
-                    addSubmit(ro);
-                    break;
-                case ("Unknown Values Submitted"):
-                    addSubmit(ro);
-                    break;
-                case ("Attached probe"):
-                    addAttachProbe(ro);
-                    break;
-                case ("Detached probe"):
-                    addDetachProbe(ro);
-                    break;
-            }
-        } catch (err) {
-            console.log("In analyze " + err);
-        }
-    }
-}
-
-function addComponentChange(ro) {
-    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    var type = po["type"];
-    if (type == "changed component value") {
-        addRChanges(ro);
-    } else {
-        return;
-    }
-}
-
-function addRChanges(ro) {
-    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    try {
-        if (findTeam(teams, ro)) {
-            var team = findTeam(teams, ro);
-            var level = findLevel(team, ro);
-            var newR1 = po["r1"];
-            var newR2 = po["r2"];
-            var newR3 = po["r3"];
-            if ((!isNaN(newR1 + newR2 + newR3)) &&
-                ((newR1 != level.oldR1) || (newR2 != level.oldR2) || (newR3 != level.oldR3))) {
-                var myAction = new action;
-                myAction.type = "resistorChange"
-                myAction.actor = findMember(team, po["username"]);
-                myAction.board = parseInt(po["board"]) + 1;
-                myAction.time = ro["time"];
-                myAction.pTime = unixTimeConversion(myAction.time);
-                myAction.level = level;
-                myAction.team = team;
-                myAction.currentFlowing = po["currentFlowing"];
-                myAction.oldR1 = level.oldR1;
-                myAction.oldR2 = level.oldR2;
-                myAction.oldR3 = level.oldR3;
-                myAction.newR1 = parseInt(newR1);
-                myAction.newR2 = parseInt(newR2);
-                myAction.newR3 = parseInt(newR3);
-                level.oldR1 = myAction.newR1;
-                level.oldR2 = myAction.newR2;
-                level.oldR3 = myAction.newR3;
-                switch (myAction.board) {
-                    case 1:
-                        myAction.changedRName = "R1";
-                        myAction.changedROld = myAction.oldR1;
-                        myAction.changedRNew = myAction.newR1;
+        var ro = rowObjs[i];
+        var ev = ro["event"];
+        var type = ro["type"];
+        var time = ro["time"];
+        switch (ev) {
+            case "Joined Group":
+                addJoinedGroup(ro);
+                break;
+            case "Changed circuit":
+                switch (type) {
+                    case "changed component value":
+                        addRChange(ro);
                         break;
-                    case 2:
-                        myAction.changedRName = "R2";
-                        myAction.changedROld = myAction.oldR2;
-                        myAction.changedRNew = myAction.newR2;
+                    case "disconnect lead":
+                        addDisconnectLead(ro);
                         break;
-                    case 3:
-                        myAction.changedRName = "R3";
-                        myAction.changedROld = myAction.oldR3;
-                        myAction.changedRNew = myAction.newR3;
+                    case "connect lead":
+                        addConnectLead(ro);
                         break;
                 }
-                level.actions.push(myAction);
+                break;
+            case "Sent message":
+                addMessage(ro);
+                break;
+            case "Calculation performed":
+                addCalculation(ro);
+                break;
+            case "Submit clicked when all correct":
+                addSubmit(ro);
+                break;
+            case "Unknown Values Submitted":
+                addSubmit(ro);
+                break;
+            case "Attached probe":
+                addAttachProbe(ro);
+                break;
+            case "Detached probe":
+                addDetachProbe(ro, i);
+                break;
+        }
+    }
+}
+
+//General function for adding a new action. Sets all the parameters the different actions have in common.
+function addAction(ro, type) {
+    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+    var team = findTeam(teams, ro);
+    var level = findLevel(team, ro);
+    var myAction = new action;
+    myAction.type = type;
+    myAction.team = team;
+    myAction.level = level;
+    myAction.date = ro["date"];
+    myAction.time = ro["time"];
+    myAction.uTime = ro["unix-time"];
+    myAction.pTime = unixTimeConversion(myAction.uTime);
+    myAction.board = parseInt(ro["board"]) + 1;
+    myAction.actor = findMember(team, po["username"]);
+    myAction.currentFlowing = po["currentFlowing"];
+    myAction.index = level.actions.length; //The length of the array before the action is pushed. (The index of the action
+    //if it is pushed will equal this.)
+    return myAction;
+}
+
+//Function for detecting duplicate actions by comparing them to previous actions
+function duplicate(action) {
+    var actions = action.level.actions; //Array of actions for this level
+    if (actions.length > 3) {
+        dup = []; // Array for storing results of previous actions
+        var thisAct = action,
+            thisActor = action.actor,
+            thisTime = action.uTime,
+            thisType = action.type;
+        var checkAct,
+            checkActor,
+            checkTime,
+            checkType;
+        for (var i = 1; i < 4; i++) { //check three actions back
+            checkAct = actions[action.index - i];
+            if (checkAct.actor && checkAct.time && checkAct.type) {
+                checkActor = checkAct.actor;
+                checkTime = checkAct.uTime;
+                checkType = checkAct.type;
+                dup[i] = ((checkActor == thisActor) && (checkType == thisType) && (Math.abs(checkTime - thisTime) < 0.1))
+            } else {
+                dup[i] = false;
             }
         }
-    } catch (err) {
-        console.log("in addRChanges " + err);
+        return (dup[1] || dup[2] || dup[3]); //If any checked previous action matches, there is a duplicate
+    }
+}
+
+function addJoinedGroup(ro) {
+    var myAction = addAction(ro, "joined-group");
+    if (!(duplicate(myAction))) {
+        myAction.level.actions.push(myAction);
+    } else {
+        console.log("Passed over a joined group action at . " + myAction.time);
+    }
+}
+
+function addConnectLead(ro) {
+    var myAction = addAction(ro, "connect-lead");
+    myAction.location = ro["location"];
+    if (!(duplicate(myAction))) {
+        myAction.level.actions.push(myAction);
+    } else {
+        //        console.log("Passed over a connect lead action at . " + myAction.time);
+    }
+}
+
+function addDisconnectLead(ro) {
+    var myAction = addAction(ro, "disconnect-lead");
+    myAction.location = ro["location"];
+    if (!(duplicate(myAction))) {
+        myAction.level.actions.push(myAction);
+    } else {
+        //        console.log("Passed over a disconnect lead action at . " + myAction.time);
+    }
+}
+
+function addRChange(ro) {
+    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+    var myAction = addAction(ro, "resistorChange");
+    var level = myAction.level;
+    var newR1 = po["r1"];
+    var newR2 = po["r2"];
+    var newR3 = po["r3"];
+    if ((!isNaN(newR1 + newR2 + newR3)) &&
+        ((newR1 != level.oldR1) || (newR2 != level.oldR2) || (newR3 != level.oldR3))) {
+        myAction.oldR1 = level.oldR1;
+        myAction.oldR2 = level.oldR2;
+        myAction.oldR3 = level.oldR3;
+        myAction.newR1 = parseInt(newR1);
+        myAction.newR2 = parseInt(newR2);
+        myAction.newR3 = parseInt(newR3);
+        myAction.level.oldR1 = myAction.newR1;
+        myAction.level.oldR2 = myAction.newR2;
+        myAction.level.oldR3 = myAction.newR3;
+        switch (myAction.board) {
+            case 1:
+                myAction.changedRName = "R1";
+                myAction.changedROld = myAction.oldR1;
+                myAction.changedRNew = myAction.newR1;
+                break;
+            case 2:
+                myAction.changedRName = "R2";
+                myAction.changedROld = myAction.oldR2;
+                myAction.changedRNew = myAction.newR2;
+                break;
+            case 3:
+                myAction.changedRName = "R3";
+                myAction.changedROld = myAction.oldR3;
+                myAction.changedRNew = myAction.newR3;
+                break;
+        }
+        myAction.level.actions.push(myAction);
     }
 }
 
 function addMessage(ro) {
-    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    try {
-        var team = findTeam(teams, ro);
-        var level = findLevel(team, ro);
-        var myAction = new action;
-        myAction.type = "message";
-        myAction.actor = findMember(team, po["username"]);
-        myAction.board = parseInt(po["board"]) + 1;
-        myAction.time = ro["time"];
-        myAction.pTime = unixTimeConversion(myAction.time);
-        myAction.level = level;
-        myAction.team = team;
-        myAction.msg = ro["event_value"];
-        level.actions.push(myAction);
-    } catch (err) {
-        console.log("in addMessage " + err);
-    }
+    var myAction = addAction(ro, "message");
+    myAction.msg = ro["event_value"];
+    myAction.level.actions.push(myAction);
 }
 
 function addCalculation(ro) {
-    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    var team = findTeam(teams, ro);
-    var level = findLevel(team, ro);
-    var myAction = new action;
-    myAction.type = "calculation";
-    myAction.team = team;
-    myAction.level = level;
-    myAction.time = ro["time"];
-    myAction.pTime = unixTimeConversion(myAction.time);
-    myAction.board = parseInt(po["board"]) + 1;
-    myAction.actor = findMember(team, po["username"]);
+    var myAction = addAction(ro, "calculation");
     myAction.result = ro["result"];
     myAction.calculation = ro["calculation"];
-    level.actions.push(myAction);
+    if (!(duplicate(myAction))) {
+        myAction.level.actions.push(myAction);
+    }
 }
 
 function addSubmit(ro) {
+    switch (ro["event"]) {
+        case "Submit clicked when all correct":
+            var type = "submitCorrect";
+            break;
+        case "Unknown Values Submitted":
+            var type = "submitUnknown";
+            break;
+        case "Submit clicked":
+            var type = "submitClicked";
+            break;
+    }
+    var myAction = addAction(ro, type);
     var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    var team = findTeam(teams, ro);
-    var level = findLevel(team, ro);
     var newR1 = po["r1"];
     var newR2 = po["r2"];
     var newR3 = po["r3"];
-    var myAction = new action;
-    myAction.team = team;
-    myAction.level = level;
-    myAction.time = ro["time"];
-    myAction.pTime = unixTimeConversion(myAction.time);
-    myAction.board = parseInt(po["board"]) + 1;
-    myAction.actor = findMember(team, po["username"]);
     myAction.newR1 = parseInt(newR1);
     myAction.newR2 = parseInt(newR2);
     myAction.newR3 = parseInt(newR3);
-    if (ro["event"] == "Submit clicked when all correct") {
-        myAction.type = "submitCorrect";
+    if (myAction.type == "submitCorrect") {
         if (!level.success) {
-            level.actions.push(myAction);
-            level.success = true;
+            myAction.level.success = true;
+            console.log("success at level " + myAction.level.label + "!");
         }
-    } else if (ro["event"] == "Unknown Values Submitted") {
-        myAction.type = "submitUnknown";
+    } else if (myAction.type == "submitUnknown") {
         myAction.rNeed = ro["R: Need"];
         myAction.rHaveValue = ro["R: Have Value"];
         myAction.rHaveUnit = ro["R: Have Unit"];
@@ -167,43 +210,28 @@ function addSubmit(ro) {
         myAction.eHaveUnit = ro["E: Have Unit"];
         myAction.eHaveValue = ro["E: Have Value"];
         myAction.eCorrect = ro["E: Correct"];
-        level.actions.push(myAction);
-    } else if (ro["event"] == "Submit clicked") {
-        myAction.type = "submitClicked";
-        level.actions.push(myAction);
     }
+    myAction.level.actions.push(myAction);
 }
 
 function addAttachProbe(ro) {
+    var myAction = addAction(ro, "attach-probe");
     var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    var team = findTeam(teams, ro);
-    var level = findLevel(team, ro);
-    var myAction = new action;
-    myAction.type = "attach-probe";
-    myAction.team = team;
-    myAction.level = level;
-    myAction.time = ro["time"];
-    myAction.pTime = unixTimeConversion(myAction.time);
-    myAction.board = parseInt(ro["board"]) + 1;
-    myAction.actor = findMember(team, po["username"]);
-    myAction.location = po["location"];
-    myAction.currentFlowing = ro["currentFlowing"]
-    level.actions.push(myAction);
+    myAction.location = ro["location"];
+    if (!(duplicate(myAction))) {
+        myAction.level.actions.push(myAction);
+    } else {
+        //        console.log("Passed over an attach probe action at . " + myAction.time);
+    }
 }
 
-function addDetachProbe(ro) {
+function addDetachProbe(ro, i) {
+    var myAction = addAction(ro, "detach-probe");
     var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    var team = findTeam(teams, ro);
-    var level = findLevel(team, ro);
-    var myAction = new action;
-    myAction.type = "detach-probe";
-    myAction.team = team;
-    myAction.level = level;
-    myAction.time = ro["time"];
-    myAction.pTime = unixTimeConversion(myAction.time);
-    myAction.board = parseInt(ro["board"]) + 1;
-    myAction.actor = findMember(team, po["username"]);
     myAction.location = po["location"];
-    myAction.currentFlowing = ro["currentFlowing"]
-    level.actions.push(myAction);
+    if (!(duplicate(myAction))) {
+        myAction.level.actions.push(myAction);
+    } else {
+        //        console.log("Passed over a detach probe action at . " + myAction.time);
+    }
 }
