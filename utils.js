@@ -15,19 +15,20 @@ function compareNumbers(act, numStr) { //Takes extracted number string, converts
     //Returns the variable label if a match is found.
     var num = parseFloat(numStr);
     var level = act.level;
-    if (level.label == "B") {
-        var stop = "stop";
-    };
     var returnStr = "";
     var E = level.E,
         R0 = level.R0,
-        goalV1 = level.goalV1,
-        goalV2 = level.goalV2,
-        goalV3 = level.goalV3,
-        R1 = level.oldR1,
-        R2 = level.oldR2,
-        R3 = level.oldR3,
-        I = E / (R0 + R1 + R2 + R3);
+        goalV1 = level.goalV[0],
+        goalV2 = level.goalV[1],
+        goalV3 = level.goalV[2],
+        R1 = act.R[0],
+        R2 = act.R[1],
+        R3 = act.R[2],
+        V1 = act.V[0],
+        V2 = act.V[1],
+        V3 = act.V[2],
+        Rtot = R0 + R1 + R2 + R3,
+        I = Math.round((E / Rtot) * 100) / 100;
     switch (num) {
         case E:
             return "[E]";
@@ -55,6 +56,15 @@ function compareNumbers(act, numStr) { //Takes extracted number string, converts
             break;
         case goalV3:
             return "[gV3]";
+            break;
+        case V1:
+            return "[V1]";
+            break;
+        case V2:
+            return "[V2]";
+            break;
+        case V3:
+            return "[V3]";
             break;
     }
     return ""; //Return empty string if no match found
@@ -129,18 +139,15 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
             myLevel.team = myTeam;
             myLevel.E = parseInt(po["E"]);
             myLevel.R0 = parseInt(po["R"]);
-            myLevel.initR1 = parseInt(po["R1"]);
-            myLevel.initR2 = parseInt(po["R2"]);
-            myLevel.initR3 = parseInt(po["R3"]);
-            myLevel.oldR1 = parseInt(po["R1"]);
-            myLevel.oldR2 = parseInt(po["R2"]);
-            myLevel.oldR3 = parseInt(po["R3"]);
-            myLevel.goalR1 = parseInt(po["GoalR1"]);
-            myLevel.goalR2 = parseInt(po["GoalR2"]);
-            myLevel.goalR3 = parseInt(po["GoalR3"]);
-            myLevel.goalV1 = parseFloat(po["V1"]);
-            myLevel.goalV2 = parseFloat(po["V2"]);
-            myLevel.goalV3 = parseFloat(po["V3"]);
+            myLevel.initR = [parseInt(po["R1"]), parseInt(po["R2"]), parseInt(po["R3"])];
+            myLevel.R = [parseInt(po["R1"]), parseInt(po["R2"]), parseInt(po["R3"])];
+            var Rtot = myLevel.R0 + myLevel.R[0] + myLevel.R[1] + myLevel.R[2];
+            myLevel.V = [Math.round(((myLevel.E * myLevel.R[0]) / Rtot) * 100) / 100,
+                Math.round(((myLevel.E * myLevel.R[1]) / Rtot) * 100) / 100,
+                Math.round(((myLevel.E * myLevel.R[2]) / Rtot) * 100) / 100
+            ];
+            myLevel.goalR = [parseInt(po["GoalR1"]), parseInt(po["GoalR2"]), parseInt(po["GoalR3"])];
+            myLevel.goalV = [parseFloat(po["V1"]), parseFloat(po["V2"]), parseFloat(po["V3"])];
             myLevel.actions = [];
             myLevel.success = false;
             myTeam.levels.push(myLevel);
@@ -200,12 +207,15 @@ function findTeam(teams, ro) {
 function findLevel(team, ro) {
     var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
     var number = po["levelName"].charAt(po["levelName"].length - 1);
+    var levelFound = false;
     for (var i = 0; i < team.levels.length; i++) {
         if (team.levels[i].number == number) {
+            levelFound = true;
             return team.levels[i];
-        } else {
-            //            console.log("No such level!" + number);
         }
+    }
+    if (!levelFound) {
+        console.log("Level not found! team = " + team + ", level number " + number);
     }
 }
 
@@ -264,17 +274,4 @@ function getAlphabeticLabel(index) {
     } else {
         alert("Alphabetic label array index out of range." + index)
     }
-}
-
-function computeVoltages(level, R1, R2, R3) {
-    var voltages = [];
-    var Rtot = level.R0 + R1 + R2 + R3;
-    var E = level.E;
-    var R0 = level.R0;
-
-    voltages[0] = E * R0 / Rtot;
-    voltages[1] = E * R1 / Rtot;
-    voltages[2] = E * R2 / Rtot;
-    voltages[3] = E * R3 / Rtot;
-    return voltages;
 }

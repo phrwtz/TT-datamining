@@ -46,7 +46,6 @@ function analyze(rowObjs) {
 
 //General function for adding a new action. Sets all the parameters the different actions have in common.
 function addAction(ro, type) {
-    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
     var team = findTeam(teams, ro);
     var level = findLevel(team, ro);
     var myAction = new action;
@@ -57,11 +56,20 @@ function addAction(ro, type) {
     myAction.time = ro["time"];
     myAction.uTime = ro["unix-time"];
     myAction.pTime = unixTimeConversion(myAction.uTime);
-    myAction.board = parseInt(ro["board"]) + 1;
-    myAction.actor = findMember(team, po["username"]);
-    myAction.currentFlowing = po["currentFlowing"];
-    myAction.index = level.actions.length; //The length of the array before the action is pushed. (The index of the action
-    //if it is pushed will equal this.)
+    myAction.board = parseInt(ro["board"]);
+    if (level && ro["parameters"]) {
+        var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+        myAction.index = level.actions.length; //The length of the array before the action is pushed. (The index of the action
+        //if it is pushed will equal this.)
+        myAction.actor = findMember(team, po["username"]);
+        myAction.currentFlowing = (po["currentFlowing"] == "true" ? true : false);
+        myAction.R = [parseInt(po["r1"]), parseInt(po["r2"]), parseInt(po["r3"])];
+        var Rtot = level.R0 + myAction.R[0] + myAction.R[1] + myAction.R[2];
+        myAction.V = [Math.round(((level.E * myAction.R[0]) / Rtot) * 100) / 100,
+            Math.round(((level.E * myAction.R[1]) / Rtot) * 100) / 100,
+            Math.round(((level.E * myAction.R[2]) / Rtot) * 100) / 100
+        ];
+    }
     return myAction;
 }
 
@@ -84,7 +92,7 @@ function duplicate(action) {
                 checkActor = checkAct.actor;
                 checkTime = checkAct.uTime;
                 checkType = checkAct.type;
-                dup[i] = ((checkActor == thisActor) && (checkType == thisType) && (Math.abs(checkTime - thisTime) < 0.1))
+                dup[i] = ((checkActor == thisActor) && (checkType == thisType) && (Math.abs(checkTime - thisTime) < 0.5))
             } else {
                 dup[i] = false;
             }
@@ -123,41 +131,28 @@ function addDisconnectLead(ro) {
 }
 
 function addRChange(ro) {
-    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
     var myAction = addAction(ro, "resistorChange");
-    var level = myAction.level;
-    var newR1 = po["r1"];
-    var newR2 = po["r2"];
-    var newR3 = po["r3"];
-    if ((!isNaN(newR1 + newR2 + newR3)) &&
-        ((newR1 != level.oldR1) || (newR2 != level.oldR2) || (newR3 != level.oldR3))) {
-        myAction.oldR1 = level.oldR1;
-        myAction.oldR2 = level.oldR2;
-        myAction.oldR3 = level.oldR3;
-        myAction.newR1 = parseInt(newR1);
-        myAction.newR2 = parseInt(newR2);
-        myAction.newR3 = parseInt(newR3);
-        myAction.level.oldR1 = myAction.newR1;
-        myAction.level.oldR2 = myAction.newR2;
-        myAction.level.oldR3 = myAction.newR3;
-        switch (myAction.board) {
-            case 1:
-                myAction.changedRName = "R1";
-                myAction.changedROld = myAction.oldR1;
-                myAction.changedRNew = myAction.newR1;
-                break;
-            case 2:
-                myAction.changedRName = "R2";
-                myAction.changedROld = myAction.oldR2;
-                myAction.changedRNew = myAction.newR2;
-                break;
-            case 3:
-                myAction.changedRName = "R3";
-                myAction.changedROld = myAction.oldR3;
-                myAction.changedRNew = myAction.newR3;
-                break;
+    var level = myAction.level,
+        bd = myAction.board;
+    myAction.oldR = [level.R[0], level.R[1], level.R[2]];
+    myAction.oldV = [level.V[0], level.V[1], level.V[2]];
+    //if the new resistor values are all numbers and at least one of them is indeed new
+    if ((!(isNaN(myAction.R[0])) && !(isNaN(myAction.R[1])) && !(isNaN(myAction.R[2]))) &&
+        ((myAction.R[0] != myAction.oldR[0]) || (myAction.R[1] != myAction.oldR[1]) || (myAction.R[2] != myAction.oldR[2]))) {
+        myAction.oldGoalDifference = myAction.oldV[bd] - level.goalV[bd];
+        myAction.newGoalDifference = myAction.V[bd] - level.goalV[bd];
+        if (Math.abs(myAction.newGoalDifference) < .01) {
+            myAction.goalMsg = ". Goal achieved";
+        } else if (Math.sign(myAction.oldGoalDifference) != Math.sign(myAction.newGoalDifference)) {
+            myAction.goalMsg = ". Goal overshot";
+        } else if (Math.abs(myAction.newGoalDifference) < Math.abs(myAction.oldGoalDifference)) {
+            myAction.goalMsg = ". Goal closer";
+        } else if (Math.abs(myAction.newGoalDifference) > Math.abs(myAction.oldGoalDifference)) {
+            myAction.goalMsg = ". Goal farther";
         }
-        myAction.level.actions.push(myAction);
+        level.R = myAction.R; // Update level so that we have something to compare to next time around
+        level.V = myAction.V;
+        myAction.level.actions.push(myAction); //and push the action onto the level
     }
 }
 
@@ -189,29 +184,31 @@ function addSubmit(ro) {
             break;
     }
     var myAction = addAction(ro, type);
-    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    var newR1 = po["r1"];
-    var newR2 = po["r2"];
-    var newR3 = po["r3"];
-    myAction.newR1 = parseInt(newR1);
-    myAction.newR2 = parseInt(newR2);
-    myAction.newR3 = parseInt(newR3);
-    if (myAction.type == "submitCorrect") {
-        if (!level.success) {
-            myAction.level.success = true;
-            //        console.log("success at level " + myAction.level.label + "!");
+    if (!duplicate(myAction)) {
+        var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+        var newR1 = po["r1"];
+        var newR2 = po["r2"];
+        var newR3 = po["r3"];
+        myAction.newR1 = parseInt(newR1);
+        myAction.newR2 = parseInt(newR2);
+        myAction.newR3 = parseInt(newR3);
+        if (myAction.type == "submitCorrect") {
+            if (!level.success) {
+                myAction.level.success = true;
+                //        console.log("success at level " + myAction.level.label + "!");
+            }
+        } else if (myAction.type == "submitUnknown") {
+            myAction.rNeed = ro["R: Need"];
+            myAction.rHaveValue = ro["R: Have Value"];
+            myAction.rHaveUnit = ro["R: Have Unit"];
+            myAction.rCorrect = ro["R: Correct"];
+            myAction.eNeed = ro["E: Need"];
+            myAction.eHaveUnit = ro["E: Have Unit"];
+            myAction.eHaveValue = ro["E: Have Value"];
+            myAction.eCorrect = ro["E: Correct"];
         }
-    } else if (myAction.type == "submitUnknown") {
-        myAction.rNeed = ro["R: Need"];
-        myAction.rHaveValue = ro["R: Have Value"];
-        myAction.rHaveUnit = ro["R: Have Unit"];
-        myAction.rCorrect = ro["R: Correct"];
-        myAction.eNeed = ro["E: Need"];
-        myAction.eHaveUnit = ro["E: Have Unit"];
-        myAction.eHaveValue = ro["E: Have Value"];
-        myAction.eCorrect = ro["E: Correct"];
+        myAction.level.actions.push(myAction);
     }
-    myAction.level.actions.push(myAction);
 }
 
 function addAttachProbe(ro) {
