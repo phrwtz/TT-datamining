@@ -12,11 +12,11 @@ function reportResults(teams) {
                     document.getElementById("demo").innerHTML += ("<br><mark>" +
                         team.name + ", level " + level.label +
                         ":  E = " + level.E + ", R0 = " + level.R0 +
-                        ", goalV1 = " + goalVoltages[0] + ", goalV2 = " + goalVoltages[1] + ", goalV3 = " + goalVoltages[2] +
-                        levelMsg + "</mark><br><br>");
+                        ", goal V1 = " + goalVoltages[0] + ", goal V2 = " + goalVoltages[1] + ", goal V3 = " + goalVoltages[2] +
+                        "; goal R1 = " + level.goalR[0] + ", goal R2 = " + level.goalR[1] + ", goal R3 = " + level.goalR[2] + levelMsg + "</mark><br><br>");
                     for (var i = 0; i < acts.length; i++) {
                         var preTime,
-                            interval = 10, //Maximum interval between logged actions for considering them linked.
+                            interval = 30, //Maximum interval between logged actions for considering them linked.
                             act = acts[i],
                             bd = act.board,
                             actor = act.actor
@@ -52,9 +52,12 @@ function reportResults(teams) {
                                     }
                                     preTime = act.uTime;
                                     document.getElementById("demo").innerHTML += (act.date + ", " + act.time +
-                                        ": " + styledName + " changed R" + bd + " from " + act.oldR[bd - 1] +
-                                        " to " + act.R[bd - 1] + ", V" + bd + " changed from " + act.oldV[bd - 1] +
-                                        " to " + act.V[bd - 1] + act.goalMsg + "<br>");
+                                        ": " + styledName + " changed R" + (bd + 1) + " from " + act.oldR[bd] +
+                                        " to " + act.R[bd] + ", V" + (bd + 1) + " changed from " + act.oldV[bd] +
+                                        " to " + act.V[bd] + ". (Goal is " + level.goalV[bd] + ")" + act.goalMsg + "<br>");
+                                    document.getElementById("demo").innerHTML += ("R1 = " + act.R[0] + " R2 = " + act.R[1] + " R3 = " + act.R[2] + "<br>");
+                                    document.getElementById("demo").innerHTML += ("V1 = " + act.V[0] + " V2 = " + act.V[1] + " V3 = " + act.V[2] + "<br>");
+
                                 }
                                 break;
 
@@ -174,4 +177,71 @@ function reportResults(teams) {
             }
         }
     }
+}
+
+function reportSummary(teams) {
+    var count = {};
+    if ($("#summary-change-types")[0].checked) {
+        for (var k = 0; k < teams.length; k++) {
+            var team = teams[k];
+            if ($("#team-" + team.name)[0].checked) {
+                count[team.name] = {};
+                for (var j = 0; j < team.levels.length; j++) {
+                    var level = team.levels[j];
+                    if ($("#level-" + level.label)[0].checked) {
+                        count[team.name][level.label] = {};
+                        var acts = level.actions;
+                        for (var i = 0; i < team.members.length; i++) {
+                            var member = team.members[i];
+                            count[team.name][level.label][member.name] = {};
+                            count[team.name][level.label][member.name].achieved = 0;
+                            count[team.name][level.label][member.name].overshot = 0;
+                            count[team.name][level.label][member.name].closer = 0;
+                            count[team.name][level.label][member.name].farther = 0;
+                        } //clear all the counts for all members for this level
+                        for (var ii = 0; ii < acts.length; ii++) {
+                            act = acts[ii];
+                            if (act.type == "resistorChange") {
+                                member = act.actor;
+                                if (act.goalMsg == ". Goal achieved") {
+                                    count[team.name][level.label][member.name].achieved += 1;
+                                } else
+                                if (act.goalMsg == ". Goal overshot") {
+                                    count[team.name][level.label][member.name].overshot += 1;
+                                } else {
+
+                                }
+                                if (act.goalMsg == ". Goal closer") {
+                                    count[team.name][level.label][member.name].closer += 1;
+                                } else
+                                if (act.goalMsg == ". Goal farther") {
+                                    count[team.name][level.label][member.name].farther += 1;
+                                }
+                            } //end of resistor change
+                        } //end of actions
+                    } //end of level check
+                } //end of levels loop
+            } //end of team check
+        } //end of teams loop
+        document.getElementById("demo").innerHTML += ('<mark><br> <tr> <td colspan = "4" align = "center" > Summary Resistor Change Report </td> </tr><br><br></mark>');
+        for (var k = 0; k < teams.length; k++) {
+            team = teams[k];
+            if ($("#team-" + team.name)[0].checked) {
+                document.getElementById("demo").innerHTML += ("<br><br>");
+                for (var j = 0; j < team.levels.length; j++) {
+                    level = team.levels[j];
+                    if ($("#level-" + level.label)[0].checked) {
+                        document.getElementById("demo").innerHTML += ("<br>");
+                        for (var i = 0; i < team.members.length; i++) {
+                            member = team.members[i];
+                            document.getElementById("demo").innerHTML += ("Team: " + team.name + ", level " + level.label +
+                                ", member " + member.styledName + ": achieved = " +
+                                count[team.name][level.label][member.name].achieved + ", overshot = " + count[team.name][level.label][member.name].overshot +
+                                ", closer = " + count[team.name][level.label][member.name].closer + ", farther = " + count[team.name][level.label][member.name].farther + "<br>");
+                        }
+                    }
+                }
+            }
+        }
+    } //end of summary check
 }
