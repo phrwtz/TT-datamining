@@ -22,6 +22,7 @@
             <th>Teams</th>
             <th>Levels</th>
             <th>Actions</th>
+            <th>Summary Data</th>
         </tr>
         <tr>
             <td>
@@ -68,6 +69,9 @@
                 <input type="checkbox" name="action" id="action-joined-group"> Joined Group
                 <br>
             </td>
+            <td>
+                <input type="checkbox" name="RChangeTypes" id="summary-change-types"> Resistor change types by level
+            </td>
         </tr>
     </table>
     <input type="submit" action="parseCSV()">
@@ -97,7 +101,7 @@
 
         function parseCSV(theForm) {
             teams = []; //Clear the teams array (which might be populated if we haven't
-          //refreshed the page).
+            //refreshed the page).
             document.getElementById("demo").innerHTML = "";
             var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.csv)$/;
             if (regex.test(fileInput.value)) {
@@ -117,7 +121,9 @@
                         changes = analyze(rowObjs);
                         console.log("analysis complete");
                         reportResults(teams);
-
+                        console.log("results reported");
+                        reportSummary(teams);
+                        console.log("summaries reported");
                     }
                     reader.readAsText(fileInput.files[0]);
                 } else {
