@@ -1,13 +1,13 @@
 function highlight(act, text) { //Highlights the variable names, if any, in chats
     try {
         var newText = (typeof(text) === "string" ? text : text.toString());
-        var pattern = new RegExp(/([0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
+        var pattern = new RegExp(/([^A-Z,a-z][0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
         while ((match = pattern.exec(text)) != null) {
             newText = newText.replace(match[0], match[0] + " <mark>" + compareNumbers(act, match[0]) + "</mark>");
         }
         return newText;
     } catch (err) {
-        console.log(err + ", act.type = " + act.type);
+        console.log(err + " In hightlight, act.type = " + act.type);
     }
 }
 
@@ -28,16 +28,15 @@ function compareNumbers(act, numStr) { //Takes extracted number string, converts
         V2 = act.V[1],
         V3 = act.V[2],
         Rtot = R0 + R1 + R2 + R3,
-        I = Math.round((E / Rtot) * 100) / 100;
+        IA = E / Rtot,
+        ImA = 1000 * IA,
+        tolerance = .1; //How close (in absolute value) two numbers have to be to considered "about equal"
     switch (num) {
         case E:
             return "[E]";
             break;
         case R0:
             return "[R0]";
-            break;
-        case I:
-            return "[I]";
             break;
         case R1:
             return "[R1]";
@@ -67,7 +66,13 @@ function compareNumbers(act, numStr) { //Takes extracted number string, converts
             return "[V3]";
             break;
     }
-    return ""; //Return empty string if no match found
+    if (about(num, IA, tolerance)) {
+        return "[I(A)]";
+    } else if (about(num, ImA, tolerance)) {
+        return "[I(mA)]";
+    } else {
+        return ""; //Return empty string if no match found
+    }
 }
 
 function makeTeams(rowObjs) { //parse the row objects array looking for and populating teams
@@ -81,6 +86,14 @@ function makeTeams(rowObjs) { //parse the row objects array looking for and popu
         return teams;
     } catch (err) {
         console.log("In makeTeams, error = " + err);
+    }
+}
+
+function about(num, target, tolerance) {
+    if (Math.abs(num - target) < tolerance) {
+        return true
+    } else {
+        return false
     }
 }
 
@@ -142,6 +155,7 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
             myLevel.initR = [parseInt(po["R1"]), parseInt(po["R2"]), parseInt(po["R3"])];
             myLevel.R = [parseInt(po["R1"]), parseInt(po["R2"]), parseInt(po["R3"])];
             var Rtot = myLevel.R0 + myLevel.R[0] + myLevel.R[1] + myLevel.R[2];
+            myLevel.I = Math.round((myLevel.E / Rtot) * 100000) / 100000;
             myLevel.V = [Math.round(((myLevel.E * myLevel.R[0]) / Rtot) * 100) / 100,
                 Math.round(((myLevel.E * myLevel.R[1]) / Rtot) * 100) / 100,
                 Math.round(((myLevel.E * myLevel.R[2]) / Rtot) * 100) / 100
