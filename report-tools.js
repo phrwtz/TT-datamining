@@ -11,9 +11,11 @@ function reportResults(teams) {
                     var levelMsg = (level.success ? ". Level succeeded." : ". Level failed.");
                     document.getElementById("demo").innerHTML += ("<br><mark>" +
                         team.name + ", level " + level.label +
-                        ":  E = " + level.E + ", R0 = " + level.R0 +
-                        ", goal V1 = " + goalVoltages[0] + ", goal V2 = " + goalVoltages[1] + ", goal V3 = " + goalVoltages[2] +
-                        "; goal R1 = " + level.goalR[0] + ", goal R2 = " + level.goalR[1] + ", goal R3 = " + level.goalR[2] + levelMsg + "</mark><br><br>");
+                        ":  E = " + level.E + ", R0 = " + level.R0 + ", R1 = " + level.initR[0] + ", R2 = " + level.initR[2] + ", R3 = " + level.initR[2] +
+                        ", current = " + level.I + ", goal V1 = " + goalVoltages[0] +
+                        ", goal V2 = " + goalVoltages[1] + ", goal V3 = " + goalVoltages[2] +
+                        "; goal R1 = " + level.goalR[0] + ", goal R2 = " + level.goalR[1] +
+                        ", goal R3 = " + level.goalR[2] + levelMsg + "</mark><br><br>");
                     for (var i = 0; i < acts.length; i++) {
                         var preTime,
                             interval = 30, //Maximum interval between logged actions for considering them linked.
@@ -101,8 +103,10 @@ function reportResults(teams) {
                                         document.getElementById("demo").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time +
+                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " +
                                         act.actor.styledName + " said: " + "\"" + highlight(act, act.msg) + "\"<br>");
+                                    //     document.getElementById("demo").innerHTML += ("R1 = " + act.R[0] + " R2 = " + act.R[1] + " R3 = " + act.R[2] + "<br>");
+                                    //     document.getElementById("demo").innerHTML += ("V1 = " + act.V[0] + " V2 = " + act.V[1] + " V3 = " + act.V[2] + "<br>");
                                 }
                                 break;
 
@@ -179,6 +183,7 @@ function reportResults(teams) {
     }
 }
 
+//Reports on total number of resistor changes in each category for each team member, per level.
 function reportSummary(teams) {
     var count = {};
     if ($("#summary-change-types")[0].checked) {
@@ -196,6 +201,7 @@ function reportSummary(teams) {
                             count[team.name][level.label][member.name] = {};
                             count[team.name][level.label][member.name].achieved = 0;
                             count[team.name][level.label][member.name].overshot = 0;
+                            count[team.name][level.label][member.name].undershot = 0;
                             count[team.name][level.label][member.name].closer = 0;
                             count[team.name][level.label][member.name].farther = 0;
                         } //clear all the counts for all members for this level
@@ -203,20 +209,23 @@ function reportSummary(teams) {
                             act = acts[ii];
                             if (act.type == "resistorChange") {
                                 member = act.actor;
-                                if (act.goalMsg == ". Goal achieved") {
-                                    count[team.name][level.label][member.name].achieved += 1;
-                                } else
-                                if (act.goalMsg == ". Goal overshot") {
-                                    count[team.name][level.label][member.name].overshot += 1;
-                                } else {
-
-                                }
-                                if (act.goalMsg == ". Goal closer") {
-                                    count[team.name][level.label][member.name].closer += 1;
-                                } else
-                                if (act.goalMsg == ". Goal farther") {
-                                    count[team.name][level.label][member.name].farther += 1;
-                                }
+                                switch (act.goalMsg) {
+                                    case ". Goal achieved":
+                                        count[team.name][level.label][member.name].achieved += 1;
+                                        break;
+                                    case ". Goal overshot":
+                                        count[team.name][level.label][member.name].overshot += 1;
+                                        break;
+                                    case ". Goal undershot":
+                                        count[team.name][level.label][member.name].undershot += 1;
+                                        break;
+                                    case ". Goal closer":
+                                        count[team.name][level.label][member.name].closer += 1;
+                                        break;
+                                    case ". Goal farther":
+                                        count[team.name][level.label][member.name].farther += 1;
+                                        break;
+                                } //end of goalMsg switch
                             } //end of resistor change
                         } //end of actions
                     } //end of level check
@@ -236,12 +245,44 @@ function reportSummary(teams) {
                             member = team.members[i];
                             document.getElementById("demo").innerHTML += ("Team: " + team.name + ", level " + level.label +
                                 ", member " + member.styledName + ": achieved = " +
-                                count[team.name][level.label][member.name].achieved + ", overshot = " + count[team.name][level.label][member.name].overshot +
-                                ", closer = " + count[team.name][level.label][member.name].closer + ", farther = " + count[team.name][level.label][member.name].farther + "<br>");
+                                count[team.name][level.label][member.name].achieved + ", overshot = " +
+                                count[team.name][level.label][member.name].overshot + ", undershot = " +
+                                count[team.name][level.label][member.name].undershot + ", closer = " +
+                                count[team.name][level.label][member.name].closer + ", farther = " +
+                                count[team.name][level.label][member.name].farther + "<br>");
                         }
                     }
                 }
             }
         }
     } //end of summary check
+}
+//Identifies instances of "voltage regulator behavior" by looking for pairs of resistor changes where
+//(a) the actor for the second is not the same as the actor for the first
+//(b) the first moved the voltage of the second actor away from the goal
+//(c) the second moves the voltage closer to the goal or overshoots, and
+//(d) the second follows the first by no more than <timeInterval> seconds
+//if additional resistor changes occur within the same <timeInterval> by the second player
+//and are goal seeking, they are to be added to the voltage regulator transaction.
+//Returns the array of resistorChange actions that belong to the transaction.
+function reportVoltageRegulator(level) {
+    var team = level.team;
+    var act = {};
+    var timeInterval = 30;
+    var previousActions = [];
+    for (i = 0; i < level.actions.length; i++) {
+        act = level.actions[i];
+        if (act.type = "resistorChange") {
+            for (var j = 0; j < previousActions.length; j++) {
+                preAct = previousActions[j];
+                if (act.uTime - preAct.uTime > timeInterval) {
+                    splice(previousActions, 0);
+                } else if (act.actor != preAct.actor) {
+                    //check to see if preAct caused act.actor's voltage to move away from his goal
+                    //check to see if act moved act.actor's voltage toward his goal
+                }
+            }
+
+        }
+    }
 }

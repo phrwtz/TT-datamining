@@ -133,7 +133,10 @@ function addDisconnectLead(ro) {
 function addRChange(ro) {
     var myAction = addAction(ro, "resistorChange");
     var level = myAction.level,
-        bd = myAction.board;
+        bd = myAction.board,
+        bdA = (bd + 1) % 3,
+        bdB = (bd + 2) % 3;
+
     myAction.oldR = [level.R[0], level.R[1], level.R[2]];
     myAction.oldV = [level.V[0], level.V[1], level.V[2]];
     //if the new resistor values are all numbers and at least one of them is indeed new
@@ -141,14 +144,50 @@ function addRChange(ro) {
         ((myAction.R[0] != myAction.oldR[0]) || (myAction.R[1] != myAction.oldR[1]) || (myAction.R[2] != myAction.oldR[2]))) {
         myAction.oldGoalDifference = myAction.oldV[bd] - level.goalV[bd];
         myAction.newGoalDifference = myAction.V[bd] - level.goalV[bd];
+        myAction.oldGoalADifference = myAction.oldV[bdA] - level.goalV[bdA];
+        myAction.newGoalADifference = myAction.V[bdA] - level.goalV[bdA];
+        myAction.oldGoalBDifference = myAction.oldV[bdB] - level.goalV[bdB];
+        myAction.newGoalBDifference = myAction.V[bdB] - level.goalV[bdB];
         if (Math.abs(myAction.newGoalDifference) < .01) {
             myAction.goalMsg = ". Goal achieved";
-        } else if (Math.sign(myAction.oldGoalDifference) != Math.sign(myAction.newGoalDifference)) {
+        } else if (Math.sign(myAction.oldGoalDifference) != Math.sign(myAction.newGoalDifference) &&
+            (myAction.newGoalDifference > 0)) {
             myAction.goalMsg = ". Goal overshot";
+        } else if (Math.sign(myAction.oldGoalDifference) != Math.sign(myAction.newGoalDifference) &&
+            (myAction.newGoalDifference < 0)) {
+            myAction.goalMsg = ". Goal undershot";
         } else if (Math.abs(myAction.newGoalDifference) < Math.abs(myAction.oldGoalDifference)) {
             myAction.goalMsg = ". Goal closer";
         } else if (Math.abs(myAction.newGoalDifference) > Math.abs(myAction.oldGoalDifference)) {
             myAction.goalMsg = ". Goal farther";
+        }
+
+        if (Math.abs(myAction.newGoalADifference) < .01) {
+            myAction.GoalAMsg = ". Goal achieved";
+        } else if (Math.sign(myAction.oldGoalADifference) != Math.sign(myAction.newGoalADifference) &&
+            (myAction.newGoalADifference > 0)) {
+            myAction.GoalAMsg = ". Goal overshot";
+        } else if (Math.sign(myAction.oldGoalADifference) != Math.sign(myAction.newGoalADifference) &&
+            (myAction.newGoalADifference < 0)) {
+            myAction.GoalAMsg = ". Goal undershot";
+        } else if (Math.abs(myAction.newGoalADifference) < Math.abs(myAction.oldGoalADifference)) {
+            myAction.GoalAMsg = ". Goal closer";
+        } else if (Math.abs(myAction.newGoalADifference) > Math.abs(myAction.oldGoalADifference)) {
+            myAction.GoalAMsg = ". Goal farther";
+        }
+
+        if (Math.abs(myAction.newGoalBDifference) < .01) {
+            myAction.GoalBMsg = ". Goal achieved";
+        } else if (Math.sign(myAction.oldGoalBDifference) != Math.sign(myAction.newGoalBDifference) &&
+            (myAction.newGoalBDifference > 0)) {
+            myAction.GoalBMsg = ". Goal overshot";
+        } else if (Math.sign(myAction.oldGoalBDifference) != Math.sign(myAction.newGoalBDifference) &&
+            (myAction.newGoalBDifference < 0)) {
+            myAction.GoalBMsg = ". Goal undershot";
+        } else if (Math.abs(myAction.newGoalBDifference) < Math.abs(myAction.oldGoalBDifference)) {
+            myAction.GoalBMsg = ". Goal closer";
+        } else if (Math.abs(myAction.newGoalBDifference) > Math.abs(myAction.oldGoalBDifference)) {
+            myAction.GoalBMsg = ". Goal farther";
         }
         level.R = myAction.R; // Update level so that we have something to compare to next time around
         level.V = myAction.V;
@@ -159,6 +198,8 @@ function addRChange(ro) {
 function addMessage(ro) {
     var myAction = addAction(ro, "message");
     myAction.msg = ro["event_value"];
+    myAction.R = myAction.level.R;
+    myAction.V = myAction.level.V;
     myAction.level.actions.push(myAction);
 }
 
