@@ -4,8 +4,7 @@
 <head>
     <title>Data Analysis</title>
 </head>
-<h1>Log file analysis</h1>
-
+<h1>Test JavaScript-DOM Interactions</h1
 
 <body>
     <input type="file" id="fileInput">
@@ -16,66 +15,7 @@
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
 </body>
 
-<form action="#" onsubmit="parseCSV(this); return false">
-    <table>
-        <tr>
-            <th>Teams</th>
-            <th>Levels</th>
-            <th>Actions</th>
-            <th>Summary Data</th>
-        </tr>
-        <tr>
-            <td>
-                <input type="checkbox" name="team" id="all-teams" onchange="toggleSelectAll('team')"> All teams
-                <br>
-                <input type="checkbox" name="team" id="team-Weather"> Weather
-                <br>
-                <input type="checkbox" name="team" id="team-Pets"> Pets
-                <br>
-                <input type="checkbox" name="team" id="team-Dogs"> Dogs
-                <br>
-            </td>
-            <td>
-                <input type="checkbox" name="level" id="all-levels" onchange="toggleSelectAll('level')"> All levels
-                <br>
-                <input type="checkbox" name="level" id="level-A"> A
-                <br>
-                <input type="checkbox" name="level" id="level-B"> B
-                <br>
-                <input type="checkbox" name="level" id="level-C"> C
-                <br>
-                <input type="checkbox" name="level" id="level-D"> D
-                <br>
-            </td>
-            <td>
-                <input type="checkbox" name="action" id="all-actions" onchange="toggleSelectAll('action')"> All actions
-                <br>
-                <input type="checkbox" name="action" id="action-message"> Chats
-                <br>
-                <input type="checkbox" name="action" id=action-calculation> Calculations
-                <br>
-                <input type="checkbox" name="action" id="action-resistorChange"> Resistor Changes
-                <br>
-                <input type="checkbox" name="action" id="action-attach-probe"> Attach Probe
-                <br>
-                <input type="checkbox" name="action" id="action-detach-probe"> Detach Probe
-                <br>
-                <input type="checkbox" name="action" id="action-connect-lead"> Connect Lead
-                <br>
-                <input type="checkbox" name="action" id="action-disconnect-lead"> Disconnect Lead
-                <br>
-                <input type="checkbox" name="action" id="action-submit"> Submits
-                <br>
-                <input type="checkbox" name="action" id="action-joined-group"> Joined Group
-                <br>
-            </td>
-            <td>
-                <input type="checkbox" name="RChangeTypes" id="summary-change-types"> Resistor change types by level
-                <br>
-                    <input type="checkbox" name="voltageRegulator" id="voltage-regulator"> Voltage regulator behavior
-            </td>
-        </tr>
-    </table>
+<form action="#" id = "radioForm" onsubmit="parseCSV(this); return false">
     <input type="submit" action="parseCSV()">
 </form>
 
@@ -122,6 +62,51 @@
                         console.log("teams generated");
                         changes = analyze(rowObjs);
                         console.log("analysis complete");
+                        var radioTable = document.createElement("table");
+                        radioForm.appendChild(radioTable);
+                        var headerRow = document.createElement("tr");
+                        var checkBoxRow = document.createElement("tr");
+                        radioTable.appendChild(headerRow);
+                        var headerCell1 = document.createElement("th");
+                        var headerCell2 = document.createElement("th");
+                        var headerCell3 = document.createElement("th");
+                        var headerCell4 = document.createElement("th");
+                        headerCell1.innerHTML = "Teams";
+                        headerCell2.innerHTML = "Levels";
+                        headerCell3.innerHTML = "Actions";
+                        headerCell4.innerHTML = "Summary Data";
+                        headerRow.appendChild(headerCell1);
+                        headerRow.appendChild(headerCell2);
+                        headerRow.appendChild(headerCell3);
+                        headerRow.appendChild(headerCell4);
+                        var teamData = document.createElement("td");
+                        var levelData = document.createElement("td");
+                        var actionData = document.createElement("td");
+                        var summaryData = document.createElement("td");
+                        var typeStr = '<input type="checkbox"  ';
+                        var IDStr = 'id="all-teams" ';
+                        var onChangeStr= 'onchange="toggleSelectAll("team")">';
+                        var labelStr = 'All teams<br>';
+                        teamData.innerHTML = typeStr + onChangeStr + labelStr;
+                        for (var i = 0; i<teams.length; i++) {
+                          IDStr = 'id=team-' + teams[i].name + "> ";
+                          labelStr = teams[i].name + "<br>";
+                          teamData.innerHTML += typeStr + IDStr + labelStr;
+                        }
+                        IDStr = 'id="all-levels" ';
+                        onChangeStr = 'onchange="toggleSelectAll("level")">';
+                        labelStr = 'All levels<br>';
+                        levelData.innerHTML = typeStr + onChangeStr + labelStr;
+                        var labels = ["A","B","C","D"];
+                        for (j= 0; j<labels.length; j++) {
+                          IDStr = 'id=level-' + labels[j] + "> ";
+                          labelStr = labels[j] + "<br>";
+                          levelData.innerHTML += typeStr + IDStr + labelStr;
+                        }
+                        checkBoxRow.appendChild(teamData);
+                        checkBoxRow.appendChild(levelData);
+                        radioTable.appendChild(checkBoxRow);
+
                         reportResults(teams);
                         console.log("results reported");
                         reportSummary(teams);

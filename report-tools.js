@@ -7,18 +7,17 @@ function reportResults(teams) {
                 var level = team.levels[j];
                 if ($("#level-" + level.label)[0].checked) {
                     var acts = level.actions;
-                    var goalVoltages = [level.goalV[0], level.goalV[1], level.goalV[2]];
                     var levelMsg = (level.success ? ". Level succeeded." : ". Level failed.");
                     document.getElementById("demo").innerHTML += ("<br><mark>" +
                         team.name + ", level " + level.label +
                         ":  E = " + level.E + ", R0 = " + level.R0 + ", R1 = " + level.initR[0] + ", R2 = " + level.initR[2] + ", R3 = " + level.initR[2] +
-                        ", current = " + level.I + ", goal V1 = " + goalVoltages[0] +
-                        ", goal V2 = " + goalVoltages[1] + ", goal V3 = " + goalVoltages[2] +
+                        ", current = " + level.I + ", goal V1 = " + level.goalV[0] +
+                        ", goal V2 = " + level.goalV[1] + ", goal V3 = " + level.goalV[2] +
                         "; goal R1 = " + level.goalR[0] + ", goal R2 = " + level.goalR[1] +
                         ", goal R3 = " + level.goalR[2] + levelMsg + "</mark><br><br>");
                     for (var i = 0; i < acts.length; i++) {
                         var preTime,
-                            interval = 30, //Maximum interval between logged actions for considering them linked.
+                            interval = 45, //Maximum interval between logged actions for considering them linked.
                             act = acts[i],
                             bd = act.board,
                             actor = act.actor
@@ -232,7 +231,7 @@ function reportSummary(teams) {
                 } //end of levels loop
             } //end of team check
         } //end of teams loop
-        document.getElementById("demo").innerHTML += ('<mark><br> <tr> <td colspan = "4" align = "center" > Summary Resistor Change Report </td> </tr><br><br></mark>');
+        document.getElementById("demo").innerHTML += ('<mark> <br> <tr> <td colspan = "4" align = "center" > Summary Resistor Change Report </td> </tr><br></mark>');
         for (var k = 0; k < teams.length; k++) {
             team = teams[k];
             if ($("#team-" + team.name)[0].checked) {
@@ -265,24 +264,39 @@ function reportSummary(teams) {
 //if additional resistor changes occur within the same <timeInterval> by the second player
 //and are goal seeking, they are to be added to the voltage regulator transaction.
 //Returns the array of resistorChange actions that belong to the transaction.
-function reportVoltageRegulator(level) {
-    var team = level.team;
-    var act = {};
-    var timeInterval = 30;
-    var previousActions = [];
-    for (i = 0; i < level.actions.length; i++) {
-        act = level.actions[i];
-        if (act.type = "resistorChange") {
-            for (var j = 0; j < previousActions.length; j++) {
-                preAct = previousActions[j];
-                if (act.uTime - preAct.uTime > timeInterval) {
-                    splice(previousActions, 0);
-                } else if (act.actor != preAct.actor) {
-                    //check to see if preAct caused act.actor's voltage to move away from his goal
-                    //check to see if act moved act.actor's voltage toward his goal
+function reportVoltageRegulator(teams) {
+    if ($("#voltage-regulator")[0].checked) {
+        for (var k = 0; k < teams.length; k++) {
+            var team = teams[k];
+            if ($("#team-" + team.name)[0].checked) {
+                for (var j = 0; j < team.levels.length; j++) {
+                    level = team.levels[j];
+                    if ($("#level-" + level.label)[0].checked) {
+                        for (i = 0; i < level.actions.length; i++) {
+                            act = level.actions[i];
+                            if (act.type = "resistorChange") {
+                                var previousActions = [];
+                                for (var j = 0; j < previousActions.length; j++) {
+                                    preAct = previousActions[j];
+                                    if (act.uTime - preAct.uTime < interval) {
+                                        previousActions.splice(j, 1); //If the j'th element in the array is too old, get rid ot it.
+                                    } else {
+                                        var board = act.board;
+                                        var preBoard = preAct.board;
+                                        bdDiff = (board - preBoard) % 3;
+                                        if (bdDiff != 0) { //If the two resistor changes were by different boards
+                                            var preGoalMsg = (bdDiff = 1 ? preAct.goalAMsg : preAct.goalBMsg);
+                                            if ((preGoalMsg == ". Goal farther") && (act.goalMsg = ". Goal closer")) {
+                                                console.log("Voltage regulator activity identified!");
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
-
         }
     }
 }
