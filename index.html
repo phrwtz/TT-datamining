@@ -16,7 +16,7 @@
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
 </body>
 
-<form action="#" onsubmit="parseCSV(this); return false">
+<form onsubmit="parseCSV(this); return false">
     <table>
         <tr>
             <th>Teams</th>
@@ -80,7 +80,6 @@
 </form>
 
 <p id="demo"></p>
-<form onsubmit="parseCSV(); return false">
     <script>
         var team = function() {};
         var level = function() {};
@@ -101,7 +100,7 @@
             }
         }
 
-        function parseCSV(theForm) {
+        function parseCSV() {
             teams = []; //Clear the teams array (which might be populated if we haven't
             //refreshed the page).
             document.getElementById("demo").innerHTML = "";

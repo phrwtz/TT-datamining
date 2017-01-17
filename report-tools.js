@@ -1,5 +1,15 @@
+function generateReport(teams) {
+    reportResults(teams);
+    console.log("results reported");
+    //    return false;
+    // reportSummary(teams);
+    // console.log("summaries reported");
+    // reportVoltageRegulator(teams);
+    // console.log("voltage regulator reported");
+}
+
 function reportResults(teams) {
-    document.getElementById("demo").innerHTML = "";
+    document.getElementById("data").innerHTML = "";
     for (var k = 0; k < teams.length; k++) {
         var team = teams[k];
         if ($("#team-" + team.name)[0].checked) {
@@ -8,7 +18,7 @@ function reportResults(teams) {
                 if ($("#level-" + level.label)[0].checked) {
                     var acts = level.actions;
                     var levelMsg = (level.success ? ". Level succeeded." : ". Level failed.");
-                    document.getElementById("demo").innerHTML += ("<br><mark>" +
+                    document.getElementById("data").innerHTML += ("<br><mark>" +
                         team.name + ", level " + level.label +
                         ":  E = " + level.E + ", R0 = " + level.R0 + ", R1 = " + level.initR[0] + ", R2 = " + level.initR[2] + ", R3 = " + level.initR[2] +
                         ", current = " + level.I + ", goal V1 = " + level.goalV[0] +
@@ -35,13 +45,13 @@ function reportResults(teams) {
                                         success = true;
                                     }
                                     var successMsg = (success ? ", goal voltages achieved" : ", goal voltages not achieved");
-                                    document.getElementById("demo").innerHTML += ("Submit clicked" + successMsg + "<br>");
+                                    document.getElementById("data").innerHTML += ("Submit clicked" + successMsg + "<br>");
                                 }
                                 break;
 
                             case "submitCorrect":
                                 if ($("#action-submit")[0].checked) {
-                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " +
+                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " +
                                         act.actor.styledName + " submitted correct answers.<br>");
                                 }
                                 break;
@@ -49,15 +59,15 @@ function reportResults(teams) {
                             case "resistorChange":
                                 if ($("#action-resistorChange")[0].checked) {
                                     if ((act.uTime - preTime) > interval) {
-                                        document.getElementById("demo").innerHTML += "<hr>"
+                                        document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time +
+                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time +
                                         ": " + styledName + " changed R" + (bd + 1) + " from " + act.oldR[bd] +
                                         " to " + act.R[bd] + ", V" + (bd + 1) + " changed from " + act.oldV[bd] +
                                         " to " + act.V[bd] + ". (Goal is " + level.goalV[bd] + ")" + act.goalMsg + "<br>");
-                                    document.getElementById("demo").innerHTML += ("R1 = " + act.R[0] + " R2 = " + act.R[1] + " R3 = " + act.R[2] + "<br>");
-                                    document.getElementById("demo").innerHTML += ("V1 = " + act.V[0] + " V2 = " + act.V[1] + " V3 = " + act.V[2] + "<br>");
+                                    document.getElementById("data").innerHTML += ("R1 = " + act.R[0] + " R2 = " + act.R[1] + " R3 = " + act.R[2] + "<br>");
+                                    document.getElementById("data").innerHTML += ("V1 = " + act.V[0] + " V2 = " + act.V[1] + " V3 = " + act.V[2] + "<br>");
 
                                 }
                                 break;
@@ -91,7 +101,7 @@ function reportResults(teams) {
                                     } else {
                                         RMsg += " R units incorrect."
                                     }
-                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " +
+                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " +
                                         act.actor.styledName + " submitted incorrect values." +
                                         EMsg + RMsg + "<br>")
                                 }
@@ -99,23 +109,23 @@ function reportResults(teams) {
                             case "message":
                                 if ($("#action-message")[0].checked) {
                                     if ((act.uTime - preTime) > interval) {
-                                        document.getElementById("demo").innerHTML += "<hr>"
+                                        document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " +
+                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " +
                                         act.actor.styledName + " said: " + "\"" + highlight(act, act.msg) + "\"<br>");
-                                    //     document.getElementById("demo").innerHTML += ("R1 = " + act.R[0] + " R2 = " + act.R[1] + " R3 = " + act.R[2] + "<br>");
-                                    //     document.getElementById("demo").innerHTML += ("V1 = " + act.V[0] + " V2 = " + act.V[1] + " V3 = " + act.V[2] + "<br>");
+                                    //     document.getElementById("data").innerHTML += ("R1 = " + act.R[0] + " R2 = " + act.R[1] + " R3 = " + act.R[2] + "<br>");
+                                    //     document.getElementById("data").innerHTML += ("V1 = " + act.V[0] + " V2 = " + act.V[1] + " V3 = " + act.V[2] + "<br>");
                                 }
                                 break;
 
                             case "calculation":
                                 if ($("#action-calculation")[0].checked) {
                                     if ((act.uTime - preTime) > interval) {
-                                        document.getElementById("demo").innerHTML += "<hr>"
+                                        document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
+                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
                                         " performed the calculation  " + highlight(act, act.calculation) +
                                         " and got the result " + Math.round(1000 * act.result) / 1000 + ".<br>");
                                 }
@@ -124,10 +134,10 @@ function reportResults(teams) {
                             case "attach-probe":
                                 if ($("#action-attach-probe")[0].checked) {
                                     if ((act.uTime - preTime) > interval) {
-                                        document.getElementById("demo").innerHTML += "<hr>"
+                                        document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
+                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
                                         ", board " + bd +
                                         ", attached a probe to " + act.location + currentMsg + "<br>");
                                 }
@@ -135,10 +145,10 @@ function reportResults(teams) {
                             case "detach-probe":
                                 if ($("#action-detach-probe")[0].checked) {
                                     if ((act.uTime - preTime) > interval) {
-                                        document.getElementById("demo").innerHTML += "<hr>"
+                                        document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
+                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
                                         ", board " + bd +
                                         ", detached a probe from " + act.location + currentMsg + "<br>");
                                 }
@@ -146,10 +156,10 @@ function reportResults(teams) {
                             case "connect-lead":
                                 if ($("#action-connect-lead")[0].checked) {
                                     if ((act.uTime - preTime) > interval) {
-                                        document.getElementById("demo").innerHTML += "<hr>"
+                                        document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
+                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
                                         ", board " + bd +
                                         ", connected a lead to " + act.location + currentMsg + "<br>");
                                 }
@@ -158,17 +168,17 @@ function reportResults(teams) {
                             case "disconnect-lead":
                                 if ($("#action-disconnect-lead")[0].checked) {
                                     if ((act.uTime - preTime) > interval) {
-                                        document.getElementById("demo").innerHTML += "<hr>"
+                                        document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
+                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
                                         ", board " + bd +
                                         ", disconnected a lead from " + act.location + currentMsg + "<br>");
                                 }
                                 break;
                             case "joined-group":
                                 if ($("#action-joined-group")[0].checked) {
-                                    document.getElementById("demo").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
+                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
                                         ", board " + bd +
                                         ", joined team " + team.name + "<br>");
                                 }
@@ -231,18 +241,18 @@ function reportSummary(teams) {
                 } //end of levels loop
             } //end of team check
         } //end of teams loop
-        document.getElementById("demo").innerHTML += ('<mark> <br> <tr> <td colspan = "4" align = "center" > Summary Resistor Change Report </td> </tr><br></mark>');
+        document.getElementById("data").innerHTML += ('<mark> <br> <tr> <td colspan = "4" align = "center" > Summary Resistor Change Report </td> </tr><br></mark>');
         for (var k = 0; k < teams.length; k++) {
             team = teams[k];
             if ($("#team-" + team.name)[0].checked) {
-                document.getElementById("demo").innerHTML += ("<br><br>");
+                document.getElementById("data").innerHTML += ("<br><br>");
                 for (var j = 0; j < team.levels.length; j++) {
                     level = team.levels[j];
                     if ($("#level-" + level.label)[0].checked) {
-                        document.getElementById("demo").innerHTML += ("<br>");
+                        document.getElementById("data").innerHTML += ("<br>");
                         for (var i = 0; i < team.members.length; i++) {
                             member = team.members[i];
-                            document.getElementById("demo").innerHTML += ("Team: " + team.name + ", level " + level.label +
+                            document.getElementById("data").innerHTML += ("Team: " + team.name + ", level " + level.label +
                                 ", member " + member.styledName + ": achieved = " +
                                 count[team.name][level.label][member.name].achieved + ", overshot = " +
                                 count[team.name][level.label][member.name].overshot + ", undershot = " +
