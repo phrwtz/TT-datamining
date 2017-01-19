@@ -163,31 +163,31 @@ function addRChange(ro) {
         }
 
         if (Math.abs(myAction.newGoalADifference) < .01) {
-            myAction.GoalAMsg = ". Goal achieved";
+            myAction.goalAMsg = ". Goal achieved";
         } else if (Math.sign(myAction.oldGoalADifference) != Math.sign(myAction.newGoalADifference) &&
             (myAction.newGoalADifference > 0)) {
-            myAction.GoalAMsg = ". Goal overshot";
+            myAction.goalAMsg = ". Goal overshot";
         } else if (Math.sign(myAction.oldGoalADifference) != Math.sign(myAction.newGoalADifference) &&
             (myAction.newGoalADifference < 0)) {
-            myAction.GoalAMsg = ". Goal undershot";
+            myAction.goalAMsg = ". Goal undershot";
         } else if (Math.abs(myAction.newGoalADifference) < Math.abs(myAction.oldGoalADifference)) {
-            myAction.GoalAMsg = ". Goal closer";
+            myAction.goalAMsg = ". Goal closer";
         } else if (Math.abs(myAction.newGoalADifference) > Math.abs(myAction.oldGoalADifference)) {
-            myAction.GoalAMsg = ". Goal farther";
+            myAction.goalAMsg = ". Goal farther";
         }
 
         if (Math.abs(myAction.newGoalBDifference) < .01) {
-            myAction.GoalBMsg = ". Goal achieved";
+            myAction.goalBMsg = ". Goal achieved";
         } else if (Math.sign(myAction.oldGoalBDifference) != Math.sign(myAction.newGoalBDifference) &&
             (myAction.newGoalBDifference > 0)) {
-            myAction.GoalBMsg = ". Goal overshot";
+            myAction.goalBMsg = ". Goal overshot";
         } else if (Math.sign(myAction.oldGoalBDifference) != Math.sign(myAction.newGoalBDifference) &&
             (myAction.newGoalBDifference < 0)) {
-            myAction.GoalBMsg = ". Goal undershot";
+            myAction.goalBMsg = ". Goal undershot";
         } else if (Math.abs(myAction.newGoalBDifference) < Math.abs(myAction.oldGoalBDifference)) {
-            myAction.GoalBMsg = ". Goal closer";
+            myAction.goalBMsg = ". Goal closer";
         } else if (Math.abs(myAction.newGoalBDifference) > Math.abs(myAction.oldGoalBDifference)) {
-            myAction.GoalBMsg = ". Goal farther";
+            myAction.goalBMsg = ". Goal farther";
         }
         level.R = myAction.R; // Update level so that we have something to compare to next time around
         level.V = myAction.V;
