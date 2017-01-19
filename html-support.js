@@ -66,13 +66,14 @@ function setupForm(teams) {
         labelStr = actionLabels[k] + "<br>";
         actionData.innerHTML += "<input " + typeStr + IDStr + labelStr;
     }
-
-    var summaryIDs = ["summary-change-types", "voltage-regulator"];
+    var summaryNames = ["rChg", "vReg"];
+    var summaryIDs = ["resistor-change", "voltage-regulator"];
     var summaryLabels = ["Resistor change types by level", "Voltage regulator behavior"];
     for (var l = 0; l < summaryLabels.length; l++) {
-        IDStr = summaryIDs[l] + "> ";
-        labelStr = summaryLabels[l] + "<br>";
-        summaryData.innerHTML += "<input " + typeStr + IDStr + labelStr;
+        IDStr = ' id = ' + summaryIDs[l];
+        nameStr = ' name = ' + summaryNames[l];
+        labelStr = summaryLabels[l];
+        summaryData.innerHTML += "<input " + typeStr + nameStr + IDStr + "> " + labelStr + "<br>";
     }
     document.body.appendChild(checkDiv);
     checkDiv.appendChild(checkForm);

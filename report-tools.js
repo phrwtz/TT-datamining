@@ -1,8 +1,7 @@
 function generateReport(teams) {
     reportResults(teams);
     console.log("results reported");
-    //    return false;
-    // reportSummary(teams);
+    reportSummary(teams);
     // console.log("summaries reported");
     // reportVoltageRegulator(teams);
     // console.log("voltage regulator reported");
@@ -29,7 +28,7 @@ function reportResults(teams) {
                         var preTime,
                             interval = 45, //Maximum interval between logged actions for considering them linked.
                             act = acts[i],
-                            bd = act.board,
+                            bd = act.board + 1,
                             actor = act.actor
                         styledName = actor.styledName,
                             currentMsg = (act.currentFlowing ? ". Current is flowing. " : ". Current is not flowing.");
@@ -58,16 +57,20 @@ function reportResults(teams) {
 
                             case "resistorChange":
                                 if ($("#action-resistorChange")[0].checked) {
+                                    var Rtot = level.R0 + act.R[0] + act.R[1] + act.R[2];
+                                    var current = Math.round((level.E / Rtot) * 1000000) / 1000;
+                                    var V0 = Math.round((level.E * level.R0 / Rtot) * 1000) / 1000;
                                     if ((act.uTime - preTime) > interval) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
                                     document.getElementById("data").innerHTML += (act.date + ", " + act.time +
-                                        ": " + styledName + " changed R" + (bd + 1) + " from " + act.oldR[bd] +
-                                        " to " + act.R[bd] + ", V" + (bd + 1) + " changed from " + act.oldV[bd] +
-                                        " to " + act.V[bd] + ". (Goal is " + level.goalV[bd] + ")" + act.goalMsg + "<br>");
-                                    document.getElementById("data").innerHTML += ("R1 = " + act.R[0] + " R2 = " + act.R[1] + " R3 = " + act.R[2] + "<br>");
-                                    document.getElementById("data").innerHTML += ("V1 = " + act.V[0] + " V2 = " + act.V[1] + " V3 = " + act.V[2] + "<br>");
+                                        ": " + styledName + " changed R" + (bd) + " from " + act.oldR[bd - 1] +
+                                        " to " + act.R[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
+                                        " to " + act.V[bd - 1] + ". (Goal is " + level.goalV[bd - 1] + ")" + act.goalMsg + "<br>");
+                                    document.getElementById("data").innerHTML += ("R0 = " + level.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
+                                    document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
+                                    document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
 
                                 }
                                 break;
@@ -108,26 +111,38 @@ function reportResults(teams) {
                                 break;
                             case "message":
                                 if ($("#action-message")[0].checked) {
+                                    var Rtot = level.R0 + act.R[0] + act.R[1] + act.R[2];
+                                    var current = Math.round((level.E / Rtot) * 1000000) / 1000;
+                                    var V0 = Math.round((level.E * level.R0 / Rtot) * 1000) / 1000;
                                     if ((act.uTime - preTime) > interval) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
                                     document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " +
-                                        act.actor.styledName + " said: " + "\"" + highlight(act, act.msg) + "\"<br>");
-                                    //     document.getElementById("data").innerHTML += ("R1 = " + act.R[0] + " R2 = " + act.R[1] + " R3 = " + act.R[2] + "<br>");
-                                    //     document.getElementById("data").innerHTML += ("V1 = " + act.V[0] + " V2 = " + act.V[1] + " V3 = " + act.V[2] + "<br>");
+                                        act.actor.styledName + ", board " + bd + ", said: " + "\"" + highlight(act, act.msg) + "\"<br>");
+                                    document.getElementById("data").innerHTML += ("R0 = " + level.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
+                                    document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
+                                    document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
+
                                 }
                                 break;
 
                             case "calculation":
                                 if ($("#action-calculation")[0].checked) {
+                                    var Rtot = level.R0 + act.R[0] + act.R[1] + act.R[2];
+                                    var current = Math.round((level.E / Rtot) * 1000000) / 1000;
+                                    var V0 = Math.round((level.E * level.R0 / Rtot) * 1000) / 1000;
                                     if ((act.uTime - preTime) > interval) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
+                                    var calculation = highlight(act, act.calculation);
+                                    var result = highlight(act, Math.round(1000 * act.result) / 1000);
                                     document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
-                                        " performed the calculation  " + highlight(act, act.calculation) +
-                                        " and got the result " + Math.round(1000 * act.result) / 1000 + ".<br>");
+                                        " performed the calculation  " + calculation + " and got the result " + result + ".<br>");
+                                    document.getElementById("data").innerHTML += ("R0 = " + level.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
+                                    document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
+                                    document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
                                 }
                                 break;
 
@@ -195,7 +210,7 @@ function reportResults(teams) {
 //Reports on total number of resistor changes in each category for each team member, per level.
 function reportSummary(teams) {
     var count = {};
-    if ($("#summary-change-types")[0].checked) {
+    if ($("#resistor-change")[0].checked) {
         for (var k = 0; k < teams.length; k++) {
             var team = teams[k];
             if ($("#team-" + team.name)[0].checked) {

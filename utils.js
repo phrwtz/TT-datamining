@@ -1,14 +1,14 @@
-function highlight(act, text) { //Highlights the variable names, if any, in chats
-    try {
-        var newText = (typeof(text) === "string" ? text : text.toString());
-        var pattern = new RegExp(/([^A-Z,a-z][0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
-        while ((match = pattern.exec(text)) != null) {
-            newText = newText.replace(match[0], match[0] + " <mark>" + compareNumbers(act, match[0]) + "</mark>");
+function highlight(act, t) { //Highlights the variable names, if any, in chats and calculations
+    var text = (typeof(t) === "string" ? t : t.toString());
+    var textWithoutSpaces = text.replace(/\s/g, '');
+    var pattern = new RegExp(/([[0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
+    m = textWithoutSpaces.match(pattern) //Find all the numbers
+    if (m) {
+        for (var i = 0; i < m.length; i++) {
+            text = text.replace(m[i], m[i] + " <mark>" + compareNumbers(act, m[i]) + "</mark>");
         }
-        return newText;
-    } catch (err) {
-        console.log(err + " In hightlight, act.type = " + act.type);
     }
+    return text;
 }
 
 function compareNumbers(act, numStr) { //Takes extracted number string, converts it, and compares to known numbers.
@@ -21,6 +21,12 @@ function compareNumbers(act, numStr) { //Takes extracted number string, converts
         goalV1 = level.goalV[0],
         goalV2 = level.goalV[1],
         goalV3 = level.goalV[2],
+        goalV0 = E - goalV1 - goalV2 - goalV3,
+        goalR1 = level.goalR[0],
+        goalR2 = level.goalR[1],
+        goalR3 = level.goalR[2],
+        goalIA = E / (R0 + goalR1 + goalR2 + goalR3),
+        goalImA = 1000 * goalIA,
         R1 = act.R[0],
         R2 = act.R[1],
         R3 = act.R[2],
@@ -28,48 +34,51 @@ function compareNumbers(act, numStr) { //Takes extracted number string, converts
         V2 = act.V[1],
         V3 = act.V[2],
         Rtot = R0 + R1 + R2 + R3,
+        V0 = E * R0 / Rtot,
         IA = E / Rtot,
         ImA = 1000 * IA,
-        tolerance = .1; //How close (in absolute value) two numbers have to be to considered "about equal"
-    switch (num) {
-        case E:
-            return "[E]";
-            break;
-        case R0:
-            return "[R0]";
-            break;
-        case R1:
-            return "[R1]";
-            break;
-        case R2:
-            return "[R2]";
-            break;
-        case R3:
-            return "[R3]";
-            break;
-        case goalV1:
-            return "[gV1]";
-            break;
-        case goalV2:
-            return "[gV2]";
-            break;
-        case goalV3:
-            return "[gV3]";
-            break;
-        case V1:
-            return "[V1]";
-            break;
-        case V2:
-            return "[V2]";
-            break;
-        case V3:
-            return "[V3]";
-            break;
-    }
-    if (about(num, IA, tolerance)) {
+        tol = .01; //How close two numbers have to be to considered "about equal"
+    //Note: we compare tol to |x - y| / (x + y) so it's a relative value
+    if (about(num, E, tol)) {
+        return "[E]";
+    } else if (about(num, R0, tol)) {
+        return "[R0]";
+    } else if (about(num, R1, tol)) {
+        return "[R1]";
+    } else if (about(num, R2, tol)) {
+        return "[R2]";
+    } else if (about(num, R3, tol)) {
+        return "[R3]";
+    } else if (about(num, V0, tol)) {
+        return "[V0]";
+    } else if (about(num, V1, tol)) {
+        return "[V1]";
+    } else if (about(num, V2, tol)) {
+        return "[V2]";
+    } else if (about(num, V3, tol)) {
+        return "[V3]";
+    } else if (about(num, goalR1, tol)) {
+        return "[goalR1]";
+    } else if (about(num, goalR2, tol)) {
+        return "[goalR2]";
+    } else if (about(num, goalR3, tol)) {
+        return "[goalR3]";
+    } else if (about(num, goalV0, tol)) {
+        return "[goalV0]";
+    } else if (about(num, goalV1, tol)) {
+        return "[goalV1]";
+    } else if (about(num, goalV2, tol)) {
+        return "[goalV2]";
+    } else if (about(num, goalV3, tol)) {
+        return "[goalV3]";
+    } else if (about(num, IA, tol)) {
         return "[I(A)]";
-    } else if (about(num, ImA, tolerance)) {
+    } else if (about(num, ImA, tol)) {
         return "[I(mA)]";
+    } else if (about(num, goalIA, tol)) {
+        return "[goalI(A)]";
+    } else if (about(num, goalImA, tol)) {
+        return "[goalI(mA)]";
     } else {
         return ""; //Return empty string if no match found
     }
@@ -90,10 +99,10 @@ function makeTeams(rowObjs) { //parse the row objects array looking for and popu
 }
 
 function about(num, target, tolerance) {
-    if (Math.abs(num - target) < tolerance) {
-        return true
+    if (Math.abs((num - target) / (num + target)) < tolerance) {
+        return true;
     } else {
-        return false
+        return false;
     }
 }
 
