@@ -68,7 +68,7 @@ function setupForm(teams) {
     }
     var summaryNames = ["rChg", "vReg"];
     var summaryIDs = ["resistor-change", "voltage-regulator"];
-    var summaryLabels = ["Resistor change types by level", "Voltage regulator behavior"];
+    var summaryLabels = ["Resistor change types by level", "Instructor report"];
     for (var l = 0; l < summaryLabels.length; l++) {
         IDStr = ' id = ' + summaryIDs[l];
         nameStr = ' name = ' + summaryNames[l];

@@ -198,6 +198,7 @@ function addRChange(ro) {
 function addMessage(ro) {
     var myAction = addAction(ro, "message");
     myAction.msg = ro["event_value"];
+    myAction.highlightedMsg = highlight(myAction, myAction.msg);
     myAction.R = myAction.level.R;
     myAction.V = myAction.level.V;
     myAction.level.actions.push(myAction);

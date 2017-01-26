@@ -119,7 +119,7 @@ function reportResults(teams) {
                                     }
                                     preTime = act.uTime;
                                     document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " +
-                                        act.actor.styledName + ", board " + bd + ", said: " + "\"" + highlight(act, act.msg) + "\"<br>");
+                                        act.actor.styledName + ", board " + bd + ", said: \"" + act.highlightedMsg + "\"<br>");
                                     document.getElementById("data").innerHTML += ("R0 = " + level.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                     document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                     document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
@@ -320,6 +320,20 @@ function reportVoltageRegulator(teams) {
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+function instructorReport(teams) {
+    if ($("#instructor-report")[0].checked) {
+        for (var k = 0; k < teams.length; k++) {
+            var team = teams[k];
+            for (var j = 0; j < team.levels.length; j++) {
+                var level = team.levels[j];
+                for (var i = 0; i < level.varRefs.length; i++) {
+
                 }
             }
         }
