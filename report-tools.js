@@ -1,10 +1,11 @@
 function generateReport(teams) {
+    //    document.getElementByID("data").innerHTML = ""; //Clear the screen
     reportResults(teams);
     console.log("results reported");
     reportSummary(teams);
-    // console.log("summaries reported");
-    // reportVoltageRegulator(teams);
-    // console.log("voltage regulator reported");
+    console.log("summaries reported");
+    instructorReport(teams);
+    console.log("instructors report generated");
 }
 
 function reportResults(teams) {
@@ -119,10 +120,10 @@ function reportResults(teams) {
                                     }
                                     preTime = act.uTime;
                                     document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " +
-                                        act.actor.styledName + ", board " + bd + ", said: \"" + act.highlightedMsg + "\"<br>");
-                                    document.getElementById("data").innerHTML += ("R0 = " + level.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
-                                    document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
-                                    document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
+                                        act.actor.styledName + ", board " + bd + ", said: \"" + act.highlightedMsg + "\", score = " + act.score + "<br>");
+                                    // document.getElementById("data").innerHTML += ("R0 = " + level.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
+                                    // document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
+                                    // document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
 
                                 }
                                 break;
@@ -327,15 +328,143 @@ function reportVoltageRegulator(teams) {
 }
 
 function instructorReport(teams) {
-    if ($("#instructor-report")[0].checked) {
-        for (var k = 0; k < teams.length; k++) {
-            var team = teams[k];
-            for (var j = 0; j < team.levels.length; j++) {
-                var level = team.levels[j];
-                for (var i = 0; i < level.varRefs.length; i++) {
 
-                }
+    if ($("#instructor-report")[0].checked) {
+        if (document.getElementById("tableDiv")) {
+            var tableDiv = document.getElementById("tableDiv");
+            while (tableDiv.firstChild) {
+                tableDiv.removeChild(tableDiv.firstChild);
             }
+        } else {
+            var tableDiv = document.createElement("div");
+            tableDiv.id = "tableDiv";
+        }
+        for (var j = 0; j < teams.length; j++) {
+            var team = teams[j];
+            var name = team.name;
+            var mName1 = team.members[0].name;
+            var mName2 = team.members[1].name;
+            var mName3 = team.members[2].name;
+            var actionScores = []; //array for containing the total action scores
+            //for each team member in a level
+
+            //Create table
+            var reportTable = document.createElement("table");
+            var teamRow = document.createElement("tr");
+            var mRow1 = document.createElement("tr");
+            var mRow2 = document.createElement("tr");
+            var mRow3 = document.createElement("tr");
+            var mRow4 = document.createElement("tr");
+            var tCell = document.createElement("th");
+            tCell.innerHTML = "<br>Team " + name;
+            tCell.setAttribute("colspan", 5);
+            teamRow.appendChild(tCell);
+            var hRow = document.createElement("tr");
+            var hCell0 = document.createElement("th");
+            var hCell1 = document.createElement("th");
+            var hCell2 = document.createElement("th");
+            var hCell3 = document.createElement("th");
+            var hCell4 = document.createElement("th");
+            var hCell5 = document.createElement("th");
+            var mCell1 = document.createElement("th");
+            var mCell2 = document.createElement("th");
+            var mCell3 = document.createElement("th");
+            var mCell4 = document.createElement("th");
+            hCell0.innerHTML = "Member";
+            hCell1.innerHTML = "Level A";
+            hCell2.innerHTML = "Level B";
+            hCell3.innerHTML = "Level C";
+            hCell4.innerHTML = "Level D";
+            hCell5.innerHTML = "Total";
+            hRow.appendChild(hCell0);
+            hRow.appendChild(hCell1);
+            hRow.appendChild(hCell2);
+            hRow.appendChild(hCell3);
+            hRow.appendChild(hCell4);
+            hRow.appendChild(hCell5);
+            mCell1.innerHTML = mName1;
+            mCell2.innerHTML = mName2;
+            mCell3.innerHTML = mName3;
+            mCell4.innerHTML = "Total";
+            mRow1.appendChild(mCell1);
+            mRow2.appendChild(mCell2);
+            mRow3.appendChild(mCell3);
+            mRow4.appendChild(mCell4);
+
+            reportTable.appendChild(teamRow);
+            reportTable.appendChild(hRow);
+            reportTable.appendChild(mRow1);
+            reportTable.appendChild(mRow2);
+            reportTable.appendChild(mRow3);
+            reportTable.appendChild(mRow4);
+            tableDiv.appendChild(reportTable);
+            document.body.appendChild(tableDiv);
+
+            //Add up the scores for each level and each member
+            var totalByMember = [0, 0, 0];
+            for (var i = 0; i < 4; i++) {
+                level = team.levels[i];
+                actionScores = scoreActions(level);
+                var scoreCell1 = mRow1.insertCell(-1);
+                var scoreCell2 = mRow2.insertCell(-1);
+                var scoreCell3 = mRow3.insertCell(-1);
+                var totalColCell4 = mRow4.insertCell(-1);
+                var totalByLevel = [0, 0, 0, 0];
+                totalByLevel[i] = actionScores[0] + actionScores[1] + actionScores[2];
+                scoreCell1.innerHTML = actionScores[0];
+                scoreCell2.innerHTML = actionScores[1];
+                scoreCell3.innerHTML = actionScores[2];
+                totalColCell4.innerHTML = totalByLevel[i];
+                totalByMember[0] += actionScores[0];
+                totalByMember[1] += actionScores[1];
+                totalByMember[2] += actionScores[2];
+            } //end of the level
+            var total = totalByMember[0] + totalByMember[1] + totalByMember[2]
+            totalRowCell1 = mRow1.insertCell(-1);
+            totalRowCell2 = mRow2.insertCell(-1);
+            totalRowCell3 = mRow3.insertCell(-1);
+            totalCell = mRow4.insertCell(-1);
+            totalRowCell1.innerHTML = totalByMember[0];
+            totalRowCell2.innerHTML = totalByMember[1];
+            totalRowCell3.innerHTML = totalByMember[2];
+            totalCell.innerHTML = total;
         }
     }
+}
+
+//Takes a level and returns an array of the total score of all the actions
+//(for the time being just messages) for each of the members of that level
+//Note: members are identified by their index in the team.members array
+//for that level so that their scores are consistent across levels.
+function scoreActions(level) {
+    var mems = level.team.members; //Array of members for this team
+    var sumScores = [0, 0, 0];
+    var scores = []
+    var act,
+        type,
+        actor,
+        score,
+        memIndex;
+
+    for (var i = 0; i < level.actions.length; i++) {
+        act = level.actions[i];
+        type = act.type;
+        if (type == "message") {
+            actor = act.actor;
+            score = act.score;
+            memIndex = findMemIndex(mems, actor);
+            sumScores[memIndex] += score;
+        }
+    }
+    return sumScores;
+}
+
+function findMemIndex(mems, actor) {
+    var returnIndex = -1;
+    for (var j = 0; j < mems.length; j++) {
+        if (actor.name == mems[j].name) {
+            returnIndex = j;
+        }
+    }
+    return returnIndex;
 }

@@ -20,94 +20,313 @@ function initializeVarRefs(level) { //Initializes variable references for this l
     level.varRefs["ImA"] = [];
     level.varRefs["goalIA"] = [];
     level.varRefs["goalImA"] = [];
+    level.varRefs["no match"] = [];
 }
 
-//Takes a variable string and an action and returns "global" if the variable
-//is known to all players, "local" if it is known to the actor, "remote" if it
-//is known to a player other than the actor, and unknown if it is not initially
-//known to anyone. (Note: the designations for "E" and "R0" depend on the level.)
-function characterizeVariable(varStr, action) {
-    var returnStr = "";
+//Takes a variable string and an action and returns 1 if the variable
+//is known to all players, 2 if it is known to the actor, 3 if it
+//is known to a player other than the actor, and 4 if it is not initially
+//known to anyone (and is presumed to be the result of a calculation).
+//(Note: the designations for "E" and "R0" depend on the level.)
+function score(varStr, action) {
+    var score = 0;
+    var bd = action.board + 1;
     switch (varStr) {
         case "E":
-            (action.level.number < 4 ? returnStr = "global" : returnStr = "unknown");
+            (action.level.label < "C" ? score = 1 : score = 4);
             break;
         case "R0":
-            (action.level.number < 5 ? returnStr = "global" : returnStr = "unknown");
+            (action.level.label < "D" ? score = 1 : score = 4);
             break;
         case "R1":
-            (action.board == 1 ? returnStr = "known" : returnStr = "remote");
+            (bd == 1 ? score = 2 : score = 3);
             break;
         case "R2":
-            (action.board == 2 ? returnStr = "known" : returnStr = "remote");
+            (bd == 2 ? score = 2 : score = 3);
             break;
         case "R3":
-            (action.board == 3 ? returnStr = "known" : returnStr = "remote");
-            break;
-        case "V0":
-            returnStr = "unknown";
-            break;
-        case "V1":
-            (action.board == 1 ? returnStr = "known" : returnStr = "remote");
-            break;
-        case "V2":
-            (action.board == 2 ? returnStr = "known" : returnStr = "remote");
-            break;
-        case "V3":
-            (action.board == 3 ? returnStr = "known" : returnStr = "remote");
+            (bd == 3 ? score = 2 : score = 3);
             break;
         case "goalR1":
-            returnStr = "unknown";
+            score = 4;
             break;
         case "goalR2":
-            returnStr = "unknown";
+            score = 4;
             break;
         case "goalR3":
-            returnStr = "unknown";
+            score = 4;
+            break;
+        case "V0":
+            score = 4;
+            break;
+        case "V1":
+            (bd == 1 ? score = 2 : score = 3);
+            break;
+        case "V2":
+            (bd == 2 ? score = 2 : score = 3);
+            break;
+        case "V3":
+            (bd == 3 ? score = 2 : score = 3);
             break;
         case "goalV0":
-            returnStr = "unknown";
+            score = 4;
             break;
         case "goalV1":
-            returnStr = "unknown";
+            (bd == 1 ? score = 2 : score = 3);
             break;
         case "goalV2":
-            returnStr = "unknown";
+            (bd == 2 ? score = 2 : score = 3);
             break;
         case "goalV3":
-            returnStr = "unknown";
+            (bd == 3 ? score = 2 : score = 3);
             break;
         case "IA":
-            returnStr = "unknown";
+            score = 4;
             break;
         case "ImA":
-            returnStr = "unknown";
+            score = 4;
             break;
         case "goalIA":
-            returnStr = "unknown";
+            score = 4;
             break;
         case "goalImA":
-            returnStr = "unknown";
+            score = 4;
             break;
     }
-    return returnStr;
+    return score;
 }
 
-function highlight(act, t) { //Highlights the variable names, if any, in chats and calculations
-    var text = (typeof(t) === "string" ? t : t.toString());
-    var textWithoutSpaces = text.replace(/\s/g, '');
-    var pattern = new RegExp(/([[0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
-    m = textWithoutSpaces.match(pattern) //Find all the numbers
-    if (m) {
-        for (var i = 0; i < m.length; i++) {
-            text = text.replace(m[i], m[i] + " <mark>" + compareNumbers(act, m[i]) + "</mark>");
+//Assuming that an action contains multiple numbers and that at least some of
+//those numbers are associated with multiple variables, the algorithm for
+//computing the score is to examine the scores for each of the numbers in the
+//message, find the minimum score for those variables, then iterate over the numbers
+//and return the sum of those scores
+
+function scoreAction(action) {
+    var vrs = action.varRefs;
+    var s = [];
+    var ns;
+    var score = 0;
+    for (var i = 0; i < vrs.length; i++) { //iterating over the numbers
+        s[i] = 5;
+        for (var j = 0; j < vrs[i].length; j++) { //iterating over the variables for each number
+            if (vrs[i].length == 0) { //if no variable was matched for this number
+                return 0; //the score is zero
+            } else {
+                ns = vrs[i][j][3]; //the score for the j'th variable
+                if (ns < s[i]) { //if it's smaller than the last one
+                    s[i] = ns; //replace the last one
+                } //s[i] is the minimum score over all the variables associated with
+                //the ith number
+            }
+        } //next j
+        score += s[i]; //the score for the action is the sum of the scores for
+        //each of its numbers
+    } //next i
+    return score;
+}
+
+function highlightMessage(act) { //Highlights the variable names, if any, in a message
+    //returns the highlighted message
+    var message = act.msg;
+    vrArray = act.varRefs;
+    var messageWithoutSpaces = message.replace(/\s/g, '');
+    var numRegEx = new RegExp(/([[0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
+    var numArray = messageWithoutSpaces.match(numRegEx);
+    //numArray is an array of all the numbers in the message, including those
+    //for which no matching variable was found
+    //to a given number in the message
+    if (numArray) { //if there are numbers in the message
+        for (i = 0; i < numArray.length; i++) { //look at each and try to match it
+            var numStr = numArray[i]; //the number string in the message.
+            var matchedVariables = []; //array to store matching variables for this number
+            for (j = 0; j < vrArray[i].length; j++) { //compare it to the i'th array of var refs
+                vrNum = vrArray[i][j][2]; //the number that matched the variable
+                vrVar = vrArray[i][j][1]; //the string representing the variable
+                if (numStr == vrNum) { //if it matches the number in the message
+                    vrScore = vrArray[i][j][3];
+                    matchedVariables.push(vrVar + "(" + vrScore + ")"); //put it in the array
+                }
+            }
+            var highlightedStr = " <mark>["
+            for (var k = 0; k < matchedVariables.length; k++) {
+                highlightedStr += matchedVariables[k] + ", ";
+            }
+            highlightedStr = highlightedStr.substring(0, highlightedStr.length - 2) + "]</mark>";
+            message = message.replace(numArray[i], numArray[i] + highlightedStr);
         }
     }
-    return text;
+    return message;
+}
+
+function getVarRefs(action) {
+    //returns an array (possibly empty) of variable references contained in the action
+    //(the message of a message action and/or the input or output of a calculation)
+    //
+    //A variable reference is an array consisting of the action in which
+    //the reference occurs, a string representing the variable that is
+    //matched, a string representing the number that was matched, and a numerical score indicating whether
+    //the value of the variable was globally known (e.g., E and/or R0 at some levels),
+    //known to the actor of the action (e.g.,the actor's own resistance or voltage),
+    //known to some other member of the team, or unknown (presumably, the result of a calculation)
+    if (action.type == "message") {
+        var text = action.msg;
+        var textWithoutSpaces = text.replace(/\s/g, '');
+        var pattern = new RegExp(/([[0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
+        var nums = textWithoutSpaces.match(pattern);
+        var vrs = [] //array that will contain all the variable references
+            //contained in the action. It will remain empty if nums is null or
+            //no VRs are found.
+        if (nums) {
+            //nums is an array of strings representing all the numbers in text
+            for (var i = 0; i < nums.length; i++) {
+                vrs[i] = findVars(action, nums[i]); //matches the numbers to the variables.
+                //returns an array of varRefs;
+            }
+        }
+        return vrs;
+    }
 }
 
 //This function looks for variables by matching numStr to their numeric values.
-//If it find a match it adds act to the appropriate varRef array and also adds
+//If it finds a match it returns a variable reference object
+function findVars(act, numStr) {
+    var num = parseFloat(numStr);
+    var level = act.level;
+    var E = level.E,
+        R0 = level.R0,
+        goalV1 = level.goalV[0],
+        goalV2 = level.goalV[1],
+        goalV3 = level.goalV[2],
+        goalV0 = E - goalV1 - goalV2 - goalV3,
+        goalR1 = level.goalR[0],
+        goalR2 = level.goalR[1],
+        goalR3 = level.goalR[2],
+        R1 = act.R[0],
+        R2 = act.R[1],
+        R3 = act.R[2],
+        Rtot = R0 + R1 + R2 + R3,
+        goalRtot = R0 + goalR1 + goalR2 + goalR3,
+        V0 = E * R0 / Rtot,
+        V1 = act.V[0],
+        V2 = act.V[1],
+        V3 = act.V[2],
+        IA = E / Rtot,
+        ImA = 1000 * IA,
+        goalIA = E / goalRtot,
+        goalImA = 1000 * goalIA;
+    //tol is how close two numbers have to be to considered "about equal"
+    //Note: we compare tol to |x - y| / (x + y) so it's a relative value
+    var tol = .005;
+    var returnArray = []; //Array that will contain any returned varRefs.
+    //Note: there may be more than one if the number matches more than one
+    //variable
+
+    if (about(num, E, tol)) {
+        thisStr = "E";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, R0, tol)) {
+        thisStr = "R0";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, R1, tol)) {
+        thisStr = "R1";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, R2, tol)) {
+        thisStr = "R2";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, R3, tol)) {
+        thisStr = "R3";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, V0, tol)) {
+        thisStr = "V0";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, V1, tol)) {
+        thisStr = "V1";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, V2, tol)) {
+        thisStr = "V2";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, V3, tol)) {
+        thisStr = "V3";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, goalR1, tol)) {
+        thisStr = "goalR1";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, goalR2, tol)) {
+        thisStr = "goalR2";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, goalR3, tol)) {
+        thisStr = "goalR3";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, goalV0, tol)) {
+        thisStr = "goalV0";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, goalV1, tol)) {
+        thisStr = "goalV1";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, goalV2, tol)) {
+        thisStr = "goalV2";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, goalV3, tol)) {
+        thisStr = "goalV3";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, IA, tol)) {
+        thisStr = "IA";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, ImA, tol)) {
+        thisStr = "ImA";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, goalIA, tol)) {
+        thisStr = "goalIA";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, ImA, tol)) {
+        thisStr = "goalImA";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    return returnArray;
+}
+
+//This function looks for variables by matching numStr to their numeric values.
+//If it finds a match it adds act to the appropriate varRef array and also adds
 //the appropriate label to returnStr. It returns a string with all the labels
 //that matched numStr
 function compareNumbers(act, numStr) {
@@ -140,54 +359,56 @@ function compareNumbers(act, numStr) {
     //Note: we compare tol to |x - y| / (x + y) so it's a relative value
     var tol = .005;
     var returnStr = ""; //To be filled in as we get matches
-    var thisStr = ""; //String that will contain all variable names in numStr
+    var thisStr = "no match"; //String that will contain all variable names in numStr
     var thisVarRef = []; //Array that will contain the action and a string denoting
     //the "character" of the variable: whether it is global, local, remote, or unknown.
+    thisVarRef = [act, thisStr, 0]; //initialize to values we want to return if no
+    //variable is matched. The action will not contain a varRef in that case
     if (about(num, E, tol)) {
         thisStr = "E";
-        thisVarRef = [act, characterizeVariable(thisStr, act)];
+        thisVarRef = [act, thisStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
     }
     if (about(num, R0, tol)) {
         thisStr = "R0";
-        thisVarRef = [act, characterizeVariable(thisStr, act)];
+        thisVarRef = [act, thisStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
     }
     if (about(num, R1, tol)) {
         thisStr = "R1";
-        thisVarRef = [act, characterizeVariable(thisStr, act)];
+        thisVarRef = [act, thisStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
     }
     if (about(num, R2, tol)) {
         thisStr = "R2";
-        thisVarRef = [act, characterizeVariable(thisStr, act)];
+        thisVarRef = [act, thisStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
     }
     if (about(num, R3, tol)) {
         thisStr = "R3";
-        thisVarRef = [act, characterizeVariable(thisStr, act)];
+        thisVarRef = [act, thisStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
     }
     if (about(num, V0, tol)) {
         thisStr = "V0";
-        thisVarRef = [act, characterizeVariable(thisStr, act)];
+        thisVarRef = [act, thisStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
     }
     if (about(num, V1, tol)) {
         thisStr = "V1";
-        thisVarRef = [act, characterizeVariable(thisStr, act)];
+        thisVarRef = [act, thisStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
     }
     if (about(num, V2, tol)) {
         thisStr = "V2";
-        thisVarRef = [act, characterizeVariable(thisStr, act)];
+        thisVarRef = [act, thisStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
     }
@@ -195,27 +416,31 @@ function compareNumbers(act, numStr) {
         thisStr = "V3";
         (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
     }
-    if (about(num, goalR1, tol)) {
-        thisStr = "goalR1";
-        thisVarRef = [act, characterizeVariable(thisStr, act)];
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-    if (about(num, goalR2, tol)) {
-        thisStr = "goalR2";
-        thisVarRef = [act, characterizeVariable(thisStr, act)];
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-    if (about(num, goalR3, tol)) {
-        thisStr = "goalR3";
-        thisVarRef = [act, characterizeVariable(thisStr, act)];
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
+
+    //**** Note: we're leaving out the goal resistances for the time being,
+    //pending figuring out what to do with them.
+
+    // if (about(num, goalR1, tol)) {
+    //     thisStr = "goalR1";
+    //     thisVarRef = [act, thisStr, score(thisStr, act)];
+    //     act.level.varRefs[thisStr].push(thisVarRef);
+    //     (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
+    // }
+    // if (about(num, goalR2, tol)) {
+    //     thisStr = "goalR2";
+    //     thisVarRef = [act, thisStr, score(thisStr, act)];
+    //     act.level.varRefs[thisStr].push(thisVarRef);
+    //     (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
+    // }
+    // if (about(num, goalR3, tol)) {
+    //     thisStr = "goalR3";
+    //     thisVarRef = [act, thisStr, score(thisStr, act)];
+    //     act.level.varRefs[thisStr].push(thisVarRef);
+    //     (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
+    // }
     if (about(num, goalV0, tol)) {
         thisStr = "goalV0";
-        thisVarRef = [act, characterizeVariable(thisStr, act)];
+        thisVarRef = [act, thisStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
     }
@@ -226,37 +451,37 @@ function compareNumbers(act, numStr) {
     }
     if (about(num, goalV2, tol)) {
         thisStr = "goalV2";
-        thisVarRef = [act, characterizeVariable(thisStr, act)];
+        thisVarRef = [act, thisStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
     }
     if (about(num, goalV3, tol)) {
         thisStr = "goalV3";
-        thisVarRef = [act, characterizeVariable(thisStr, act)];
+        thisVarRef = [act, thisStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
     }
     if (about(num, IA, tol)) {
-        thisStr = "I(A)";
-        thisVarRef = [act, characterizeVariable(thisStr, act)];
+        thisStr = "IA";
+        thisVarRef = [act, thisStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
     }
     if (about(num, ImA, tol)) {
-        thisStr = "I(mA)";
-        thisVarRef = [act, characterizeVariable(thisStr, act)];
+        thisStr = "ImA";
+        thisVarRef = [act, thisStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
     }
     if (about(num, goalIA, tol)) {
         thisStr = "goalIA";
-        thisVarRef = [act, characterizeVariable(thisStr, act)];
+        thisVarRef = [act, thisStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
     }
     if (about(num, ImA, tol)) {
         thisStr = "goalImA";
-        thisVarRef = [act, characterizeVariable(thisStr, act)];
+        thisVarRef = [act, thisStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
     }
@@ -384,6 +609,7 @@ function addMember(myTeam, ro) { //construct a new member from ro and add it to 
             myMember.startTime = ro["time"];
             //        myMember.startPTime = unixTimeConversion(myMember.startTime);
             myMember.board = parseInt(po["board"]) + 1;
+            //        myMember.colIndex = colIndex; //used for identifying member when counting actions
             myMember.color = colorArray[colIndex];
             myMember.name = name;
             myMember.styledName = "<span style= \"background-color: " + myMember.color + "\">" + name + "</span>";
@@ -481,5 +707,12 @@ function getAlphabeticLabel(index) {
     }
 }
 
-//Characterize an action that references a variable by figuring out whether
-//that variable was known to the actor or had to be communicated,
+function testScore(varStr) {
+    var act = new action;
+    var lvl = new level;
+    lvl.number = 1;
+    lvl.label = "A";
+    act.board = 2;
+    act.level = lvl;
+    console.log(score(varStr, act));
+}
