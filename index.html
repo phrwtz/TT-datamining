@@ -2,135 +2,17 @@
 <html>
 
 <head>
-    <title>Data Analysis</title>
+    <title>Test</title>
 </head>
-<h1>Log file analysis</h1>
-
+<h1>Test JavaScript-DOM Interactions</h1
 
 <body>
-    <input type="file" id="fileInput">
+    <input type="file" id="fileInput" onchange= "parseCSV()">
+    <script src="html-support.js"></script>
+    <script src="parse-file.js"></script>
     <script src="utils.js"></script>
     <script src="analysis-tools.js"></script>
     <script src="report-tools.js"></script>
     <script src="PapaParse-4.1.2/papaparse.js"></script>
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
 </body>
-
-<form action="#" onsubmit="parseCSV(this); return false">
-    <table>
-        <tr>
-            <th>Teams</th>
-            <th>Levels</th>
-            <th>Actions</th>
-            <th>Summary Data</th>
-        </tr>
-        <tr>
-            <td>
-                <input type="checkbox" name="team" id="all-teams" onchange="toggleSelectAll('team')"> All teams
-                <br>
-                <input type="checkbox" name="team" id="team-Weather"> Weather
-                <br>
-                <input type="checkbox" name="team" id="team-Pets"> Pets
-                <br>
-                <input type="checkbox" name="team" id="team-Dogs"> Dogs
-                <br>
-            </td>
-            <td>
-                <input type="checkbox" name="level" id="all-levels" onchange="toggleSelectAll('level')"> All levels
-                <br>
-                <input type="checkbox" name="level" id="level-A"> A
-                <br>
-                <input type="checkbox" name="level" id="level-B"> B
-                <br>
-                <input type="checkbox" name="level" id="level-C"> C
-                <br>
-                <input type="checkbox" name="level" id="level-D"> D
-                <br>
-            </td>
-            <td>
-                <input type="checkbox" name="action" id="all-actions" onchange="toggleSelectAll('action')"> All actions
-                <br>
-                <input type="checkbox" name="action" id="action-message"> Chats
-                <br>
-                <input type="checkbox" name="action" id=action-calculation> Calculations
-                <br>
-                <input type="checkbox" name="action" id="action-resistorChange"> Resistor Changes
-                <br>
-                <input type="checkbox" name="action" id="action-attach-probe"> Attach Probe
-                <br>
-                <input type="checkbox" name="action" id="action-detach-probe"> Detach Probe
-                <br>
-                <input type="checkbox" name="action" id="action-connect-lead"> Connect Lead
-                <br>
-                <input type="checkbox" name="action" id="action-disconnect-lead"> Disconnect Lead
-                <br>
-                <input type="checkbox" name="action" id="action-submit"> Submits
-                <br>
-                <input type="checkbox" name="action" id="action-joined-group"> Joined Group
-                <br>
-            </td>
-            <td>
-                <input type="checkbox" name="RChangeTypes" id="summary-change-types"> Resistor change types by level
-            </td>
-        </tr>
-    </table>
-    <input type="submit" action="parseCSV()">
-</form>
-
-<p id="demo"></p>
-<form onsubmit="parseCSV(); return false">
-    <script>
-        var team = function() {};
-        var level = function() {};
-        var member = function() {};
-        var action = function() {};
-        var teams = [];
-
-        function toggleSelectAll(checkboxName) {
-            var checkboxArray = $("input[name=" + checkboxName + "]");
-            if (checkboxArray[0].checked) {
-                for (var i = 0; i < checkboxArray.length - 1; i++) {
-                    checkboxArray[i + 1].checked = true;
-                }
-            } else {
-                for (var j = 0; j < checkboxArray.length - 1; j++) {
-                    checkboxArray[j + 1].checked = false;
-                }
-            }
-        }
-
-        function parseCSV(theForm) {
-            teams = []; //Clear the teams array (which might be populated if we haven't
-            //refreshed the page).
-            document.getElementById("demo").innerHTML = "";
-            var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.csv)$/;
-            if (regex.test(fileInput.value)) {
-                if (typeof(FileReader) != "undefined") {
-                    var reader = new FileReader();
-                    reader.onerror = function(err) {
-                        console.log(err);
-                    }
-                    reader.onloadend = function(e) {
-                        console.log("file loaded");
-                        var obj = Papa.parse(e.target.result);
-                        console.log("data parsed");
-                        rowObjs = arrayToObjects(obj.data);
-                        console.log("row objects created");
-                        teams = makeTeams(rowObjs);
-                        console.log("teams generated");
-                        changes = analyze(rowObjs);
-                        console.log("analysis complete");
-                        reportResults(teams);
-                        console.log("results reported");
-                        reportSummary(teams);
-                        console.log("summaries reported");
-                    }
-                    reader.readAsText(fileInput.files[0]);
-                } else {
-                    alert("This browser does not support HTML5.");
-                }
-            } else {
-                alert("Please upload a valid CSV file.");
-            }
-        }
-    </script>
