@@ -198,7 +198,12 @@ function addRChange(ro) {
 function addMessage(ro) {
     var myAction = addAction(ro, "message");
     myAction.msg = ro["event_value"];
-    myAction.highlightedMsg = highlight(myAction, myAction.msg);
+    if (myAction.msg == "snow set yours at 330") {
+        console.log("stop");
+    }
+    myAction.varRefs = getVarRefs(myAction);
+    myAction.score = scoreAction(myAction);
+    myAction.highlightedMsg = highlightMessage(myAction);
     myAction.R = myAction.level.R;
     myAction.V = myAction.level.V;
     myAction.level.actions.push(myAction);
@@ -257,7 +262,7 @@ function addAttachProbe(ro) {
     var myAction = addAction(ro, "attach-probe");
     var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
     myAction.location = ro["location"];
-    if (!(duplicate(myAction))) {
+    if (!(myAction)) {
         myAction.level.actions.push(myAction);
     } else {
         //        console.log("Passed over an attach probe action at . " + myAction.time);

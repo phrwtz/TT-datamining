@@ -4,10 +4,6 @@ var level = function() {};
 var member = function() {};
 var action = function() {};
 var teams = [];
-var varRefs = function() {} //List of references to known variables
-    //Each property is a variable name and is associated with an array of
-    //actions (messages and calculations) that contain a reference
-    //to that variable)
 
 function parseCSV() {
     console.log("starting parse");
