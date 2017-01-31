@@ -92,6 +92,9 @@ function score(varStr, action) {
         case "goalImA":
             score = 4;
             break;
+        case "no match":
+            score = 0;
+            break;
     }
     return score;
 }
@@ -162,10 +165,9 @@ function highlightMessage(act) { //Highlights the variable names, if any, in a m
 function getVarRefs(action) {
     //returns an array (possibly empty) of variable references contained in the action
     //(the message of a message action and/or the input or output of a calculation)
-    //
-    //A variable reference is an array consisting of the action in which
-    //the reference occurs, a string representing the variable that is
-    //matched, a string representing the number that was matched, and a numerical score indicating whether
+    //A variable reference is an array consisting of the action in which the
+    //reference occurs, a string representing the variable that is matched, a string
+    //representing the number that was matched, and a numerical score indicating whether
     //the value of the variable was globally known (e.g., E and/or R0 at some levels),
     //known to the actor of the action (e.g.,the actor's own resistance or voltage),
     //known to some other member of the team, or unknown (presumably, the result of a calculation)
@@ -221,271 +223,132 @@ function findVars(act, numStr) {
     var returnArray = []; //Array that will contain any returned varRefs.
     //Note: there may be more than one if the number matches more than one
     //variable
-
+    var variableFound = false;
     if (about(num, E, tol)) {
+        variableFound = true;
         thisStr = "E";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, R0, tol)) {
+        variableFound = true;
         thisStr = "R0";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, R1, tol)) {
+        variableFound = true;
         thisStr = "R1";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, R2, tol)) {
+        variableFound = true;
         thisStr = "R2";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, R3, tol)) {
+        variableFound = true;
         thisStr = "R3";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, V0, tol)) {
+        variableFound = true;
         thisStr = "V0";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, V1, tol)) {
+        variableFound = true;
         thisStr = "V1";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, V2, tol)) {
+        variableFound = true;
         thisStr = "V2";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, V3, tol)) {
+        variableFound = true;
         thisStr = "V3";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, goalR1, tol)) {
+        variableFound = true;
         thisStr = "goalR1";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, goalR2, tol)) {
+        variableFound = true;
         thisStr = "goalR2";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, goalR3, tol)) {
+        variableFound = true;
         thisStr = "goalR3";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, goalV0, tol)) {
+        variableFound = true;
         thisStr = "goalV0";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, goalV1, tol)) {
+        variableFound = true;
         thisStr = "goalV1";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, goalV2, tol)) {
+        variableFound = true;
         thisStr = "goalV2";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, goalV3, tol)) {
+        variableFound = true;
         thisStr = "goalV3";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, IA, tol)) {
+        variableFound = true;
         thisStr = "IA";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, ImA, tol)) {
+        variableFound = true;
         thisStr = "ImA";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, goalIA, tol)) {
+        variableFound = true;
         thisStr = "goalIA";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         returnArray.push(thisVarRef);
     }
     if (about(num, ImA, tol)) {
+        variableFound = true;
         thisStr = "goalImA";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        returnArray.push(thisVarRef);
+    }
+    if (!variableFound) { //if there is no match
+        thisVarRef = [act, "no match", numStr, 0];
         returnArray.push(thisVarRef);
     }
     return returnArray;
-}
-
-//This function looks for variables by matching numStr to their numeric values.
-//If it finds a match it adds act to the appropriate varRef array and also adds
-//the appropriate label to returnStr. It returns a string with all the labels
-//that matched numStr
-function compareNumbers(act, numStr) {
-    var num = parseFloat(numStr);
-    var level = act.level;
-    var returnStr = "";
-    var E = level.E,
-        R0 = level.R0,
-        goalV1 = level.goalV[0],
-        goalV2 = level.goalV[1],
-        goalV3 = level.goalV[2],
-        goalV0 = E - goalV1 - goalV2 - goalV3,
-        goalR1 = level.goalR[0],
-        goalR2 = level.goalR[1],
-        goalR3 = level.goalR[2],
-        Rtot = R0 + R1 + R2 + R3,
-        goalRtot = R0 + goalR1 + goalR2 + goalR3,
-        R1 = act.R[0],
-        R2 = act.R[1],
-        R3 = act.R[2],
-        V0 = E * R0 / Rtot,
-        V1 = act.V[0],
-        V2 = act.V[1],
-        V3 = act.V[2],
-        IA = E / Rtot,
-        ImA = 1000 * IA,
-        goalIA = E / goalRtot,
-        goalImA = 1000 * goalIA;
-    //tol is how close two numbers have to be to considered "about equal"
-    //Note: we compare tol to |x - y| / (x + y) so it's a relative value
-    var tol = .005;
-    var returnStr = ""; //To be filled in as we get matches
-    var thisStr = "no match"; //String that will contain all variable names in numStr
-    var thisVarRef = []; //Array that will contain the action and a string denoting
-    //the "character" of the variable: whether it is global, local, remote, or unknown.
-    thisVarRef = [act, thisStr, 0]; //initialize to values we want to return if no
-    //variable is matched. The action will not contain a varRef in that case
-    if (about(num, E, tol)) {
-        thisStr = "E";
-        thisVarRef = [act, thisStr, score(thisStr, act)];
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-    if (about(num, R0, tol)) {
-        thisStr = "R0";
-        thisVarRef = [act, thisStr, score(thisStr, act)];
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-    if (about(num, R1, tol)) {
-        thisStr = "R1";
-        thisVarRef = [act, thisStr, score(thisStr, act)];
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-    if (about(num, R2, tol)) {
-        thisStr = "R2";
-        thisVarRef = [act, thisStr, score(thisStr, act)];
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-    if (about(num, R3, tol)) {
-        thisStr = "R3";
-        thisVarRef = [act, thisStr, score(thisStr, act)];
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-    if (about(num, V0, tol)) {
-        thisStr = "V0";
-        thisVarRef = [act, thisStr, score(thisStr, act)];
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-    if (about(num, V1, tol)) {
-        thisStr = "V1";
-        thisVarRef = [act, thisStr, score(thisStr, act)];
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-    if (about(num, V2, tol)) {
-        thisStr = "V2";
-        thisVarRef = [act, thisStr, score(thisStr, act)];
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-    if (about(num, V3, tol)) {
-        thisStr = "V3";
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-
-    //**** Note: we're leaving out the goal resistances for the time being,
-    //pending figuring out what to do with them.
-
-    // if (about(num, goalR1, tol)) {
-    //     thisStr = "goalR1";
-    //     thisVarRef = [act, thisStr, score(thisStr, act)];
-    //     act.level.varRefs[thisStr].push(thisVarRef);
-    //     (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    // }
-    // if (about(num, goalR2, tol)) {
-    //     thisStr = "goalR2";
-    //     thisVarRef = [act, thisStr, score(thisStr, act)];
-    //     act.level.varRefs[thisStr].push(thisVarRef);
-    //     (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    // }
-    // if (about(num, goalR3, tol)) {
-    //     thisStr = "goalR3";
-    //     thisVarRef = [act, thisStr, score(thisStr, act)];
-    //     act.level.varRefs[thisStr].push(thisVarRef);
-    //     (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    // }
-    if (about(num, goalV0, tol)) {
-        thisStr = "goalV0";
-        thisVarRef = [act, thisStr, score(thisStr, act)];
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-    if (about(num, goalV1, tol)) {
-        thisStr = "goalV1";
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-    if (about(num, goalV2, tol)) {
-        thisStr = "goalV2";
-        thisVarRef = [act, thisStr, score(thisStr, act)];
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-    if (about(num, goalV3, tol)) {
-        thisStr = "goalV3";
-        thisVarRef = [act, thisStr, score(thisStr, act)];
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-    if (about(num, IA, tol)) {
-        thisStr = "IA";
-        thisVarRef = [act, thisStr, score(thisStr, act)];
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-    if (about(num, ImA, tol)) {
-        thisStr = "ImA";
-        thisVarRef = [act, thisStr, score(thisStr, act)];
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-    if (about(num, goalIA, tol)) {
-        thisStr = "goalIA";
-        thisVarRef = [act, thisStr, score(thisStr, act)];
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-    if (about(num, ImA, tol)) {
-        thisStr = "goalImA";
-        thisVarRef = [act, thisStr, score(thisStr, act)];
-        act.level.varRefs[thisStr].push(thisVarRef);
-        (returnStr == "" ? returnStr = thisStr : returnStr += ", " + thisStr);
-    }
-    return returnStr;
 }
 
 function makeTeams(rowObjs) { //parse the row objects array looking for and populating teams

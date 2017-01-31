@@ -198,7 +198,7 @@ function addRChange(ro) {
 function addMessage(ro) {
     var myAction = addAction(ro, "message");
     myAction.msg = ro["event_value"];
-    if (myAction.msg == "snow set yours at 330") {
+    if (myAction.uTime == 1475529804) {
         console.log("stop");
     }
     myAction.varRefs = getVarRefs(myAction);

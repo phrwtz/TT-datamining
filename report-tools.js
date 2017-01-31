@@ -119,7 +119,7 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " +
+                                    document.getElementById("data").innerHTML += (act.uTime + ", " + act.date + ", " + act.time + ": " +
                                         act.actor.styledName + ", board " + bd + ", said: \"" + act.highlightedMsg + "\", score = " + act.score + "<br>");
                                     // document.getElementById("data").innerHTML += ("R0 = " + level.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                     // document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
@@ -328,8 +328,7 @@ function reportVoltageRegulator(teams) {
 }
 
 function instructorReport(teams) {
-
-    if ($("#instructor-report")[0].checked) {
+    if ($("#action-scores")[0].checked) {
         if (document.getElementById("tableDiv")) {
             var tableDiv = document.getElementById("tableDiv");
             while (tableDiv.firstChild) {
@@ -347,7 +346,6 @@ function instructorReport(teams) {
             var mName3 = team.members[2].name;
             var actionScores = []; //array for containing the total action scores
             //for each team member in a level
-
             //Create table
             var reportTable = document.createElement("table");
             var teamRow = document.createElement("tr");
@@ -357,7 +355,7 @@ function instructorReport(teams) {
             var mRow4 = document.createElement("tr");
             var tCell = document.createElement("th");
             tCell.innerHTML = "<br>Team " + name;
-            tCell.setAttribute("colspan", 5);
+            tCell.setAttribute("colspan", 6);
             teamRow.appendChild(tCell);
             var hRow = document.createElement("tr");
             var hCell0 = document.createElement("th");
@@ -376,21 +374,20 @@ function instructorReport(teams) {
             hCell3.innerHTML = "Level C";
             hCell4.innerHTML = "Level D";
             hCell5.innerHTML = "Total";
+            mCell1.innerHTML = mName1;
+            mCell2.innerHTML = mName2;
+            mCell3.innerHTML = mName3;
+            mCell4.innerHTML = "Total";
             hRow.appendChild(hCell0);
             hRow.appendChild(hCell1);
             hRow.appendChild(hCell2);
             hRow.appendChild(hCell3);
             hRow.appendChild(hCell4);
             hRow.appendChild(hCell5);
-            mCell1.innerHTML = mName1;
-            mCell2.innerHTML = mName2;
-            mCell3.innerHTML = mName3;
-            mCell4.innerHTML = "Total";
             mRow1.appendChild(mCell1);
             mRow2.appendChild(mCell2);
             mRow3.appendChild(mCell3);
             mRow4.appendChild(mCell4);
-
             reportTable.appendChild(teamRow);
             reportTable.appendChild(hRow);
             reportTable.appendChild(mRow1);
@@ -414,20 +411,21 @@ function instructorReport(teams) {
                 scoreCell1.innerHTML = actionScores[0];
                 scoreCell2.innerHTML = actionScores[1];
                 scoreCell3.innerHTML = actionScores[2];
-                totalColCell4.innerHTML = totalByLevel[i];
+                totalColCell4.innerHTML = "<b>" + totalByLevel[i] + "</b>";
                 totalByMember[0] += actionScores[0];
                 totalByMember[1] += actionScores[1];
                 totalByMember[2] += actionScores[2];
             } //end of the level
-            var total = totalByMember[0] + totalByMember[1] + totalByMember[2]
-            totalRowCell1 = mRow1.insertCell(-1);
-            totalRowCell2 = mRow2.insertCell(-1);
-            totalRowCell3 = mRow3.insertCell(-1);
-            totalCell = mRow4.insertCell(-1);
-            totalRowCell1.innerHTML = totalByMember[0];
-            totalRowCell2.innerHTML = totalByMember[1];
-            totalRowCell3.innerHTML = totalByMember[2];
-            totalCell.innerHTML = total;
+            var total = totalByMember[0] + totalByMember[1] + totalByMember[2];
+            var totalRowCell1 = mRow1.insertCell(-1);
+            var totalRowCell2 = mRow2.insertCell(-1);
+            var totalRowCell3 = mRow3.insertCell(-1);
+            var totalCell = mRow4.insertCell(-1);
+            totalRowCell1.innerHTML = "<b>" + totalByMember[0] + "</b>";
+            totalRowCell2.innerHTML = "<b>" + totalByMember[1] + "</b>";
+            totalRowCell3.innerHTML = "<b>" + totalByMember[2] + "</b>";
+            totalCell.innerHTML = "<b>" + total + "</b><br>";
+            totalCell.setAttribute("style", "color: red");
         }
     }
 }
