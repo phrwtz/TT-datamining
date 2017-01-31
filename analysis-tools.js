@@ -198,9 +198,9 @@ function addRChange(ro) {
 function addMessage(ro) {
     var myAction = addAction(ro, "message");
     myAction.msg = ro["event_value"];
-    if (myAction.uTime == 1475529804) {
-        console.log("stop");
-    }
+    // if (myAction.uTime == 1475529804) {
+    //     console.log("stop");
+    // }
     myAction.varRefs = getVarRefs(myAction);
     myAction.score = scoreAction(myAction);
     myAction.highlightedMsg = highlightMessage(myAction);
