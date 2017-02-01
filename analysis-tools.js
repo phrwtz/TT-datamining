@@ -213,6 +213,10 @@ function addCalculation(ro) {
     var myAction = addAction(ro, "calculation");
     myAction.result = ro["result"];
     myAction.calculation = ro["calculation"];
+    myAction.msg = myAction.calculation + " = " + myAction.result;
+    myAction.varRefs = getVarRefs(myAction);
+    myAction.score = scoreAction(myAction);
+    myAction.highlightedMsg = highlightMessage(myAction);
     if (!(duplicate(myAction))) {
         myAction.level.actions.push(myAction);
     }
