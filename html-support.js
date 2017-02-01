@@ -68,8 +68,8 @@ function setupForm(teams) {
     }
 
     var summaryNames = ["rChg", "iRep"];
-    var summaryIDs = ["resistor-change", "instructor-report"];
-    var summaryLabels = ["Resistor change types by level", "Instructor report"];
+    var summaryIDs = ["resistor-change", "action-scores"];
+    var summaryLabels = ["Resistor change types by level", "Action scores"];
     for (var l = 0; l < summaryLabels.length; l++) {
         IDStr = ' id = ' + summaryIDs[l] + "> ";
         nameStr = ' name = ' + summaryNames[l];
