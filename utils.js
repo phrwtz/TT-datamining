@@ -163,7 +163,7 @@ function highlightMessage(act) { //Highlights the variable names, if any, in a m
 }
 
 function getVarRefs(action) {
-    //returns an array (possibly empty) of variable references contained in the action
+    //returns an array (possibly empty) of variable references contained in the text.
     //(the message of a message action and/or the input or output of a calculation)
     //A variable reference is an array consisting of the action in which the
     //reference occurs, a string representing the variable that is matched, a string
@@ -171,24 +171,23 @@ function getVarRefs(action) {
     //the value of the variable was globally known (e.g., E and/or R0 at some levels),
     //known to the actor of the action (e.g.,the actor's own resistance or voltage),
     //known to some other member of the team, or unknown (presumably, the result of a calculation)
-    if (action.type == "message") {
-        var text = action.msg;
-        var textWithoutSpaces = text.replace(/\s/g, '');
-        var pattern = new RegExp(/([[0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
-        var nums = textWithoutSpaces.match(pattern);
-        var vrs = [] //array that will contain all the variable references
-            //contained in the action. It will remain empty if nums is null or
-            //no VRs are found.
-        if (nums) {
-            //nums is an array of strings representing all the numbers in text
-            for (var i = 0; i < nums.length; i++) {
-                vrs[i] = findVars(action, nums[i]); //matches the numbers to the variables.
-                //returns an array of varRefs;
-            }
+    var text = action.msg;
+    var textWithoutSpaces = text.replace(/\s/g, '');
+    var pattern = new RegExp(/([[0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
+    var nums = textWithoutSpaces.match(pattern);
+    var vrs = [] //array that will contain all the variable references
+        //contained in the action. It will remain empty if nums is null or
+        //no VRs are found.
+    if (nums) {
+        //nums is an array of strings representing all the numbers in text
+        for (var i = 0; i < nums.length; i++) {
+            vrs[i] = findVars(action, nums[i]); //matches the numbers to the variables.
+            //returns an array of varRefs;
         }
-        return vrs;
     }
+    return vrs;
 }
+
 
 //This function looks for variables by matching numStr to their numeric values.
 //If it finds a match it returns a variable reference object

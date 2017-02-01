@@ -137,10 +137,8 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    var calculation = highlight(act, act.calculation);
-                                    var result = highlight(act, Math.round(1000 * act.result) / 1000);
                                     document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
-                                        " performed the calculation  " + calculation + " and got the result " + result + ".<br>");
+                                        " performed the calculation  " + act.highlightedMsg + ".<br>");
                                     document.getElementById("data").innerHTML += ("R0 = " + level.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                     document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                     document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
