@@ -198,9 +198,9 @@ function addRChange(ro) {
 function addMessage(ro) {
     var myAction = addAction(ro, "message");
     myAction.msg = ro["event_value"];
-    if (myAction.msg == "snow set yours at 330") {
-        console.log("stop");
-    }
+    // if (myAction.uTime == 1475529804) {
+    //     console.log("stop");
+    // }
     myAction.varRefs = getVarRefs(myAction);
     myAction.score = scoreAction(myAction);
     myAction.highlightedMsg = highlightMessage(myAction);
@@ -213,6 +213,10 @@ function addCalculation(ro) {
     var myAction = addAction(ro, "calculation");
     myAction.result = ro["result"];
     myAction.calculation = ro["calculation"];
+    myAction.msg = myAction.calculation + " = " + myAction.result;
+    myAction.varRefs = getVarRefs(myAction);
+    myAction.score = scoreAction(myAction);
+    myAction.highlightedMsg = highlightMessage(myAction);
     if (!(duplicate(myAction))) {
         myAction.level.actions.push(myAction);
     }
