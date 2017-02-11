@@ -4,8 +4,11 @@ function generateReport(teams) {
     console.log("results reported");
     reportSummary(teams);
     console.log("summaries reported");
-    instructorReport(teams);
-    console.log("instructors report generated");
+    reportActions(teams);
+    console.log("action report generated");
+    reportVarRefs(teams);
+    console.log("variable references report generated");
+
 }
 
 function reportResults(teams) {
@@ -17,22 +20,19 @@ function reportResults(teams) {
                 var level = team.levels[j];
                 if ($("#level-" + level.label)[0].checked) {
                     var acts = level.actions;
-                    var levelMsg = (level.success ? ". Level succeeded." : ". Level failed.");
+                    var levelMsg = (level.goalsMet ? ". Level succeeded." : ". Level failed.");
                     document.getElementById("data").innerHTML += ("<br><mark>" +
-                        team.name + ", level " + level.label +
-                        ":  E = " + level.E + ", R0 = " + level.R0 + ", R1 = " + level.initR[0] + ", R2 = " + level.initR[2] + ", R3 = " + level.initR[2] +
-                        ", current = " + level.I + ", goal V1 = " + level.goalV[0] +
-                        ", goal V2 = " + level.goalV[1] + ", goal V3 = " + level.goalV[2] +
-                        "; goal R1 = " + level.goalR[0] + ", goal R2 = " + level.goalR[1] +
-                        ", goal R3 = " + level.goalR[2] + levelMsg + "</mark><br><br>");
+                        team.name + ", level " + level.label + levelMsg + "</mark><br><br>");
                     for (var i = 0; i < acts.length; i++) {
                         var preTime,
                             interval = 45, //Maximum interval between logged actions for considering them linked.
                             act = acts[i],
                             bd = act.board + 1,
-                            actor = act.actor
-                        styledName = actor.styledName,
+                            actor = act.actor,
+                            eTime, //Elapsed time to nearest tenth of a second since start of level
+                            styledName = actor.styledName,
                             currentMsg = (act.currentFlowing ? ". Current is flowing. " : ". Current is not flowing.");
+                        eTime = Math.round((act.uTime - level.startTime) + 10) / 10;
                         switch (act.type) {
                             case "submitClicked":
                                 if ($("#action-submit")[0].check) {
@@ -51,7 +51,7 @@ function reportResults(teams) {
 
                             case "submitCorrect":
                                 if ($("#action-submit")[0].checked) {
-                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " +
+                                    document.getElementById("data").innerHTML += (eTime + ": " +
                                         act.actor.styledName + " submitted correct answers.<br>");
                                 }
                                 break;
@@ -65,7 +65,7 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time +
+                                    document.getElementById("data").innerHTML += (eTime +
                                         ": " + styledName + " changed R" + (bd) + " from " + act.oldR[bd - 1] +
                                         " to " + act.R[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
                                         " to " + act.V[bd - 1] + ". (Goal is " + level.goalV[bd - 1] + ")" + act.goalMsg + "<br>");
@@ -105,7 +105,7 @@ function reportResults(teams) {
                                     } else {
                                         RMsg += " R units incorrect."
                                     }
-                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " +
+                                    document.getElementById("data").innerHTML += (eTime + ": " +
                                         act.actor.styledName + " submitted incorrect values." +
                                         EMsg + RMsg + "<br>")
                                 }
@@ -119,8 +119,8 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " +
-                                        act.actor.styledName + ", board " + bd + ", said: \"" + act.highlightedMsg + "\", score = " + act.score + "<br>");
+                                    document.getElementById("data").innerHTML += (eTime + ": " +
+                                        act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + ", score = " + act.score + "<br>");
                                     // document.getElementById("data").innerHTML += ("R0 = " + level.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                     // document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                     // document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
@@ -137,7 +137,7 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
+                                    document.getElementById("data").innerHTML += (eTime + ": " + act.actor.styledName +
                                         " performed the calculation  " + act.highlightedMsg + ".<br>");
                                     document.getElementById("data").innerHTML += ("R0 = " + level.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                     document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
@@ -151,7 +151,7 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
+                                    document.getElementById("data").innerHTML += (eTime + ": " + act.actor.styledName +
                                         ", board " + bd +
                                         ", attached a probe to " + act.location + currentMsg + "<br>");
                                 }
@@ -162,7 +162,7 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
+                                    document.getElementById("data").innerHTML += (eTime + ": " + act.actor.styledName +
                                         ", board " + bd +
                                         ", detached a probe from " + act.location + currentMsg + "<br>");
                                 }
@@ -173,7 +173,7 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
+                                    document.getElementById("data").innerHTML += (eTime + ": " + act.actor.styledName +
                                         ", board " + bd +
                                         ", connected a lead to " + act.location + currentMsg + "<br>");
                                 }
@@ -185,14 +185,14 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
+                                    document.getElementById("data").innerHTML += (eTime + ": " + act.actor.styledName +
                                         ", board " + bd +
                                         ", disconnected a lead from " + act.location + currentMsg + "<br>");
                                 }
                                 break;
                             case "joined-group":
                                 if ($("#action-joined-group")[0].checked) {
-                                    document.getElementById("data").innerHTML += (act.date + ", " + act.time + ": " + act.actor.styledName +
+                                    document.getElementById("data").innerHTML += (eTime + ": " + act.actor.styledName +
                                         ", board " + bd +
                                         ", joined team " + team.name + "<br>");
                                 }
@@ -206,10 +206,52 @@ function reportResults(teams) {
     }
 }
 
+function reportVarRefs(teams) {
+    var team,
+        level,
+        varRefs,
+        vrArray,
+        vr,
+        act,
+        vrStr,
+        vrNum,
+        vrScore,
+        vrLabelsArray = ["E", "R0", "R1", "R2", "R3", "V0", "V1", "V2", "V3", "goalR1", "goalR2", "goalR3", "goalV1", "goalV2", "goalV3", "Rtot", "goalRtot", "IA", "ImA", "goalIA", "goalIma"]
+
+
+    for (var k = 0; k < teams.length; k++) {
+        team = teams[k];
+        if ($("#team-" + team.name)[0].checked) {
+            for (var j = 0; j < team.levels.length; j++) {
+                level = team.levels[j];
+                if ($("#level-" + level.label)[0].checked) {
+                    varRefs = level.varRefs;
+                    for (var i = 0; i < vrLabelsArray.length; i++) {
+                        vrStr = vrLabelsArray[i];
+                        if ($("#varRef-" + vrStr)[0].checked) {
+                            vrArray = varRefs[vrStr]; //contains all the varRefs of type vrStr;
+                            for (var ii = 0; ii < vrArray.length; ii++) {
+                                vr = vrArray[ii];
+                                act = vr[0];
+                                vrNum = vr[2];
+                                vrScore = vr[3];
+                                document.getElementById("data").innerHTML += (eTime +
+                                    ": board " + (act.board + 1) + ", type " +
+                                    act.type + ", text = " + act.msg + ", " + vrNum + " is " +
+                                    vrStr + ", score = " + vrScore + ".<br>");
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 //Reports on total number of resistor changes in each category for each team member, per level.
 function reportSummary(teams) {
     var count = {};
-    if ($("#resistor-change")[0].checked) {
+    if ($("#summary-resistor-change")[0].checked) {
         for (var k = 0; k < teams.length; k++) {
             var team = teams[k];
             if ($("#team-" + team.name)[0].checked) {
@@ -278,55 +320,58 @@ function reportSummary(teams) {
                 }
             }
         }
-    } //end of summary check
-}
-//Identifies instances of "voltage regulator behavior" by looking for pairs of resistor changes where
-//(a) the actor for the second is not the same as the actor for the first
-//(b) the first moved the voltage of the second actor away from the goal
-//(c) the second moves the voltage closer to the goal or overshoots, and
-//(d) the second follows the first by no more than <timeInterval> seconds
-//if additional resistor changes occur within the same <timeInterval> by the second player
-//and are goal seeking, they are to be added to the voltage regulator transaction.
-//Returns the array of resistorChange actions that belong to the transaction.
-function reportVoltageRegulator(teams) {
-    if ($("#voltage-regulator")[0].checked) {
-        for (var k = 0; k < teams.length; k++) {
-            var team = teams[k];
-            if ($("#team-" + team.name)[0].checked) {
-                for (var j = 0; j < team.levels.length; j++) {
-                    level = team.levels[j];
-                    if ($("#level-" + level.label)[0].checked) {
-                        for (i = 0; i < level.actions.length; i++) {
-                            act = level.actions[i];
-                            if (act.type = "resistorChange") {
-                                var previousActions = [];
-                                for (var j = 0; j < previousActions.length; j++) {
-                                    preAct = previousActions[j];
-                                    if (act.uTime - preAct.uTime < interval) {
-                                        previousActions.splice(j, 1); //If the j'th element in the array is too old, get rid ot it.
-                                    } else {
-                                        var board = act.board;
-                                        var preBoard = preAct.board;
-                                        bdDiff = (board - preBoard) % 3;
-                                        if (bdDiff != 0) { //If the two resistor changes were by different boards
-                                            var preGoalMsg = (bdDiff = 1 ? preAct.goalAMsg : preAct.goalBMsg);
-                                            if ((preGoalMsg == ". Goal farther") && (act.goalMsg = ". Goal closer")) {
-                                                console.log("Voltage regulator activity identified!");
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
-function instructorReport(teams) {
-    if ($("#action-scores")[0].checked) {
+
+
+// //Identifies instances of "voltage regulator behavior" by looking for pairs of resistor changes where
+// //(a) the actor for the second is not the same as the actor for the first
+// //(b) the first moved the voltage of the second actor away from the goal
+// //(c) the second moves the voltage closer to the goal or overshoots, and
+// //(d) the second follows the first by no more than <timeInterval> seconds
+// //if additional resistor changes occur within the same <timeInterval> by the second player
+// //and are goal seeking, they are to be added to the voltage regulator transaction.
+// //Returns the array of resistorChange actions that belong to the transaction.
+// function reportVoltageRegulator(teams) {
+//     if ($("#voltage-regulator")[0].checked) {
+//         for (var k = 0; k < teams.length; k++) {
+//             var team = teams[k];
+//             if ($("#team-" + team.name)[0].checked) {
+//                 for (var j = 0; j < team.levels.length; j++) {
+//                     level = team.levels[j];
+//                     if ($("#level-" + level.label)[0].checked) {
+//                         for (i = 0; i < level.actions.length; i++) {
+//                             act = level.actions[i];
+//                             if (act.type = "resistorChange") {
+//                                 var previousActions = [];
+//                                 for (var j = 0; j < previousActions.length; j++) {
+//                                     preAct = previousActions[j];
+//                                     if (act.uTime - preAct.uTime < interval) {
+//                                         previousActions.splice(j, 1); //If the j'th element in the array is too old, get rid ot it.
+//                                     } else {
+//                                         var board = act.board;
+//                                         var preBoard = preAct.board;
+//                                         bdDiff = (board - preBoard) % 3;
+//                                         if (bdDiff != 0) { //If the two resistor changes were by different boards
+//                                             var preGoalMsg = (bdDiff = 1 ? preAct.goalAMsg : preAct.goalBMsg);
+//                                             if ((preGoalMsg == ". Goal farther") && (act.goalMsg = ". Goal closer")) {
+//                                                 console.log("Voltage regulator activity identified!");
+//                                             }
+//                                         }
+//                                     }
+//                                 }
+//                             }
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//     }
+// }
+
+function reportActions(teams) {
+    if ($("#summary-action-scores")[0].checked) {
         if (document.getElementById("tableDiv")) {
             var tableDiv = document.getElementById("tableDiv");
             while (tableDiv.firstChild) {
@@ -338,92 +383,190 @@ function instructorReport(teams) {
         }
         for (var j = 0; j < teams.length; j++) {
             var team = teams[j];
-            var name = team.name;
-            var mName1 = team.members[0].name;
-            var mName2 = team.members[1].name;
-            var mName3 = team.members[2].name;
-            var actionScores = []; //array for containing the total action scores
-            //for each team member in a level
-            //Create table
-            var reportTable = document.createElement("table");
-            var teamRow = document.createElement("tr");
-            var mRow1 = document.createElement("tr");
-            var mRow2 = document.createElement("tr");
-            var mRow3 = document.createElement("tr");
-            var mRow4 = document.createElement("tr");
-            var tCell = document.createElement("th");
-            tCell.innerHTML = "<br>Team " + name;
-            tCell.setAttribute("colspan", 6);
-            teamRow.appendChild(tCell);
-            var hRow = document.createElement("tr");
-            var hCell0 = document.createElement("th");
-            var hCell1 = document.createElement("th");
-            var hCell2 = document.createElement("th");
-            var hCell3 = document.createElement("th");
-            var hCell4 = document.createElement("th");
-            var hCell5 = document.createElement("th");
-            var mCell1 = document.createElement("th");
-            var mCell2 = document.createElement("th");
-            var mCell3 = document.createElement("th");
-            var mCell4 = document.createElement("th");
-            hCell0.innerHTML = "Member";
-            hCell1.innerHTML = "Level A";
-            hCell2.innerHTML = "Level B";
-            hCell3.innerHTML = "Level C";
-            hCell4.innerHTML = "Level D";
-            hCell5.innerHTML = "Total";
-            mCell1.innerHTML = mName1;
-            mCell2.innerHTML = mName2;
-            mCell3.innerHTML = mName3;
-            mCell4.innerHTML = "Total";
-            hRow.appendChild(hCell0);
-            hRow.appendChild(hCell1);
-            hRow.appendChild(hCell2);
-            hRow.appendChild(hCell3);
-            hRow.appendChild(hCell4);
-            hRow.appendChild(hCell5);
-            mRow1.appendChild(mCell1);
-            mRow2.appendChild(mCell2);
-            mRow3.appendChild(mCell3);
-            mRow4.appendChild(mCell4);
-            reportTable.appendChild(teamRow);
-            reportTable.appendChild(hRow);
-            reportTable.appendChild(mRow1);
-            reportTable.appendChild(mRow2);
-            reportTable.appendChild(mRow3);
-            reportTable.appendChild(mRow4);
-            tableDiv.appendChild(reportTable);
-            document.body.appendChild(tableDiv);
+            if (team.members.length == 3) {
+                var name = team.name;
+                var mName1 = team.members[0].name;
+                var mName2 = team.members[1].name;
+                var mName3 = team.members[2].name;
+                var actionScores = []; //array for containing the total action scores
+                //for each team member in a level
+                //Create table
+                var reportTable = document.createElement("table");
+                var teamRow = document.createElement("tr");
+                var mRow1 = document.createElement("tr");
+                var mRow2 = document.createElement("tr");
+                var mRow3 = document.createElement("tr");
+                var mRow4 = document.createElement("tr");
+                var tCell = document.createElement("th");
+                tCell.innerHTML = "<br>Team " + name;
+                tCell.setAttribute("colspan", 6);
+                teamRow.appendChild(tCell);
+                var hRow = document.createElement("tr");
+                var hCell0 = document.createElement("th");
+                var hCell1 = document.createElement("th");
+                var hCell2 = document.createElement("th");
+                var hCell3 = document.createElement("th");
+                var hCell4 = document.createElement("th");
+                var hCell5 = document.createElement("th");
+                var mCell1 = document.createElement("th");
+                var mCell2 = document.createElement("th");
+                var mCell3 = document.createElement("th");
+                var mCell4 = document.createElement("th");
+                hCell0.innerHTML = "Member";
+                hCell1.innerHTML = "Level A";
+                hCell2.innerHTML = "Level B";
+                hCell3.innerHTML = "Level C";
+                hCell4.innerHTML = "Level D";
+                hCell5.innerHTML = "Total";
+                mCell1.innerHTML = mName1;
+                mCell2.innerHTML = mName2;
+                mCell3.innerHTML = mName3;
+                mCell4.innerHTML = "Total";
 
-            //Add up the scores for each level and each member
-            var totalByMember = [0, 0, 0];
-            for (var i = 0; i < 4; i++) {
-                level = team.levels[i];
-                actionScores = scoreActions(level);
-                var scoreCell1 = mRow1.insertCell(-1);
-                var scoreCell2 = mRow2.insertCell(-1);
-                var scoreCell3 = mRow3.insertCell(-1);
-                var totalColCell4 = mRow4.insertCell(-1);
-                var totalByLevel = [0, 0, 0, 0];
-                totalByLevel[i] = actionScores[0] + actionScores[1] + actionScores[2];
-                scoreCell1.innerHTML = actionScores[0];
-                scoreCell2.innerHTML = actionScores[1];
-                scoreCell3.innerHTML = actionScores[2];
-                totalColCell4.innerHTML = "<b>" + totalByLevel[i] + "</b>";
-                totalByMember[0] += actionScores[0];
-                totalByMember[1] += actionScores[1];
-                totalByMember[2] += actionScores[2];
-            } //end of the level
-            var total = totalByMember[0] + totalByMember[1] + totalByMember[2];
-            var totalRowCell1 = mRow1.insertCell(-1);
-            var totalRowCell2 = mRow2.insertCell(-1);
-            var totalRowCell3 = mRow3.insertCell(-1);
-            var totalCell = mRow4.insertCell(-1);
-            totalRowCell1.innerHTML = "<b>" + totalByMember[0] + "</b>";
-            totalRowCell2.innerHTML = "<b>" + totalByMember[1] + "</b>";
-            totalRowCell3.innerHTML = "<b>" + totalByMember[2] + "</b>";
-            totalCell.innerHTML = "<b>" + total + "</b><br>";
-            totalCell.setAttribute("style", "color: red");
+                var cellA1 = document.createElement("td");
+                var cellA2 = document.createElement("td");
+                var cellA3 = document.createElement("td");
+                var cellB1 = document.createElement("td");
+                var cellB2 = document.createElement("td");
+                var cellB3 = document.createElement("td");
+                var cellC1 = document.createElement("td");
+                var cellC2 = document.createElement("td");
+                var cellC3 = document.createElement("td");
+                var cellD1 = document.createElement("td");
+                var cellD2 = document.createElement("td");
+                var cellD3 = document.createElement("td");
+                var memberTotal1 = document.createElement("td");
+                var memberTotal2 = document.createElement("td");
+                var memberTotal3 = document.createElement("td");
+                var levelTotalA = document.createElement("td");
+                var levelTotalB = document.createElement("td");
+                var levelTotalC = document.createElement("td");
+                var levelTotalD = document.createElement("td");
+                var totalTotal = document.createElement("td");
+
+                cellA1.innerHTML = "N/A";
+                cellA2.innerHTML = "N/A";
+                cellA3.innerHTML = "N/A";
+                cellB1.innerHTML = "N/A";
+                cellB2.innerHTML = "N/A";
+                cellB3.innerHTML = "N/A";
+                cellC1.innerHTML = "N/A";
+                cellC2.innerHTML = "N/A";
+                cellC3.innerHTML = "N/A";
+                cellD1.innerHTML = "N/A";
+                cellD2.innerHTML = "N/A";
+                cellD3.innerHTML = "N/A";
+                memberTotal1.innerHTML = "N/A";
+                memberTotal2.innerHTML = "N/A";
+                memberTotal3.innerHTML = "N/A";
+                levelTotalA.innerHTML = "N/A";
+                levelTotalB.innerHTML = "N/A";
+                levelTotalC.innerHTML = "N/A";
+                levelTotalD.innerHTML = "N/A";
+                totalTotal.innerHTML = "N/A";
+
+                hRow.appendChild(hCell0);
+                hRow.appendChild(hCell1);
+                hRow.appendChild(hCell2);
+                hRow.appendChild(hCell3);
+                hRow.appendChild(hCell4);
+                hRow.appendChild(hCell5);
+
+                mRow1.appendChild(mCell1);
+                mRow1.appendChild(cellA1);
+                mRow1.appendChild(cellB1);
+                mRow1.appendChild(cellC1);
+                mRow1.appendChild(cellD1);
+                mRow1.appendChild(memberTotal1);
+
+                mRow2.appendChild(mCell2);
+                mRow2.appendChild(cellA2);
+                mRow2.appendChild(cellB2);
+                mRow2.appendChild(cellC2);
+                mRow2.appendChild(cellD2);
+                mRow2.appendChild(memberTotal2);
+
+                mRow3.appendChild(mCell3);
+                mRow3.appendChild(cellA3);
+                mRow3.appendChild(cellB3);
+                mRow3.appendChild(cellC3);
+                mRow3.appendChild(cellD3);
+                mRow3.appendChild(memberTotal3);
+
+                mRow4.appendChild(mCell4);
+                mRow4.appendChild(levelTotalA);
+                mRow4.appendChild(levelTotalB);
+                mRow4.appendChild(levelTotalC);
+                mRow4.appendChild(levelTotalD);
+                mRow4.appendChild(totalTotal);
+
+
+                reportTable.appendChild(teamRow);
+                reportTable.appendChild(hRow);
+                reportTable.appendChild(mRow1);
+                reportTable.appendChild(mRow2);
+                reportTable.appendChild(mRow3);
+                reportTable.appendChild(mRow4);
+                tableDiv.appendChild(reportTable);
+                document.body.appendChild(tableDiv);
+
+                //Add up the scores for each level and each member
+                var totalForBoard = [0, 0, 0];
+                for (var i = 0; i < team.levels.length; i++) {
+                    level = team.levels[i];
+                    actionScores = scoreActions(level);
+                    switch (level.label) {
+                        case "A":
+                            var totalA = actionScores[0] + actionScores[1] + actionScores[2];
+                            totalForBoard[0] += actionScores[0];
+                            totalForBoard[1] += actionScores[1];
+                            totalForBoard[2] += actionScores[2];
+                            cellA1.innerHTML = actionScores[0];
+                            cellA2.innerHTML = actionScores[1];
+                            cellA3.innerHTML = actionScores[2];
+                            levelTotalA.innerHTML = "<b>" + totalA + "</b>";
+                            break;
+
+                        case "B":
+                            var totalB = actionScores[0] + actionScores[1] + actionScores[2];
+                            totalForBoard[0] += actionScores[0];
+                            totalForBoard[1] += actionScores[1];
+                            totalForBoard[2] += actionScores[2];
+                            cellB1.innerHTML = actionScores[0];
+                            cellB2.innerHTML = actionScores[1];
+                            cellB3.innerHTML = actionScores[2];
+                            levelTotalB.innerHTML = "<b>" + totalB + "</b>";
+                            break;
+
+                        case "C":
+                            var totalC = actionScores[0] + actionScores[1] + actionScores[2];
+                            totalForBoard[0] += actionScores[0];
+                            totalForBoard[1] += actionScores[1];
+                            totalForBoard[2] += actionScores[2];
+                            cellC1.innerHTML = actionScores[0];
+                            cellC2.innerHTML = actionScores[1];
+                            cellC3.innerHTML = actionScores[2];
+                            levelTotalC.innerHTML = "<b>" + totalC + "</b>";
+                            break;
+
+                        case "D":
+                            var totalD = actionScores[0] + actionScores[1] + actionScores[2];
+                            totalForBoard[0] += actionScores[0];
+                            totalForBoard[1] += actionScores[1];
+                            totalForBoard[2] += actionScores[2];
+                            cellD1.innerHTML = actionScores[0];
+                            cellD2.innerHTML = actionScores[1];
+                            cellD3.innerHTML = actionScores[2];
+                            levelTotalD.innerHTML = "<b>" + totalD + "</b>";
+                            break;
+                    }
+                } //end of the level loop
+                memberTotal1.innerHTML = "<b>" + totalForBoard[0] + "</b>";
+                memberTotal2.innerHTML = "<b>" + totalForBoard[1] + "</b>";
+                memberTotal3.innerHTML = "<b>" + totalForBoard[2] + "</b>";
+                totalTotal.innerHTML = "<b>" + (totalForBoard[0] + totalForBoard[1] + totalForBoard[2]) + "</b><br>";
+                totalTotal.setAttribute("style", "color: red");
+            }
         }
     }
 }

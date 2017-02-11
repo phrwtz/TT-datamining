@@ -1,3 +1,13 @@
+function clearScreen() { //clears data and summary tables
+    document.getElementById("data").innerHTML = "";
+    if (document.getElementById("tableDiv")) {
+        var tableDiv = document.getElementById("tableDiv");
+        while (tableDiv.firstChild) {
+            tableDiv.removeChild(tableDiv.firstChild);
+        }
+    }
+}
+
 function initializeVarRefs(level) { //Initializes variable references for this level
     level.varRefs["E"] = [];
     level.varRefs["R0"] = [];
@@ -176,8 +186,8 @@ function getVarRefs(action) {
     var pattern = new RegExp(/([[0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
     var nums = textWithoutSpaces.match(pattern);
     var vrs = [] //array that will contain all the variable references
-        //contained in the action. It will remain empty if nums is null or
-        //no VRs are found.
+    //contained in the action. It will remain empty if nums is null or
+    //no VRs are found.
     if (nums) {
         //nums is an array of strings representing all the numbers in text
         for (var i = 0; i < nums.length; i++) {
@@ -227,18 +237,21 @@ function findVars(act, numStr) {
         variableFound = true;
         thisStr = "E";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, R0, tol)) {
         variableFound = true;
         thisStr = "R0";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, R1, tol)) {
         variableFound = true;
         thisStr = "R1";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, R2, tol)) {
@@ -251,100 +264,117 @@ function findVars(act, numStr) {
         variableFound = true;
         thisStr = "R3";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, V0, tol)) {
         variableFound = true;
         thisStr = "V0";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, V1, tol)) {
         variableFound = true;
         thisStr = "V1";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, V2, tol)) {
         variableFound = true;
         thisStr = "V2";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, V3, tol)) {
         variableFound = true;
         thisStr = "V3";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, goalR1, tol)) {
         variableFound = true;
         thisStr = "goalR1";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, goalR2, tol)) {
         variableFound = true;
         thisStr = "goalR2";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, goalR3, tol)) {
         variableFound = true;
         thisStr = "goalR3";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, goalV0, tol)) {
         variableFound = true;
         thisStr = "goalV0";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, goalV1, tol)) {
         variableFound = true;
         thisStr = "goalV1";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, goalV2, tol)) {
         variableFound = true;
         thisStr = "goalV2";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, goalV3, tol)) {
         variableFound = true;
         thisStr = "goalV3";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, IA, tol)) {
         variableFound = true;
         thisStr = "IA";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, ImA, tol)) {
         variableFound = true;
         thisStr = "ImA";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, goalIA, tol)) {
         variableFound = true;
         thisStr = "goalIA";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, ImA, tol)) {
         variableFound = true;
         thisStr = "goalImA";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (!variableFound) { //if there is no match
         thisVarRef = [act, "no match", numStr, 0];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     return returnArray;
@@ -439,11 +469,11 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
         myLevel.actions = [];
         myLevel.success = false;
         myLevel.varRefs = function() {} //List of references to known variables
-            //Each property is a variable label and is associated with an array of
-            //actions (messages and calculations) that contain a reference
-            //to that variable, paired with a string that defines whether the
-            //variable is globally known, known to the actor, known to some other
-            //team member, or unknown (e.g., E or R0 at higher levels)
+        //Each property is a variable label and is associated with an array of
+        //actions (messages and calculations) that contain a reference
+        //to that variable, paired with a string that defines whether the
+        //variable is globally known, known to the actor, known to some other
+        //team member, or unknown (e.g., E or R0 at higher levels)
         initializeVarRefs(myLevel); //Set all the arrays empty
         myTeam.levels.push(myLevel);
     }

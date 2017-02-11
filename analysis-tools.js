@@ -38,7 +38,10 @@ function analyze(rowObjs) {
                 addAttachProbe(ro);
                 break;
             case "Detached probe":
-                addDetachProbe(ro, i);
+                addDetachProbe(ro);
+                break;
+            case "Goals met":
+                addGoalsMet(ro);
                 break;
         }
     }
@@ -52,9 +55,9 @@ function addAction(ro, type) {
     myAction.type = type;
     myAction.team = team;
     myAction.level = level;
-    myAction.date = ro["date"];
-    myAction.time = ro["time"];
-    myAction.uTime = ro["unix-time"];
+    // myAction.date = ro["date"];
+    // myAction.time = ro["time"];
+    myAction.uTime = ro["time"];
     myAction.pTime = unixTimeConversion(myAction.uTime);
     myAction.board = parseInt(ro["board"]);
     if (level && ro["parameters"]) {
@@ -88,7 +91,7 @@ function duplicate(action) {
             checkType;
         for (var i = 1; i < 4; i++) { //check three actions back
             checkAct = actions[action.index - i];
-            if (checkAct.actor && checkAct.time && checkAct.type) {
+            if (checkAct.actor && checkAct.uTime && checkAct.type) {
                 checkActor = checkAct.actor;
                 checkTime = checkAct.uTime;
                 checkType = checkAct.type;
@@ -106,7 +109,7 @@ function addJoinedGroup(ro) {
     if (!(duplicate(myAction))) {
         myAction.level.actions.push(myAction);
     } else {
-        console.log("Passed over a joined group action at . " + myAction.time);
+        console.log("Passed over a joined group action at . " + myAction.uTime);
     }
 }
 
@@ -116,7 +119,7 @@ function addConnectLead(ro) {
     if (!(duplicate(myAction))) {
         myAction.level.actions.push(myAction);
     } else {
-        //        console.log("Passed over a connect lead action at . " + myAction.time);
+        //        console.log("Passed over a connect lead action at . " + myAction.uTime);
     }
 }
 
@@ -126,7 +129,7 @@ function addDisconnectLead(ro) {
     if (!(duplicate(myAction))) {
         myAction.level.actions.push(myAction);
     } else {
-        //        console.log("Passed over a disconnect lead action at . " + myAction.time);
+        //        console.log("Passed over a disconnect lead action at . " + myAction.uTime);
     }
 }
 
@@ -197,7 +200,7 @@ function addRChange(ro) {
 
 function addMessage(ro) {
     var myAction = addAction(ro, "message");
-    myAction.msg = ro["event_value"];
+    myAction.msg = "\"" + ro["event_value"] + "\"";
     // if (myAction.uTime == 1475529804) {
     //     console.log("stop");
     // }
@@ -211,13 +214,13 @@ function addMessage(ro) {
 
 function addCalculation(ro) {
     var myAction = addAction(ro, "calculation");
-    myAction.result = ro["result"];
-    myAction.calculation = ro["calculation"];
-    myAction.msg = myAction.calculation + " = " + myAction.result;
-    myAction.varRefs = getVarRefs(myAction);
-    myAction.score = scoreAction(myAction);
-    myAction.highlightedMsg = highlightMessage(myAction);
     if (!(duplicate(myAction))) {
+        myAction.result = ro["result"];
+        myAction.calculation = ro["calculation"];
+        myAction.msg = myAction.calculation + " = " + myAction.result;
+        myAction.varRefs = getVarRefs(myAction);
+        myAction.score = scoreAction(myAction);
+        myAction.highlightedMsg = highlightMessage(myAction);
         myAction.level.actions.push(myAction);
     }
 }
@@ -266,20 +269,26 @@ function addAttachProbe(ro) {
     var myAction = addAction(ro, "attach-probe");
     var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
     myAction.location = ro["location"];
-    if (!(myAction)) {
+    if (!(duplicate(myAction))) {
         myAction.level.actions.push(myAction);
     } else {
-        //        console.log("Passed over an attach probe action at . " + myAction.time);
+        //        console.log("Passed over an attach probe action at . " + myAction.uTime);
     }
 }
 
-function addDetachProbe(ro, i) {
+function addDetachProbe(ro) {
     var myAction = addAction(ro, "detach-probe");
     var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
     myAction.location = po["location"];
     if (!(duplicate(myAction))) {
         myAction.level.actions.push(myAction);
     } else {
-        //        console.log("Passed over a detach probe action at . " + myAction.time);
+        //        console.log("Passed over a detach probe action at . " + myAction.uTime);
     }
+}
+
+function addGoalsMet(ro) {
+    var team = findTeam(teams, ro);
+    var level = findLevel(team, ro);
+    level.goalsMet = true;
 }
