@@ -21,8 +21,8 @@ function reportResults(teams) {
                 if ($("#level-" + level.label)[0].checked) {
                     var acts = level.actions;
                     var levelMsg = (level.goalsMet ? ". Level succeeded." : ". Level failed.");
-                    document.getElementById("data").innerHTML += ("<br><mark>" +
-                        team.name + ", level " + level.label + levelMsg + "</mark><br><br>");
+                    document.getElementById("data").innerHTML += ("<br>" +
+                        team.name + ", level " + level.label + "<mark>" + levelMsg + "</mark><br><br>");
                     for (var i = 0; i < acts.length; i++) {
                         var preTime,
                             interval = 45, //Maximum interval between logged actions for considering them linked.
