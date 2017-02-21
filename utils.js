@@ -450,7 +450,6 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
     if (!inLevels) { //if not, add this level
         myLevel = new level;
         myLevel.startTime = ro["time"];
-        //        myLevel.startPTime = unixTimeConversion(myLevel.startTime);
         myLevel.number = number;
         myLevel.label = getAlphabeticLabel(number);
         myLevel.team = myTeam;
@@ -502,6 +501,8 @@ function addMember(myTeam, ro) { //construct a new member from ro and add it to 
             //        myMember.startPTime = unixTimeConversion(myMember.startTime);
             myMember.board = parseInt(po["board"]) + 1;
             //        myMember.colIndex = colIndex; //used for identifying member when counting actions
+            myMember.colIndex = colIndex; //A numerical index that will follow the member
+            //from level to level. Used in identifying the member when we count or score actions.
             myMember.color = colorArray[colIndex];
             myMember.name = name;
             myMember.styledName = "<span style= \"background-color: " + myMember.color + "\">" + name + "</span>";
