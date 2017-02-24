@@ -84,9 +84,9 @@ function duplicate(action) {
             checkActor,
             checkTime,
             checkType;
-        for (var i = 1; i < 4; i++) { //check three actions back
+        for (var i = 1; i < 3; i++) { //check three actions back
             checkAct = actions[action.index - i];
-            if (checkAct.actor && checkAct.time && checkAct.type) {
+            if (checkAct.actor && checkAct.uTime && checkAct.type) {
                 checkActor = checkAct.actor;
                 checkTime = checkAct.uTime;
                 checkType = checkAct.type;

@@ -49,7 +49,7 @@ function reportResults(teams) {
                                     var success = ((Math.abs(V1 - level.goalV[0]) + Math.abs(V2 - level.goalV[1]) + Math.abs(V3 - level.goalV[2])) < .01)
                                     var successMsg = (success ? ", goal voltages achieved" : ", goal voltages not achieved");
                                     document.getElementById("data").innerHTML += (uTime + ", (" + eTime + ") " + ": Submit clicked by " +
-                                        act.actor.styledName + successMsg + "<br>");
+                                        act.actor.styledName + ", board " + bd + successMsg + "<br>");
                                     document.getElementById("data").innerHTML += ("R0 = " + level.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                     document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                     document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
@@ -62,7 +62,7 @@ function reportResults(teams) {
                                     var current = Math.round((level.E / Rtot) * 1000000) / 1000;
                                     var V0 = Math.round((level.E * level.R0 / Rtot) * 1000) / 1000;
                                     document.getElementById("data").innerHTML += (uTime + ", (" + eTime + ") " + ": " +
-                                        act.actor.styledName + " submitted correct answers.<br>");
+                                        act.actor.styledName + ", board " + bd + ", submitted correct answers.<br>");
                                     document.getElementById("data").innerHTML += ("R0 = " + level.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                     document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                     document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
@@ -119,7 +119,7 @@ function reportResults(teams) {
                                         RMsg += " R units incorrect."
                                     }
                                     document.getElementById("data").innerHTML += (uTime + ", (" + eTime + ") " + ": " +
-                                        act.actor.styledName + " submitted incorrect values." +
+                                        act.actor.styledName + ", board " + bd + ", submitted incorrect values." +
                                         EMsg + RMsg + "<br>")
                                 }
                                 break;
@@ -151,7 +151,7 @@ function reportResults(teams) {
                                     }
                                     preTime = act.uTime;
                                     document.getElementById("data").innerHTML += (uTime + ", (" + eTime + ") " + ": " + act.actor.styledName +
-                                        " performed the calculation  " + act.highlightedMsg + ".<br>");
+                                        ", board " + bd + ", performed the calculation  " + act.highlightedMsg + ".<br>");
                                     document.getElementById("data").innerHTML += ("R0 = " + level.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                     document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                     document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
@@ -281,7 +281,8 @@ function reportSummary(teams) {
                             count[team.name][level.label][member.name].overshot = 0;
                             count[team.name][level.label][member.name].undershot = 0;
                             count[team.name][level.label][member.name].closer = 0;
-                            count[team.name][level.label][member.name].farther = 0;
+                            count[team.name][level.label][member.name].farther = 0;;
+                            count[team.name][level.label][member.name].total = 0;
                         } //clear all the counts for all members for this level
                         for (var ii = 0; ii < acts.length; ii++) {
                             act = acts[ii];
@@ -290,18 +291,23 @@ function reportSummary(teams) {
                                 switch (act.goalMsg) {
                                     case ". Goal achieved":
                                         count[team.name][level.label][member.name].achieved += 1;
+                                        count[team.name][level.label][member.name].total += 1;
                                         break;
                                     case ". Goal overshot":
                                         count[team.name][level.label][member.name].overshot += 1;
+                                        count[team.name][level.label][member.name].total += 1;
                                         break;
                                     case ". Goal undershot":
                                         count[team.name][level.label][member.name].undershot += 1;
+                                        count[team.name][level.label][member.name].total += 1;
                                         break;
                                     case ". Goal closer":
                                         count[team.name][level.label][member.name].closer += 1;
+                                        count[team.name][level.label][member.name].total += 1;
                                         break;
                                     case ". Goal farther":
                                         count[team.name][level.label][member.name].farther += 1;
+                                        count[team.name][level.label][member.name].total += 1;
                                         break;
                                 } //end of goalMsg switch
                             } //end of resistor change
@@ -327,7 +333,8 @@ function reportSummary(teams) {
                                 count[team.name][level.label][member.name].overshot + ", undershot = " +
                                 count[team.name][level.label][member.name].undershot + ", closer = " +
                                 count[team.name][level.label][member.name].closer + ", farther = " +
-                                count[team.name][level.label][member.name].farther + "<br>");
+                                count[team.name][level.label][member.name].farther + ", total = " +
+                                count[team.name][level.label][member.name].total + "<br>");
                         }
                     }
                 }
@@ -395,13 +402,16 @@ function reportActions(teams, type) {
             //if it doesn't, create one.
             var tableDiv = document.createElement("div");
             tableDiv.id = "tableDiv";
-            tableDiv.setAttribute("style", "overflow-x:auto");
+            //          tableDiv.setAttribute("style", "overflow-x:auto");
             document.body.appendChild(tableDiv);
         }
         for (var j = 0; j < teams.length; j++) {
             var team = teams[j];
             levelsArray = []; //An array of numMsgs, totalScores and averageScores by level
             if (team.members.length == 3) {
+                if (team.name == "Geography") {
+                    console.log("stop");
+                }
                 for (var i = 0; i < team.levels.length; i++) {
                     level = team.levels[i];
                     levelsArray[i] = scoreActions(level);

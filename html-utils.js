@@ -65,6 +65,7 @@ function makeTeamTable(team, title, levelData, type) {
         //the four cells after the first contain score or average score data from each level
         for (var j = 0; j < levelData.length; j++) { //but not all levels are represented
             //so we have to figure out where to put the data by looking at the level number
+
             levelNum = (levelData[j].level.number - 1);
             if (type == "Average") {
                 dataCells[i][levelNum].innerHTML = levelData[j].averageScores[i];
@@ -136,7 +137,8 @@ function scoreActions(level) {
     var mems = level.team.members; //Array of members for this team
     var totalScores = [0, 0, 0];
     var returnValues = function() {};
-    returnValues.numMsgs = [0, 0, 0];
+    returnValues.level = level,
+        returnValues.numMsgs = [0, 0, 0];
     returnValues.totalScores = [0, 0, 0];
     returnValues.averageScores = [0, 0, 0];
 
@@ -152,13 +154,14 @@ function scoreActions(level) {
             actor = act.actor;
             index = actor.colIndex;
             score = act.score;
-            returnValues.level = level; //a level object corresponding ot the current level
             returnValues.numMsgs[index] += 1; //a 3-d array with the number of messages sent by each member in this level
             returnValues.totalScores[index] += score; //a 3-D array with the total score of those messages
         }
     }
     for (var i = 0; i < 3; i++) {
-        returnValues.averageScores[i] = Math.round(100 * returnValues.totalScores[i] / returnValues.numMsgs[i]) / 100;
+        if (!(returnValues.numMsgs[i] == 0)) {
+            returnValues.averageScores[i] = Math.round(100 * returnValues.totalScores[i] / returnValues.numMsgs[i]) / 100;
+        }
     }
     return returnValues;
 }
