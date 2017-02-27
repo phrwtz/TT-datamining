@@ -491,6 +491,7 @@ function addMember(myTeam, ro) { //construct a new member from ro and add it to 
             myMember.color = colorArray[colIndex];
             myMember.id = userID;
             myMember.name = ro["event_value"];
+            myMember.styledName = "<span style= \"background-color: " + myMember.color + "\">" + myMember.name + "</span>";
             myMember.team = myTeam;
             myTeam.members.push(myMember);
         }

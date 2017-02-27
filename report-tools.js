@@ -21,7 +21,7 @@ function reportResults(teams) {
                 if ($("#level-" + level.label)[0].checked) {
                     var acts = level.actions;
                     var levelMsg = (level.success ? ". Level succeeded." : ". Level failed.");
-                    document.getElementById("data").innerHTML += ("<br>" +
+                    document.getElementById("data").innerHTML += ("<br>" + "Team " +
                         team.name + ", level " + level.label + ". goalV1 = " +
                         level.goalV[0] + ", goalV2 = " + level.goalV[1] + ", goalV3 = " +
                         level.goalV[2] + "<mark>" + levelMsg + "</mark><br><br>");
@@ -47,12 +47,11 @@ function reportResults(teams) {
                                     var V2 = level.E * act.R[1] / Rtot;
                                     var V3 = level.E * act.R[2] / Rtot;
                                     var success = ((Math.abs(V1 - level.goalV[0]) + Math.abs(V2 - level.goalV[1]) + Math.abs(V3 - level.goalV[2])) < .01)
-                                    var successMsg = (success ? ", goal voltages achieved" : ", goal voltages not achieved");
-                                    document.getElementById("data").innerHTML += (uTime + ", (" + eTime + ") " + ": Submit clicked by " +
+                                    var successMsg = (success ? " submitted correct voltages." : " submitted incorrect voltages.");
+                                    document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
                                         act.actor.styledName + ", board " + bd + successMsg + "<br>");
-                                    document.getElementById("data").innerHTML += ("R0 = " + level.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
-                                    document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
-                                    document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
+                                    document.getElementById("data").innerHTML += ("goalV1 = " + level.goalV[0] + ", goalV2 = " + level.goalV[1] +
+                                        ", goalV3 = " + level.goalV[2] + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + "<br>");
                                 }
                                 break;
 
@@ -61,8 +60,8 @@ function reportResults(teams) {
                                     var Rtot = level.R0 + act.R[0] + act.R[1] + act.R[2];
                                     var current = Math.round((level.E / Rtot) * 1000000) / 1000;
                                     var V0 = Math.round((level.E * level.R0 / Rtot) * 1000) / 1000;
-                                    document.getElementById("data").innerHTML += (uTime + ", (" + eTime + ") " + ": " +
-                                        act.actor.styledName + ", board " + bd + ", submitted correct answers.<br>");
+                                    document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                        ", board " + bd + ", submitted correct answers.<br>");
                                     document.getElementById("data").innerHTML += ("R0 = " + level.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                     document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                     document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
@@ -78,7 +77,7 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("data").innerHTML += (eTime +
+                                    document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
                                         ": " + styledName + " changed R" + (bd) + " from " + act.oldR[bd - 1] +
                                         " to " + act.R[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
                                         " to " + act.V[bd - 1] + ". (Goal is " + level.goalV[bd - 1] + ")" + act.goalMsg + "<br>");
@@ -118,7 +117,7 @@ function reportResults(teams) {
                                     } else {
                                         RMsg += " R units incorrect."
                                     }
-                                    document.getElementById("data").innerHTML += (uTime + ", (" + eTime + ") " + ": " +
+                                    document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
                                         act.actor.styledName + ", board " + bd + ", submitted incorrect values." +
                                         EMsg + RMsg + "<br>")
                                 }
@@ -132,7 +131,7 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("data").innerHTML += (uTime + ", (" + eTime + ") " + ": " +
+                                    document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
                                         act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + ", score = " + act.score + "<br>");
                                     // document.getElementById("data").innerHTML += ("R0 = " + level.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                     // document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
@@ -150,7 +149,7 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("data").innerHTML += (uTime + ", (" + eTime + ") " + ": " + act.actor.styledName +
+                                    document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                         ", board " + bd + ", performed the calculation  " + act.highlightedMsg + ".<br>");
                                     document.getElementById("data").innerHTML += ("R0 = " + level.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                     document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
@@ -164,7 +163,7 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("data").innerHTML += (uTime + ", (" + eTime + ") " + ": " + act.actor.styledName +
+                                    document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                         ", board " + bd +
                                         ", attached a probe to " + act.location + currentMsg + "<br>");
                                 }
@@ -175,7 +174,7 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("data").innerHTML += (uTime + ", (" + eTime + ") " + ": " + act.actor.styledName +
+                                    document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                         ", board " + bd +
                                         ", detached a probe from " + act.location + currentMsg + "<br>");
                                 }
@@ -186,7 +185,7 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("data").innerHTML += (uTime + ", (" + eTime + ") " + ": " + act.actor.styledName +
+                                    document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                         ", board " + bd +
                                         ", connected a lead to " + act.location + currentMsg + "<br>");
                                 }
@@ -198,14 +197,14 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += "<hr>"
                                     }
                                     preTime = act.uTime;
-                                    document.getElementById("data").innerHTML += (uTime + ", (" + eTime + ") " + ": " + act.actor.styledName +
+                                    document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                         ", board " + bd +
                                         ", disconnected a lead from " + act.location + currentMsg + "<br>");
                                 }
                                 break;
                             case "joined-group":
                                 if ($("#action-joined-group")[0].checked) {
-                                    document.getElementById("data").innerHTML += (uTime + ", (" + eTime + ") " + ": " + act.actor.styledName +
+                                    document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                         ", board " + bd +
                                         ", joined team " + team.name + "<br>");
                                 }
