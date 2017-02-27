@@ -5,7 +5,6 @@ var member = function() {};
 var action = function() {};
 var teams = [];
 
-
 function parseCSV() {
     console.log("starting parse");
     teams = []; //Clear the teams array (which might be populated if we haven't

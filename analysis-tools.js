@@ -55,19 +55,16 @@ function addAction(ro, type) {
     myAction.uTime = ro["time"];
     //    myAction.pTime = unixTimeConversion(myAction.uTime);
     myAction.board = parseInt(ro["board"]);
-    if (level && ro["parameters"]) {
-        var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-        myAction.index = level.actions.length; //The length of the array before the action is pushed. (The index of the action
-        //if it is pushed will equal this.)
-        myAction.actor = findMember(team, po["username"]);
-        myAction.currentFlowing = (po["currentFlowing"] == "true" ? true : false);
-        myAction.R = [parseInt(po["r1"]), parseInt(po["r2"]), parseInt(po["r3"])];
-        var Rtot = level.R0 + myAction.R[0] + myAction.R[1] + myAction.R[2];
-        myAction.V = [Math.round(((level.E * myAction.R[0]) / Rtot) * 100) / 100,
-            Math.round(((level.E * myAction.R[1]) / Rtot) * 100) / 100,
-            Math.round(((level.E * myAction.R[2]) / Rtot) * 100) / 100
-        ];
-    }
+    myAction.index = level.actions.length; //The length of the array before the action is pushed. (The index of the action
+    //if it is pushed will equal this.)
+    myAction.actor = findMember(ro["username"]);
+    myAction.currentFlowing = (ro["currentFlowing"] == "true" ? true : false);
+    myAction.R = [parseInt(ro["r1"]), parseInt(ro["r2"]), parseInt(ro["r3"])];
+    var Rtot = level.R0 + myAction.R[0] + myAction.R[1] + myAction.R[2];
+    myAction.V = [Math.round(((level.E * myAction.R[0]) / Rtot) * 100) / 100,
+        Math.round(((level.E * myAction.R[1]) / Rtot) * 100) / 100,
+        Math.round(((level.E * myAction.R[2]) / Rtot) * 100) / 100
+    ];
     return myAction;
 }
 
@@ -235,7 +232,7 @@ function addSubmit(ro) {
 
 function addAttachProbe(ro) {
     var myAction = addAction(ro, "attach-probe");
-    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+    //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
     myAction.location = ro["location"];
     if (!(myAction)) {
         myAction.level.actions.push(myAction);
@@ -246,8 +243,8 @@ function addAttachProbe(ro) {
 
 function addDetachProbe(ro, i) {
     var myAction = addAction(ro, "detach-probe");
-    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    myAction.location = po["location"];
+    //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+    myAction.location = ro["location"];
     if (!(duplicate(myAction))) {
         myAction.level.actions.push(myAction);
     } else {
