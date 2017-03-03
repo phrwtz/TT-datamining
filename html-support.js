@@ -95,9 +95,9 @@ function setupForm(teams) {
         varRefData.innerHTML += "<input + " + typeStr + IDStr + labelStr;
     }
 
-    var summaryNames = ["rChg", "iRep"];
-    var summaryIDs = ["resistor-change", "action-scores"];
-    var summaryLabels = ["Resistor changes", "Action scores"];
+    var summaryNames = ["rChg", "iRep", "results"];
+    var summaryIDs = ["resistor-change", "action-scores", "teacher-report"];
+    var summaryLabels = ["Resistor changes", "Action scores", "Teacher report"];
     for (var l = 0; l < summaryLabels.length; l++) {
         IDStr = 'id = summary-' + summaryIDs[l] + " name=summary>";
         labelStr = summaryLabels[l] + "<br>";

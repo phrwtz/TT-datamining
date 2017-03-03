@@ -441,11 +441,14 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
     for (j = 0; j < myTeam.levels.length; j++) {
         if (myTeam.levels[j].number == number) {
             inLevels = true;
+            return myTeam.levels[j]; //return the level we found
         }
     }
     if (!inLevels) { //if not, add this level
         myLevel = new level;
-        myLevel.startTime = ro["time"];
+        myLevel.startUTime = ro["time"];
+        var startDate = new Date(parseFloat(myLevel.startUTime * 1000));
+        myLevel.startPTime = startDate;
         myLevel.number = number;
         myLevel.label = getAlphabeticLabel(number);
         myLevel.team = myTeam;
@@ -459,6 +462,7 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
         //team member, or unknown (e.g., E or R0 at higher levels)
         initializeVarRefs(myLevel); //Set all the arrays empty
         myTeam.levels.push(myLevel);
+        return myLevel; //return the new level
     }
 }
 
@@ -549,10 +553,14 @@ function findTeam(teams, ro) {
 }
 
 //Check to see whether the level at this row is in the levels array for this team
+//If we don't find the level in the array, return a new level
 function findLevel(team, ro) {
     //  var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
     var number = ro["levelName"].charAt(ro["levelName"].length - 1);
     var levelFound = false;
+    if (!team) {
+        console.log("stop");
+    }
     for (var i = 0; i < team.levels.length; i++) {
         if (team.levels[i].number == number) {
             levelFound = true;
@@ -561,6 +569,8 @@ function findLevel(team, ro) {
     }
     if (!levelFound) {
         console.log("Level not found! team = " + team + ", level number " + number);
+        addLevel(team, ro);
+
     }
 }
 

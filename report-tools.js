@@ -6,6 +6,8 @@ function generateReport(teams) {
     console.log("summaries reported");
     reportActions(teams);
     console.log("action report generated");
+    teacherReport(teams);
+    console.log("teacher report generated");
     reportVarRefs(teams);
     console.log("variable references report generated");
 
@@ -16,15 +18,44 @@ function reportResults(teams) {
     for (var k = 0; k < teams.length; k++) {
         var team = teams[k];
         if ($("#team-" + team.name)[0].checked) {
+            document.getElementById("data").innerHTML += "<br>"
             for (var j = 0; j < team.levels.length; j++) {
                 var level = team.levels[j];
                 if ($("#level-" + level.label)[0].checked) {
                     var acts = level.actions;
-                    var levelMsg = (level.success ? ". Level succeeded." : ". Level failed.");
-                    document.getElementById("data").innerHTML += ("<br>" + "Team " +
-                        team.name + ", level " + level.label + ". goalV1 = " +
-                        level.goalV[0] + ", goalV2 = " + level.goalV[1] + ", goalV3 = " +
-                        level.goalV[2] + "<mark>" + levelMsg + "</mark><br><br>");
+                    var levelTime = Math.round(level.endUTime - level.startUTime);
+                    var levelMinutes = Math.round(levelTime / 60);
+                    var levelSeconds = levelTime % 60;
+                    var levelMsg = (level.success ? "Goal voltages attained." : "Goal voltages not attained.");
+                    var levelEMsg = (level.successE ? " E correctly reported." : " E not reported correctly.");
+                    var levelRMsg = (level.successR ? " R0 correctly reported." : " R0 not reported correctly.");
+                    document.getElementById("data").innerHTML += ("<br>Team " +
+                        team.name + ", level " + level.label + ", start time: " + level.startPTime + ", duration: " +
+                        levelMinutes + ":" + levelSeconds + ". " + levelMsg);
+                    if ((level.label == "A") || (level.label == "B")) {
+                        if (level.success) {
+                            document.getElementById("data").innerHTML += "<mark> Level successful."
+                        } else {
+                            document.getElementById("data").innerHTML += "<mark> Level failed."
+                        }
+                    }
+                    if (level.label == "C") {
+                        document.getElementById("data").innerHTML += levelEMsg;
+                        if (level.success && level.successE) {
+                            document.getElementById("data").innerHTML += "<mark> Level successful."
+                        } else {
+                            document.getElementById("data").innerHTML += "<mark> Level failed."
+                        }
+                    }
+                    if (level.label == "D") {
+                        document.getElementById("data").innerHTML += levelEMsg + levelRMsg;
+                        if (level.success && level.successE && level.successR) {
+                            document.getElementById("data").innerHTML += "<mark>   Level successful."
+                        } else {
+                            document.getElementById("data").innerHTML += "<mark> Level failed."
+                        }
+                    }
+                    document.getElementById("data").innerHTML += "<br>";
                     for (var i = 0; i < acts.length; i++) {
                         var preTime,
                             interval = 45, //Maximum interval between logged actions for considering them linked.
@@ -36,17 +67,20 @@ function reportResults(teams) {
                             styledName = actor.styledName,
                             currentMsg = (act.currentFlowing ? ". Current is flowing. " : ". Current is not flowing.");
                         uTime = Math.round(act.uTime);
-                        eTime = Math.round((act.uTime - level.startTime) + 10) / 10;
+                        eTime = Math.round((act.uTime - level.startUTime) + 10) / 10;
                         switch (act.type) {
                             case "submitClicked":
                                 if ($("#action-submit")[0].checked) {
+                                    if (level.label == "B") {
+                                        console.log("stop");
+                                    }
                                     var Rtot = level.R0 + act.R[0] + act.R[1] + act.R[2];
                                     var current = Math.round((level.E / Rtot) * 1000000) / 1000;
                                     var V0 = Math.round((level.E * level.R0 / Rtot) * 1000) / 1000;
                                     var V1 = level.E * act.R[0] / Rtot;
                                     var V2 = level.E * act.R[1] / Rtot;
                                     var V3 = level.E * act.R[2] / Rtot;
-                                    var success = ((Math.abs(V1 - level.goalV[0]) + Math.abs(V2 - level.goalV[1]) + Math.abs(V3 - level.goalV[2])) < .01)
+                                    var success = ((Math.abs(V1 - level.goalV[0]) + Math.abs(V2 - level.goalV[1]) + Math.abs(V3 - level.goalV[2])) < .1)
                                     var successMsg = (success ? " submitted correct voltages." : " submitted incorrect voltages.");
                                     document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
                                         act.actor.styledName + ", board " + bd + successMsg + "<br>");
@@ -421,6 +455,91 @@ function reportActions(teams, type) {
                 tableDiv.appendChild(scoreTable);
                 tableDiv.appendChild(numberTable);
                 tableDiv.appendChild(averageTable);
+            }
+        }
+    }
+}
+
+function teacherReport(teams) {
+    if ($("#summary-teacher-report")[0].checked) {
+        //empty the div if it exists
+        if (document.getElementById("tableDiv")) {
+            var tableDiv = document.getElementById("tableDiv");
+            while (tableDiv.firstChild) {
+                tableDiv.removeChild(tableDiv.firstChild);
+            }
+        } else {
+            //if it doesn't, create one.
+            var tableDiv = document.createElement("div");
+            tableDiv.id = "tableDiv";
+            //          tableDiv.setAttribute("style", "overflow-x:auto");
+            document.body.appendChild(tableDiv);
+        }
+        var table = document.createElement("table");
+        tableDiv.appendChild(table);
+        var titleRow = document.createElement("tr");
+        table.appendChild(titleRow);
+        var titleCell = document.createElement("th");
+        titleCell.innerHTML = "Results by team and level"
+        titleCell.setAttribute("colspan", 5);
+        titleRow.appendChild(titleCell);
+        var headerRow = document.createElement("tr");
+        table.appendChild(headerRow);
+        var headerCells = [];
+        for (var i = 0; i < 6; i++) {
+            headerCells[i] = document.createElement("th");
+            headerRow.appendChild(headerCells[i]);
+        }
+        headerCells[0].innerHTML = "Team";
+        headerCells[1].innerHTML = "Level A";
+        headerCells[2].innerHTML = "Level B";
+        headerCells[3].innerHTML = "Level C";
+        headerCells[4].innerHTML = "Level D";
+
+        var dataRows = []; //rows that will contain a team name and level data
+        var dataCells = []; //cells that contain the team name and level data
+        for (var i = 0; i < teams.length; i++) {
+            team = teams[i];
+            dataRows[i] = document.createElement("tr");
+            table.appendChild(dataRows[i]);
+            dataCells[i] = [];
+            dataCells[i][0] = document.createElement("th");
+            dataCells[i][0].innerHTML = team.name;
+            dataRows[i].appendChild(dataCells[i][0]);
+            for (var j = 1; j < 5; j++) {
+                dataCells[i][j] = document.createElement("td");
+                dataCells[i][j].innerHTML = "Not attempted";
+                dataRows[i].appendChild(dataCells[i][j]);
+            }
+            for (var j = 0; j < teams[i].levels.length; j++) {
+                level = team.levels[j];
+                var levelTime = Math.round(level.endUTime - level.startUTime);
+                var levelMinutes = Math.round(levelTime / 60);
+                var levelSeconds = levelTime % 60;
+                var levelMsg = (level.success ? "Goal voltages attained." : "Goal voltages not attained.");
+                var levelEMsg = (level.successE ? " E correctly reported." : " E not reported correctly.");
+                var levelRMsg = (level.successR ? " R0 correctly reported." : " R0 not reported correctly.");
+                var successMsg;
+                var cellContents = "Time: " + levelMinutes + ":" + levelSeconds + "<br>";
+                if ((level.label == "A") || level.label == "B") {
+                    if (level.success) {
+                        cellContents += "Goal voltages attained.<br>"
+                        successMsg = (level.success ? "<b>Level successful.</b>" :
+                            "<b>Level unsuccessful.</b>");
+                    }
+                    if (level.label == "C") {
+                        cellContents += levelEMsg + "<br>";
+                        successMsg = ((level.success && level.successE) ? "<b>Level successful.</b>" :
+                            "<b>Level unsuccessful.</b>");
+                    }
+                }
+                if (level.label == "D") {
+                    cellContents += levelEMsg + "<br>" + levelRMsg + "<br>";
+                    successMsg = ((level.success && level.successE && level.successR) ?
+                        "<b>Level successful.</b>" : "<b>Level unsuccessful.</b>");
+                }
+                cellContents += successMsg;
+                dataCells[i][j + 1].innerHTML = cellContents;
             }
         }
     }
