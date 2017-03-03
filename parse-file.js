@@ -4,7 +4,7 @@ var level = function() {};
 var member = function() {};
 var action = function() {};
 var teams = [];
-
+var timeZone = -5; //offset for Eastern Standard Time
 
 function parseCSV() {
     console.log("starting parse");

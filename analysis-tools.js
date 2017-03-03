@@ -32,7 +32,7 @@ function analyze(rowObjs) {
                 addSubmit(ro);
                 break;
             case "Unknown Values Submitted":
-                addSubmit(ro);
+                addSubmitER(ro);
                 break;
             case "Attached probe":
                 addAttachProbe(ro);
@@ -47,55 +47,58 @@ function analyze(rowObjs) {
 //General function for adding a new action. Sets all the parameters the different actions have in common.
 function addAction(ro, type) {
     var team = findTeam(teams, ro);
-    var level = findLevel(team, ro);
+    var level = addLevel(team, ro); //try to find the level in the team.levels array.
+    //if level not found, create a new one.
+    if (!level) {
+        console.log("stop");
+    }
+    var id = ro["username"];
+    var myMember = findMember(id);
     var myAction = new action;
     myAction.type = type;
     myAction.team = team;
     myAction.level = level;
+    myAction.actor = myMember;
     myAction.uTime = ro["time"];
     //    myAction.pTime = unixTimeConversion(myAction.uTime);
     myAction.board = parseInt(ro["board"]);
-    if (level && ro["parameters"]) {
-        var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-        myAction.index = level.actions.length; //The length of the array before the action is pushed. (The index of the action
-        //if it is pushed will equal this.)
-        myAction.actor = findMember(team, po["username"]);
-        myAction.currentFlowing = (po["currentFlowing"] == "true" ? true : false);
-        myAction.R = [parseInt(po["r1"]), parseInt(po["r2"]), parseInt(po["r3"])];
-        var Rtot = level.R0 + myAction.R[0] + myAction.R[1] + myAction.R[2];
-        myAction.V = [Math.round(((level.E * myAction.R[0]) / Rtot) * 100) / 100,
-            Math.round(((level.E * myAction.R[1]) / Rtot) * 100) / 100,
-            Math.round(((level.E * myAction.R[2]) / Rtot) * 100) / 100
-        ];
-    }
+    myAction.index = level.actions.length; //The length of the array before the action is pushed. (The index of the action
+    //if it is pushed will equal this.)
+    myAction.id = findMember(ro["username"]);
+    myAction.currentFlowing = (ro["currentFlowing"] == "true" ? true : false);
+    myAction.R = [parseInt(ro["r1"]), parseInt(ro["r2"]), parseInt(ro["r3"])];
+    var Rtot = level.R0 + myAction.R[0] + myAction.R[1] + myAction.R[2];
+    myAction.V = [Math.round(((level.E * myAction.R[0]) / Rtot) * 100) / 100,
+        Math.round(((level.E * myAction.R[1]) / Rtot) * 100) / 100,
+        Math.round(((level.E * myAction.R[2]) / Rtot) * 100) / 100
+    ];
+    level.endUTime = myAction.uTime;
     return myAction;
 }
 
 //Function for detecting duplicate actions by comparing them to previous actions
 function duplicate(action) {
     var actions = action.level.actions; //Array of actions for this level
-    if (actions.length > 3) {
-        dup = []; // Array for storing results of previous actions
+    if (actions.length > 5) {
+        dup = [false, false, false, false, false];
         var thisAct = action,
-            thisActor = action.actor,
-            thisTime = action.uTime,
-            thisType = action.type;
+            thisID = thisAct.actor.id,
+            thisTime = thisAct.uTime,
+            thisType = thisAct.type;
         var checkAct,
-            checkActor,
+            checkID,
             checkTime,
             checkType;
-        for (var i = 1; i < 3; i++) { //check three actions back
-            checkAct = actions[action.index - i];
-            if (checkAct.actor && checkAct.uTime && checkAct.type) {
-                checkActor = checkAct.actor;
+        for (var i = 1; i < 5; i++) { //check three actions back
+            checkAct = actions[thisAct.index - i];
+            if (checkAct.id && checkAct.uTime && checkAct.type) {
+                checkID = checkAct.actor.id
                 checkTime = checkAct.uTime;
                 checkType = checkAct.type;
-                dup[i] = ((checkActor == thisActor) && (checkType == thisType) && (Math.abs(checkTime - thisTime) < 0.5))
-            } else {
-                dup[i] = false;
+                dup[i] = ((checkID == thisID) && (checkType == thisType) && (Math.abs(thisTime - checkTime) < 1))
             }
         }
-        return (dup[1] || dup[2] || dup[3]); //If any checked previous action matches, there is a duplicate
+        return (dup[0] || dup[1] || dup[2]) //If any checked previous action matches, there is a duplicate
     }
 }
 
@@ -233,11 +236,21 @@ function addSubmit(ro) {
     }
 }
 
+function addSubmitER(ro) {
+    var type = "submitER";
+    var myAction = addAction(ro, type);
+    if (!duplicate(myAction)) {
+        level = myAction.level;
+        (ro["E: Correct"] == "true" ? level.successE = true : level.successE = false);
+        (ro["R: Correct"] == "true" ? level.successR = true : level.successR = false);
+    }
+}
+
 function addAttachProbe(ro) {
     var myAction = addAction(ro, "attach-probe");
-    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+    //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
     myAction.location = ro["location"];
-    if (!(myAction)) {
+    if (!(duplicate(myAction))) {
         myAction.level.actions.push(myAction);
     } else {
         //        console.log("Passed over an attach probe action at . " + myAction.time);
@@ -246,8 +259,8 @@ function addAttachProbe(ro) {
 
 function addDetachProbe(ro, i) {
     var myAction = addAction(ro, "detach-probe");
-    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    myAction.location = po["location"];
+    //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+    myAction.location = ro["location"];
     if (!(duplicate(myAction))) {
         myAction.level.actions.push(myAction);
     } else {
