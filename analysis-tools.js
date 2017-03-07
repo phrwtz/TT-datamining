@@ -47,32 +47,32 @@ function analyze(rowObjs) {
 //General function for adding a new action. Sets all the parameters the different actions have in common.
 function addAction(ro, type) {
     var team = findTeam(teams, ro);
-    var level = addLevel(team, ro); //try to find the level in the team.levels array.
+    var myLevel = addLevel(team, ro); //try to find the level in the team.levels array.
     //if level not found, create a new one.
-    if (!level) {
-        console.log("stop");
+    if (!myLevel.E) {
+        addLevelValues(myLevel, ro);
     }
-    var id = ro["username"];
+    var id = ro["username"].slice(0, 5);
     var myMember = findMember(id);
     var myAction = new action;
     myAction.type = type;
     myAction.team = team;
-    myAction.level = level;
+    myAction.level = myLevel;
     myAction.actor = myMember;
     myAction.uTime = ro["time"];
     //    myAction.pTime = unixTimeConversion(myAction.uTime);
     myAction.board = parseInt(ro["board"]);
-    myAction.index = level.actions.length; //The length of the array before the action is pushed. (The index of the action
+    myAction.index = myLevel.actions.length; //The length of the array before the action is pushed. (The index of the action
     //if it is pushed will equal this.)
-    myAction.id = findMember(ro["username"]);
+    myAction.id = myMember.id;
     myAction.currentFlowing = (ro["currentFlowing"] == "true" ? true : false);
     myAction.R = [parseInt(ro["r1"]), parseInt(ro["r2"]), parseInt(ro["r3"])];
-    var Rtot = level.R0 + myAction.R[0] + myAction.R[1] + myAction.R[2];
-    myAction.V = [Math.round(((level.E * myAction.R[0]) / Rtot) * 100) / 100,
-        Math.round(((level.E * myAction.R[1]) / Rtot) * 100) / 100,
-        Math.round(((level.E * myAction.R[2]) / Rtot) * 100) / 100
+    var Rtot = myLevel.R0 + myAction.R[0] + myAction.R[1] + myAction.R[2];
+    myAction.V = [Math.round(((myLevel.E * myAction.R[0]) / Rtot) * 100) / 100,
+        Math.round(((myLevel.E * myAction.R[1]) / Rtot) * 100) / 100,
+        Math.round(((myLevel.E * myAction.R[2]) / Rtot) * 100) / 100
     ];
-    level.endUTime = myAction.uTime;
+    myLevel.endUTime = myAction.uTime;
     return myAction;
 }
 
@@ -132,23 +132,28 @@ function addDisconnectLead(ro) {
 }
 
 function addRChange(ro) {
+    if (ro["time"] == "1488325390") {
+        console.log("stop");
+    }
     var myAction = addAction(ro, "resistorChange");
-    var level = myAction.level,
+    var myLevel = myAction.level,
         bd = myAction.board,
         bdA = (bd + 1) % 3,
         bdB = (bd + 2) % 3;
-
-    myAction.oldR = [level.R[0], level.R[1], level.R[2]];
-    myAction.oldV = [level.V[0], level.V[1], level.V[2]];
+    myAction.oldR = myLevel.R;
+    myAction.oldV = myLevel.V;
+    if (!myAction.oldR) {
+        console.log("stop");
+    }
     //if the new resistor values are all numbers and at least one of them is indeed new
     if ((!(isNaN(myAction.R[0])) && !(isNaN(myAction.R[1])) && !(isNaN(myAction.R[2]))) &&
         ((myAction.R[0] != myAction.oldR[0]) || (myAction.R[1] != myAction.oldR[1]) || (myAction.R[2] != myAction.oldR[2]))) {
-        myAction.oldGoalDifference = myAction.oldV[bd] - level.goalV[bd];
-        myAction.newGoalDifference = myAction.V[bd] - level.goalV[bd];
-        myAction.oldGoalADifference = myAction.oldV[bdA] - level.goalV[bdA];
-        myAction.newGoalADifference = myAction.V[bdA] - level.goalV[bdA];
-        myAction.oldGoalBDifference = myAction.oldV[bdB] - level.goalV[bdB];
-        myAction.newGoalBDifference = myAction.V[bdB] - level.goalV[bdB];
+        myAction.oldGoalDifference = myAction.oldV[bd] - myLevel.goalV[bd];
+        myAction.newGoalDifference = myAction.V[bd] - myLevel.goalV[bd];
+        myAction.oldGoalADifference = myAction.oldV[bdA] - myLevel.goalV[bdA];
+        myAction.newGoalADifference = myAction.V[bdA] - myLevel.goalV[bdA];
+        myAction.oldGoalBDifference = myAction.oldV[bdB] - myLevel.goalV[bdB];
+        myAction.newGoalBDifference = myAction.V[bdB] - myLevel.goalV[bdB];
         if (Math.abs(myAction.newGoalDifference) < .01) {
             myAction.goalMsg = ". Goal achieved";
         } else if (Math.sign(myAction.oldGoalDifference) != Math.sign(myAction.newGoalDifference) &&
@@ -190,8 +195,8 @@ function addRChange(ro) {
         } else if (Math.abs(myAction.newGoalBDifference) > Math.abs(myAction.oldGoalBDifference)) {
             myAction.goalBMsg = ". Goal farther";
         }
-        level.R = myAction.R; // Update level so that we have something to compare to next time around
-        level.V = myAction.V;
+        myLevel.R = myAction.R; // Update level so that we have something to compare to next time around
+        myLevel.V = myAction.V;
         myAction.level.actions.push(myAction); //and push the action onto the level
     }
 }
@@ -224,14 +229,14 @@ function addSubmit(ro) {
     var type = "submitClicked";
     var myAction = addAction(ro, type);
     if (!duplicate(myAction)) {
-        level = myAction.level;
+        myLevel = myAction.level;
         var V1 = myAction.V[0];
         var V2 = myAction.V[1];
         var V3 = myAction.V[2];
-        var goalV1 = level.goalV[0];
-        var goalV2 = level.goalV[1];
-        var goalV3 = level.goalV[2];
-        level.success = (Math.abs(V1 - goalV1) + Math.abs(V2 - goalV2) + Math.abs(V3 - goalV3) < .01)
+        var goalV1 = myLevel.goalV[0];
+        var goalV2 = myLevel.goalV[1];
+        var goalV3 = myLevel.goalV[2];
+        myLevel.success = (Math.abs(V1 - goalV1) + Math.abs(V2 - goalV2) + Math.abs(V3 - goalV3) < .01)
         myAction.level.actions.push(myAction);
     }
 }
@@ -240,9 +245,9 @@ function addSubmitER(ro) {
     var type = "submitER";
     var myAction = addAction(ro, type);
     if (!duplicate(myAction)) {
-        level = myAction.level;
-        (ro["E: Correct"] == "true" ? level.successE = true : level.successE = false);
-        (ro["R: Correct"] == "true" ? level.successR = true : level.successR = false);
+        myLevel = myAction.level;
+        (ro["E: Correct"] == "true" ? myLevel.successE = true : myLevel.successE = false);
+        (ro["R: Correct"] == "true" ? myLevel.successR = true : myLevel.successR = false);
     }
 }
 

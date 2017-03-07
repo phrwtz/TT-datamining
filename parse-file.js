@@ -4,6 +4,8 @@ var level = function() {};
 var member = function() {};
 var action = function() {};
 var teams = [];
+var teachers = [];
+var studentDataObjs = [];
 var timeZone = -5; //offset for Eastern Standard Time
 
 function parseCSV() {
@@ -27,7 +29,8 @@ function parseCSV() {
                 console.log("teams generated");
                 changes = analyze(rowObjs);
                 console.log("analysis complete");
-                checkForm = setupForm(teams);
+                setupForm(teams);
+                console.log("form set up");
             }
             reader.readAsText(fileInput.files[0]);
         } else {

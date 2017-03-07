@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Teacher Report</title>
+    <style>
+        table {
+            border-top: solid 1px #000000;
+            border-right: solid 1px #000000;
+            border-collapse: collapse;
+        }
+
+        td,
+        th {
+            border-bottom: solid 1px #000000;
+            border-left: solid 1px #000000;
+            border-right: solid 1px #000000;
+            border-top: solid 1px #000000;
+        }
+        .Average{
+          clear:left;
+          display: inline-table;
+        }
+        .Number, .Total {
+          display: inline-table;
+        }
+    </style>
+
+</head>
+<h1>Test JavaScript-DOM Interactions</h1
+
+
+<body>
+    Student data: <input type="file" id="studentDataInput" onchange= "parseStudentData()">
+        Log file: <input type="file" id="fileInput" onchange= "parseCSV()">
+    <script src="parse-student-data.js"></script>
+    <script src="html-support.js"></script>
+    <script src="parse-file.js"></script>
+    <script src="utils.js"></script>
+    <script src="html-utils.js"></script>
+    <script src="analysis-tools.js"></script>
+    <script src="report-tools.js"></script>
+    <script src="PapaParse-4.1.2/papaparse.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+</body>

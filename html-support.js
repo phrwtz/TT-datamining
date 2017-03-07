@@ -31,24 +31,28 @@ function setupForm(teams) {
     var headerCell3 = document.createElement("th");
     var headerCell4 = document.createElement("th");
     var headerCell5 = document.createElement("th");
+    var headerCell6 = document.createElement("th");
 
     headerCell1.innerHTML = "Teams";
     headerCell2.innerHTML = "Levels";
     headerCell3.innerHTML = "Actions";
     headerCell4.innerHTML = "Variable Refs";
     headerCell5.innerHTML = "Summary Data";
+    headerCell6.innerHTML = "Teacher Reports";
 
     headerRow.appendChild(headerCell1);
     headerRow.appendChild(headerCell2);
     headerRow.appendChild(headerCell3);
     headerRow.appendChild(headerCell4);
     headerRow.appendChild(headerCell5);
+    headerRow.appendChild(headerCell6);
 
     var teamData = document.createElement("td");
     var levelData = document.createElement("td");
     var actionData = document.createElement("td");
     var summaryData = document.createElement("td");
     var varRefData = document.createElement("td");
+    var teacherData = document.createElement("td");
 
     var typeStr = 'type="checkbox"  ';
     var IDStr = 'id="all-teams" name="team" ';
@@ -59,6 +63,16 @@ function setupForm(teams) {
         IDStr = 'id=team-' + teams[i].name + ' name=team>';
         labelStr = teams[i].name + "<br>";
         teamData.innerHTML += "<input " + typeStr + IDStr + labelStr;
+    }
+
+
+    IDStr = 'id="all-teachers" name="teachers" ';
+    onChangeStr = "onchange = \"toggleSelectAll('teachers')\"";
+    labelStr = '<b>All teachers</b><br>';
+    teacherData.innerHTML = "<input " + typeStr + IDStr + onChangeStr + ">" + labelStr;
+    for (j = 0; j < teachers.length; j++) {
+        IDStr = 'id=report-' + teachers[j] + ' name=teachers>';
+        teacherData.innerHTML += "<input " + typeStr + IDStr + teachers[j] + "<br>";
     }
 
 
@@ -97,7 +111,7 @@ function setupForm(teams) {
 
     var summaryNames = ["rChg", "iRep", "results"];
     var summaryIDs = ["resistor-change", "action-scores", "teacher-report"];
-    var summaryLabels = ["Resistor changes", "Action scores", "Teacher report"];
+    var summaryLabels = ["Resistor changes", "Action scores"];
     for (var l = 0; l < summaryLabels.length; l++) {
         IDStr = 'id = summary-' + summaryIDs[l] + " name=summary>";
         labelStr = summaryLabels[l] + "<br>";
@@ -114,6 +128,7 @@ function setupForm(teams) {
     checkBoxRow.appendChild(actionData);
     checkBoxRow.appendChild(varRefData);
     checkBoxRow.appendChild(summaryData);
+    checkBoxRow.appendChild(teacherData);
 
     var submitButton = document.createElement("button");
     var clearButton = document.createElement("button");
