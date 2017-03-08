@@ -46,8 +46,12 @@ function analyze(rowObjs) {
 
 //General function for adding a new action. Sets all the parameters the different actions have in common.
 function addAction(ro, type) {
-    var team = findTeam(teams, ro);
-    var myLevel = addLevel(team, ro); //try to find the level in the team.levels array.
+    var myTeam = findTeam(teams, ro);
+    if (!myTeam) {
+        console.log("no team found in add action");
+        return;
+    }
+    var myLevel = addLevel(myTeam, ro); //try to find the level in the team.levels array.
     //if level not found, create a new one.
     if (!myLevel.E) {
         addLevelValues(myLevel, ro);
@@ -56,7 +60,7 @@ function addAction(ro, type) {
     var myMember = findMember(id);
     var myAction = new action;
     myAction.type = type;
-    myAction.team = team;
+    myAction.team = myTeam;
     myAction.level = myLevel;
     myAction.actor = myMember;
     myAction.uTime = ro["time"];
@@ -78,43 +82,49 @@ function addAction(ro, type) {
 
 //Function for detecting duplicate actions by comparing them to previous actions
 function duplicate(action) {
+    if (!action) {
+        return true; //If action is undefined we want to do nothing with it.
+    }
     var actions = action.level.actions; //Array of actions for this level
-    if (actions.length > 5) {
-        dup = [false, false, false, false, false];
-        var thisAct = action,
-            thisID = thisAct.actor.id,
-            thisTime = thisAct.uTime,
-            thisType = thisAct.type;
-        var checkAct,
-            checkID,
-            checkTime,
-            checkType;
-        for (var i = 1; i < 5; i++) { //check three actions back
-            checkAct = actions[thisAct.index - i];
-            if (checkAct.id && checkAct.uTime && checkAct.type) {
-                checkID = checkAct.actor.id
-                checkTime = checkAct.uTime;
-                checkType = checkAct.type;
-                dup[i] = ((checkID == thisID) && (checkType == thisType) && (Math.abs(thisTime - checkTime) < 1))
+    var dup = false;
+    var thisAct = action,
+        thisID = thisAct.actor.id,
+        thisTime = thisAct.uTime,
+        thisType = thisAct.type,
+        thisTeam = thisAct.team;
+    var checkAct,
+        checkID,
+        checkTime,
+        checkType,
+        checkTeam,
+        checkbackLength = Math.min(actions.length, 3);
+    for (var i = 1; i < checkbackLength; i++) { //check three actions back
+        //or fewer if there aren't many actions on the stack
+        checkAct = actions[thisAct.index - i];
+        if (checkAct.id && checkAct.uTime && checkAct.type) {
+            checkID = checkAct.actor.id
+            checkTime = checkAct.uTime;
+            checkType = checkAct.type;
+            checkTeam = checkAct.team;
+            if ((checkID == thisID) && (checkType == thisType) && (checkTeam == thisTeam) && (Math.abs(thisTime - checkTime) < 1)) {
+                dup = true;
             }
         }
-        return (dup[0] || dup[1] || dup[2]) //If any checked previous action matches, there is a duplicate
     }
+    return dup //If any of the checked previous action matches, there is a duplicate
 }
 
 function addJoinedGroup(ro) {
     var myAction = addAction(ro, "joined-group");
     if (!(duplicate(myAction))) {
         myAction.level.actions.push(myAction);
-    } else {
-        console.log("Passed over a joined group action at . " + myAction.time);
     }
 }
 
 function addConnectLead(ro) {
     var myAction = addAction(ro, "connect-lead");
-    myAction.location = ro["location"];
     if (!(duplicate(myAction))) {
+        myAction.location = ro["location"];
         myAction.level.actions.push(myAction);
     } else {
         //        console.log("Passed over a connect lead action at . " + myAction.time);
@@ -123,111 +133,111 @@ function addConnectLead(ro) {
 
 function addDisconnectLead(ro) {
     var myAction = addAction(ro, "disconnect-lead");
-    myAction.location = ro["location"];
     if (!(duplicate(myAction))) {
+        myAction.location = ro["location"];
         myAction.level.actions.push(myAction);
-    } else {
-        //        console.log("Passed over a disconnect lead action at . " + myAction.time);
     }
 }
 
 function addRChange(ro) {
-    if (ro["time"] == "1488325390") {
-        console.log("stop");
-    }
     var myAction = addAction(ro, "resistorChange");
-    var myLevel = myAction.level,
-        bd = myAction.board,
-        bdA = (bd + 1) % 3,
-        bdB = (bd + 2) % 3;
-    myAction.oldR = myLevel.R;
-    myAction.oldV = myLevel.V;
-    if (!myAction.oldR) {
-        console.log("stop");
-    }
-    //if the new resistor values are all numbers and at least one of them is indeed new
-    if ((!(isNaN(myAction.R[0])) && !(isNaN(myAction.R[1])) && !(isNaN(myAction.R[2]))) &&
-        ((myAction.R[0] != myAction.oldR[0]) || (myAction.R[1] != myAction.oldR[1]) || (myAction.R[2] != myAction.oldR[2]))) {
-        myAction.oldGoalDifference = myAction.oldV[bd] - myLevel.goalV[bd];
-        myAction.newGoalDifference = myAction.V[bd] - myLevel.goalV[bd];
-        myAction.oldGoalADifference = myAction.oldV[bdA] - myLevel.goalV[bdA];
-        myAction.newGoalADifference = myAction.V[bdA] - myLevel.goalV[bdA];
-        myAction.oldGoalBDifference = myAction.oldV[bdB] - myLevel.goalV[bdB];
-        myAction.newGoalBDifference = myAction.V[bdB] - myLevel.goalV[bdB];
-        if (Math.abs(myAction.newGoalDifference) < .01) {
-            myAction.goalMsg = ". Goal achieved";
-        } else if (Math.sign(myAction.oldGoalDifference) != Math.sign(myAction.newGoalDifference) &&
-            (myAction.newGoalDifference > 0)) {
-            myAction.goalMsg = ". Goal overshot";
-        } else if (Math.sign(myAction.oldGoalDifference) != Math.sign(myAction.newGoalDifference) &&
-            (myAction.newGoalDifference < 0)) {
-            myAction.goalMsg = ". Goal undershot";
-        } else if (Math.abs(myAction.newGoalDifference) < Math.abs(myAction.oldGoalDifference)) {
-            myAction.goalMsg = ". Goal closer";
-        } else if (Math.abs(myAction.newGoalDifference) > Math.abs(myAction.oldGoalDifference)) {
-            myAction.goalMsg = ". Goal farther";
+    if (myAction) {
+        var myLevel = myAction.level,
+            bd = myAction.board,
+            bdA = (bd + 1) % 3,
+            bdB = (bd + 2) % 3;
+        myAction.oldR = myLevel.R;
+        myAction.oldV = myLevel.V;
+        if (!myAction.oldR) {
+            console.log("stop");
         }
+        //if the new resistor values are all numbers and at least one of them is indeed new
+        if ((!(isNaN(myAction.R[0])) && !(isNaN(myAction.R[1])) && !(isNaN(myAction.R[2]))) &&
+            ((myAction.R[0] != myAction.oldR[0]) || (myAction.R[1] != myAction.oldR[1]) || (myAction.R[2] != myAction.oldR[2]))) {
+            myAction.oldGoalDifference = myAction.oldV[bd] - myLevel.goalV[bd];
+            myAction.newGoalDifference = myAction.V[bd] - myLevel.goalV[bd];
+            myAction.oldGoalADifference = myAction.oldV[bdA] - myLevel.goalV[bdA];
+            myAction.newGoalADifference = myAction.V[bdA] - myLevel.goalV[bdA];
+            myAction.oldGoalBDifference = myAction.oldV[bdB] - myLevel.goalV[bdB];
+            myAction.newGoalBDifference = myAction.V[bdB] - myLevel.goalV[bdB];
+            if (Math.abs(myAction.newGoalDifference) < .01) {
+                myAction.goalMsg = ". Goal achieved";
+            } else if (Math.sign(myAction.oldGoalDifference) != Math.sign(myAction.newGoalDifference) &&
+                (myAction.newGoalDifference > 0)) {
+                myAction.goalMsg = ". Goal overshot";
+            } else if (Math.sign(myAction.oldGoalDifference) != Math.sign(myAction.newGoalDifference) &&
+                (myAction.newGoalDifference < 0)) {
+                myAction.goalMsg = ". Goal undershot";
+            } else if (Math.abs(myAction.newGoalDifference) < Math.abs(myAction.oldGoalDifference)) {
+                myAction.goalMsg = ". Goal closer";
+            } else if (Math.abs(myAction.newGoalDifference) > Math.abs(myAction.oldGoalDifference)) {
+                myAction.goalMsg = ". Goal farther";
+            }
 
-        if (Math.abs(myAction.newGoalADifference) < .01) {
-            myAction.goalAMsg = ". Goal achieved";
-        } else if (Math.sign(myAction.oldGoalADifference) != Math.sign(myAction.newGoalADifference) &&
-            (myAction.newGoalADifference > 0)) {
-            myAction.goalAMsg = ". Goal overshot";
-        } else if (Math.sign(myAction.oldGoalADifference) != Math.sign(myAction.newGoalADifference) &&
-            (myAction.newGoalADifference < 0)) {
-            myAction.goalAMsg = ". Goal undershot";
-        } else if (Math.abs(myAction.newGoalADifference) < Math.abs(myAction.oldGoalADifference)) {
-            myAction.goalAMsg = ". Goal closer";
-        } else if (Math.abs(myAction.newGoalADifference) > Math.abs(myAction.oldGoalADifference)) {
-            myAction.goalAMsg = ". Goal farther";
-        }
+            if (Math.abs(myAction.newGoalADifference) < .01) {
+                myAction.goalAMsg = ". Goal achieved";
+            } else if (Math.sign(myAction.oldGoalADifference) != Math.sign(myAction.newGoalADifference) &&
+                (myAction.newGoalADifference > 0)) {
+                myAction.goalAMsg = ". Goal overshot";
+            } else if (Math.sign(myAction.oldGoalADifference) != Math.sign(myAction.newGoalADifference) &&
+                (myAction.newGoalADifference < 0)) {
+                myAction.goalAMsg = ". Goal undershot";
+            } else if (Math.abs(myAction.newGoalADifference) < Math.abs(myAction.oldGoalADifference)) {
+                myAction.goalAMsg = ". Goal closer";
+            } else if (Math.abs(myAction.newGoalADifference) > Math.abs(myAction.oldGoalADifference)) {
+                myAction.goalAMsg = ". Goal farther";
+            }
 
-        if (Math.abs(myAction.newGoalBDifference) < .01) {
-            myAction.goalBMsg = ". Goal achieved";
-        } else if (Math.sign(myAction.oldGoalBDifference) != Math.sign(myAction.newGoalBDifference) &&
-            (myAction.newGoalBDifference > 0)) {
-            myAction.goalBMsg = ". Goal overshot";
-        } else if (Math.sign(myAction.oldGoalBDifference) != Math.sign(myAction.newGoalBDifference) &&
-            (myAction.newGoalBDifference < 0)) {
-            myAction.goalBMsg = ". Goal undershot";
-        } else if (Math.abs(myAction.newGoalBDifference) < Math.abs(myAction.oldGoalBDifference)) {
-            myAction.goalBMsg = ". Goal closer";
-        } else if (Math.abs(myAction.newGoalBDifference) > Math.abs(myAction.oldGoalBDifference)) {
-            myAction.goalBMsg = ". Goal farther";
+            if (Math.abs(myAction.newGoalBDifference) < .01) {
+                myAction.goalBMsg = ". Goal achieved";
+            } else if (Math.sign(myAction.oldGoalBDifference) != Math.sign(myAction.newGoalBDifference) &&
+                (myAction.newGoalBDifference > 0)) {
+                myAction.goalBMsg = ". Goal overshot";
+            } else if (Math.sign(myAction.oldGoalBDifference) != Math.sign(myAction.newGoalBDifference) &&
+                (myAction.newGoalBDifference < 0)) {
+                myAction.goalBMsg = ". Goal undershot";
+            } else if (Math.abs(myAction.newGoalBDifference) < Math.abs(myAction.oldGoalBDifference)) {
+                myAction.goalBMsg = ". Goal closer";
+            } else if (Math.abs(myAction.newGoalBDifference) > Math.abs(myAction.oldGoalBDifference)) {
+                myAction.goalBMsg = ". Goal farther";
+            }
+            myLevel.R = myAction.R; // Update level so that we have something to compare to next time around
+            myLevel.V = myAction.V;
+            myAction.level.actions.push(myAction); //and push the action onto the level
         }
-        myLevel.R = myAction.R; // Update level so that we have something to compare to next time around
-        myLevel.V = myAction.V;
-        myAction.level.actions.push(myAction); //and push the action onto the level
     }
 }
 
 function addMessage(ro) {
     var myAction = addAction(ro, "message");
-    myAction.msg = ro["event_value"];
-    myAction.varRefs = getVarRefs(myAction);
-    myAction.score = scoreAction(myAction);
-    myAction.highlightedMsg = highlightMessage(myAction);
-    myAction.R = myAction.level.R;
-    myAction.V = myAction.level.V;
-    myAction.level.actions.push(myAction);
-}
-
-function addCalculation(ro) {
-    var myAction = addAction(ro, "calculation");
-    myAction.result = ro["result"];
-    myAction.calculation = ro["calculation"];
-    myAction.msg = myAction.calculation + " = " + myAction.result;
-    myAction.varRefs = getVarRefs(myAction);
-    myAction.score = scoreAction(myAction);
-    myAction.highlightedMsg = highlightMessage(myAction);
-    if (!(duplicate(myAction))) {
+    if (myAction) {
+        myAction.msg = ro["event_value"];
+        myAction.varRefs = getVarRefs(myAction);
+        myAction.score = scoreAction(myAction);
+        myAction.highlightedMsg = highlightMessage(myAction);
+        myAction.R = myAction.level.R;
+        myAction.V = myAction.level.V;
         myAction.level.actions.push(myAction);
     }
 }
 
+function addCalculation(ro) {
+    var myAction = addAction(ro, "calculation");
+    if (myAction) {
+        myAction.result = ro["result"];
+        myAction.calculation = ro["calculation"];
+        myAction.msg = myAction.calculation + " = " + myAction.result;
+        myAction.varRefs = getVarRefs(myAction);
+        myAction.score = scoreAction(myAction);
+        myAction.highlightedMsg = highlightMessage(myAction);
+        if (!(duplicate(myAction))) {
+            myAction.level.actions.push(myAction);
+        }
+    }
+}
+
 function addSubmit(ro) {
-    var type = "submitClicked";
-    var myAction = addAction(ro, type);
+    var myAction = addAction(ro, "submitClicked");
     if (!duplicate(myAction)) {
         myLevel = myAction.level;
         var V1 = myAction.V[0];
@@ -242,8 +252,7 @@ function addSubmit(ro) {
 }
 
 function addSubmitER(ro) {
-    var type = "submitER";
-    var myAction = addAction(ro, type);
+    var myAction = addAction(ro, "submitER");
     if (!duplicate(myAction)) {
         myLevel = myAction.level;
         (ro["E: Correct"] == "true" ? myLevel.successE = true : myLevel.successE = false);
@@ -254,8 +263,8 @@ function addSubmitER(ro) {
 function addAttachProbe(ro) {
     var myAction = addAction(ro, "attach-probe");
     //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    myAction.location = ro["location"];
     if (!(duplicate(myAction))) {
+        myAction.location = ro["location"];
         myAction.level.actions.push(myAction);
     } else {
         //        console.log("Passed over an attach probe action at . " + myAction.time);
@@ -265,8 +274,8 @@ function addAttachProbe(ro) {
 function addDetachProbe(ro, i) {
     var myAction = addAction(ro, "detach-probe");
     //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    myAction.location = ro["location"];
     if (!(duplicate(myAction))) {
+        myAction.location = ro["location"];
         myAction.level.actions.push(myAction);
     } else {
         //        console.log("Passed over a detach probe action at . " + myAction.time);

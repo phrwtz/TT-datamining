@@ -23,6 +23,10 @@ function setupForm(teams) {
     }
     var checkForm = document.createElement("form");
     checkForm.ID = "checkForm";
+    var checkTeacher = document.createElement("input");
+    checkTeacher.ID = "checkTeacher";
+    checkTeacher.setAttribute("type", "radio");
+    checkForm.appendChild(checkTeacher);
     var checkTable = document.createElement("table");
     var headerRow = document.createElement("tr");
     var checkBoxRow = document.createElement("tr");
@@ -65,7 +69,6 @@ function setupForm(teams) {
         teamData.innerHTML += "<input " + typeStr + IDStr + labelStr;
     }
 
-
     IDStr = 'id="all-teachers" name="teachers" ';
     onChangeStr = "onchange = \"toggleSelectAll('teachers')\"";
     labelStr = '<b>All teachers</b><br>';
@@ -74,7 +77,6 @@ function setupForm(teams) {
         IDStr = 'id=report-' + teachers[j] + ' name=teachers>';
         teacherData.innerHTML += "<input " + typeStr + IDStr + teachers[j] + "<br>";
     }
-
 
     IDStr = 'id="all-levels" name="level" ';
     onChangeStr = "onchange = \"toggleSelectAll('level')\"";

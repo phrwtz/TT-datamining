@@ -9,6 +9,7 @@ var studentDataObjs = [];
 var timeZone = -5; //offset for Eastern Standard Time
 
 function parseCSV() {
+    var filteredTeams = [];
     console.log("starting parse");
     teams = []; //Clear the teams array (which might be populated if we haven't
     //refreshed the page).
@@ -26,6 +27,12 @@ function parseCSV() {
                 rowObjs = arrayToObjects(obj.data);
                 console.log("row objects created");
                 teams = makeTeams(rowObjs);
+                for (var i = 0; i < teams.length; i++) {
+                    if (teams[i].members.length == 3) {
+                        filteredTeams.push(teams[i]);
+                    }
+                }
+                teams = filteredTeams;
                 console.log("teams generated");
                 changes = analyze(rowObjs);
                 console.log("analysis complete");

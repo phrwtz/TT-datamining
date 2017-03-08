@@ -414,8 +414,12 @@ function addTeam(ro) {
     var myClass = getMemberDataObj(userID)["Class"];
     var classID = getMemberDataObj(userID)["Class ID"];
     //check to see whether we already have a team with this name
+    var group = ro["groupname"];
+    if (group == "Vehicles") {
+        console.log("Check it out!");
+    }
     for (var j = 0; j < teams.length; j++) {
-        if ((teams[j].name == ro["groupname"]) && (teams[j].classID == classID)) {
+        if ((teams[j].name == group) && (teams[j].classID == classID)) {
             inTeams = true;
             myTeam = teams[j]; //set myTeam to be the one we found in the array
         }
@@ -445,7 +449,7 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
             myTeam.levels = []; //set it up
         }
     } catch (err) {
-        console.log(err);
+        console.log("Oops!");
     }
     //Check to see whether we already have a level with this number
     for (j = 0; j < myTeam.levels.length; j++) {
@@ -553,13 +557,32 @@ function getLevel(ro) { //assumes that groupName and levelName are properties of
     for (var j = 0; j < myTeam.levels.length; j++) {
         if (myTeam.levels[j].number == levelNumber) {
             var myLevel = myTeam.levels[j];
+        } else {
+            myLevel = new level;
+            myLevel.startUTime = ro["time"];
+            var startDate = new Date(parseFloat(myLevel.startUTime * 1000));
+            myLevel.startPTime = startDate;
+            myLevel.number = levelNumber;
+            myLevel.label = getAlphabeticLabel(levelNumber);
+            myLevel.team = myTeam;
+            myLevel.actions = [];
+            myLevel.success = false;
+            myLevel.varRefs = function() {}
+            initializeVarRefs(myLevel); //Set all the arrays empty
         }
     }
+    // if (!myLevel) {
+    //     console.log("get level didn't come back with anything");
+    // }
     return myLevel;
 }
 
 function addLevelValues(myLevel, ro) {
-    myLevel.E = ro["E"];
+    try {
+        myLevel.E = ro["E"];
+    } catch (err) {
+        console.log("Missing level values");
+    }
     myLevel.initR = [parseInt(ro["R1"]), parseInt(ro["R2"]), parseInt(ro["R3"])];
     myLevel.R = myLevel.initR;
     myLevel.goalR = [parseInt(ro["GoalR1"]), parseInt(ro["GoalR2"]), parseInt(ro["GoalR3"])];
@@ -591,25 +614,25 @@ function findTeam(teams, ro) {
 
 //Check to see whether the level at this row is in the levels array for this team
 //If we don't find the level in the array, return a new level
-function findLevel(team, ro) {
-    //  var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    var number = ro["levelName"].charAt(ro["levelName"].length - 1);
-    var levelFound = false;
-    if (!team) {
-        console.log("stop");
-    }
-    for (var i = 0; i < team.levels.length; i++) {
-        if (team.levels[i].number == number) {
-            levelFound = true;
-            return team.levels[i];
-        }
-    }
-    if (!levelFound) {
-        console.log("Level not found! team = " + team + ", level number " + number);
-        addLevel(team, ro);
-
-    }
-}
+// function findLevel(myTeam, ro) {
+//     //  var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+//     var number = ro["levelName"].charAt(ro["levelName"].length - 1);
+//     var levelFound = false;
+//     if (!myTeam) {
+//         console.log("stop");
+//     }
+//     for (var i = 0; i < myTeam.levels.length; i++) {
+//         if (myTeam.levels[i].number == number) {
+//             levelFound = true;
+//             return myTeam.levels[i];
+//         }
+//     }
+//     if (!levelFound) {
+//         console.log("Level not found! team = " + team + ", level number " + number);
+//         addLevel(team, ro);
+//
+//     }
+// }
 
 function getMemberDataObj(userID) { //Takes the userID and returns the studentData object for that ID
     var memberDataObject = function() {};
