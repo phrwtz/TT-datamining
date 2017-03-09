@@ -238,7 +238,7 @@ function reportResults(teams) {
                                     break;
                                 case "joined-group":
                                     if ($("#action-joined-group")[0].checked) {
-                                        document.getElementById("data").innerHTML += ("At " + uTime + " seconds " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd + ", joined team " + team.name + "<br>");
                                     }
                                     break;
