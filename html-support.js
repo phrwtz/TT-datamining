@@ -113,7 +113,7 @@ function setupForm(teams) {
 
     var summaryNames = ["rChg", "iRep", "results"];
     var summaryIDs = ["resistor-change", "action-scores", "teacher-report"];
-    var summaryLabels = ["Resistor changes", "Action scores"];
+    var summaryLabels = ["Resistor changes", "Message scores"];
     for (var l = 0; l < summaryLabels.length; l++) {
         IDStr = 'id = summary-' + summaryIDs[l] + " name=summary>";
         labelStr = summaryLabels[l] + "<br>";

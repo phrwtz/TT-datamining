@@ -384,15 +384,17 @@ function findVars(act, numStr) {
 function makeTeams(rowObjs) { //parse the row objects array looking for and populating teams
     for (i = 0; i < rowObjs.length; i++) {
         var ro = rowObjs[i];
-        if (ro["event"] == "Selected Username") {
+        if ((ro["event"] == "Activity Settings") || (ro["event"] == "Joined Group") ||
+            (ro["event"] == "model options") || (ro["event"] == "model name") ||
+            (ro["event"] == "model values") || (ro["event"] == "Selected board") ||
+            (ro["event"] == "Selected Username")) {
+            // These events all have groupname and levelName
             addTeam(ro);
         }
-        if (ro["event"] == "model values") {
-            addLevelValues(getLevel(ro), ro);
-        }
-        if (ro["event"] == "Activity Settings") {
-            addR0(ro);
-        }
+        //   if ((ro["event"] == "Selected Username") || (ro["event"] == "Joined Group") ||
+        // (ro["event"] == "Selected board") ||)) {
+        //   addMember;
+        // }
     }
     return teams;
 }
@@ -405,73 +407,62 @@ function about(num, target, tolerance) {
     }
 }
 
-//We invoke this function when the event is "Selected Username"
+//We invoke this function when the event is "Selected Username" or "Joined Group"
 //we construct a new team from ro and add it to teams array.
 //If we already have a team with that name, we use it.
 function addTeam(ro) {
-    var inTeams = false;
     var userID = ro["username"].slice(0, 5); //First five characters are the user id
     var myClass = getMemberDataObj(userID)["Class"];
     var classID = getMemberDataObj(userID)["Class ID"];
-    //check to see whether we already have a team with this name
-    var group = ro["groupname"];
-    if (group == "Vehicles") {
-        console.log("Check it out!");
-    }
+    var inTeams = false;
+    var groupName = ro["groupname"];
+    var levelNumber = ro["levelName"].charAt(ro["levelName"].length - 1); //number = 1 ... 4
+
+    //check to see whether we already have a team with this name in this class
     for (var j = 0; j < teams.length; j++) {
-        if ((teams[j].name == group) && (teams[j].classID == classID)) {
+        if ((teams[j].name == groupName) && (teams[j].classID == classID)) {
             inTeams = true;
             myTeam = teams[j]; //set myTeam to be the one we found in the array
+            break;
         }
     }
-    if (!inTeams) { //a team with this name is not in the teams array
+    if (!inTeams) { //if a team with this name and class is not in the teams array
         myTeam = new team; //make a new one
-        myTeam.name = ro["groupname"];
+        teams.push(myTeam); //and put it on the array
+        myTeam.name = groupName;
         myTeam.class = myClass;
         myTeam.classID = classID;
         myTeam.levels = [];
         myTeam.members = [];
     }
     addLevel(myTeam, ro); //add level, if new
-    addMember(myTeam, ro); //add member, if new
-    if (!inTeams) { //add the team to the teams array if it's new
-        teams.push(myTeam);
-    }
+    addMember(myTeam, ro)
 }
 
 function addLevel(myTeam, ro) { //construct a new level from ro and add it to levels array.
-    //If we already have a level with that number, use it.
-    var number = ro["levelName"].charAt(ro["levelName"].length - 1); //number = 2 ... 5
+    //If we already have a level with that number, use it
     var inLevels = false;
-    // if levels array doesn't yet exist
-    try {
-        if (!myTeam.levels) {
-            myTeam.levels = []; //set it up
-        }
-    } catch (err) {
-        console.log("Oops!");
-    }
-    //Check to see whether we already have a level with this number
+    //Check to see whether we already have a level with this number in this team
+    var num = ro["levelName"].charAt(ro["levelName"].length - 1);
     for (j = 0; j < myTeam.levels.length; j++) {
-        if (myTeam.levels[j].number == number) {
+        if (myTeam.levels[j].number == num) {
             inLevels = true;
-            return myTeam.levels[j]; //return the level we found
+            myLevel = myTeam.levels[j];
+            addLevelValues(myLevel, ro);
+            break;
         }
     }
     if (!inLevels) { //if not, add this level
-        try {
-            var myLevel = new level;
-        } catch (err) {
-            console.log("stop, error = " + err);
-        }
+        var myLevel = new level;
+        myTeam.levels.push(myLevel);
         myLevel.startUTime = ro["time"];
         var startDate = new Date(parseFloat(myLevel.startUTime * 1000));
         myLevel.startPTime = startDate;
-        myLevel.number = number;
-        myLevel.label = getAlphabeticLabel(number);
+        myLevel.number = num;
+        myLevel.label = getAlphabeticLabel(num);
         myLevel.team = myTeam;
-        myLevel.actions = [];
         myLevel.success = false;
+        addLevelValues(myLevel, ro);
         myLevel.varRefs = function() {} //List of references to known variables
         //Each property is a variable label and is associated with an array of
         //actions (messages and calculations) that contain a reference
@@ -479,70 +470,88 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
         //variable is globally known, known to the actor, known to some other
         //team member, or unknown (e.g., E or R0 at higher levels)
         initializeVarRefs(myLevel); //Set all the arrays empty
-        if (ro["E"]) {
-            addLevelValues(myLevel);
-        }
-        myTeam.levels.push(myLevel);
-        return myLevel; //return the new level
+        myLevel.actions = [];
     }
 }
 
-function addMember(myTeam, ro) { //construct a new member from ro and add it to members
+function addMember(myTeam, ro) { //If the member doesn't already exist, construct a
+    //new member from ro and add it to the members array
     //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    //    var name = po["username"];
     var userID = ro["username"].slice(0, 5); //First five characters are the user id
-    // if members array doesn't yet exist
-    if (!myTeam.members) {
-        myTeam.members = []; //set it up
-    }
-    //Check to see whether we already have a member with this name
+    //Check to see whether we already have a member with this id in this team
     inMembers = false;
     for (j = 0; j < myTeam.members.length; j++) {
         if (myTeam.members[j].id == userID) {
             inMembers = true;
+            myMember = myTeam.members[j];
+            break;
         }
     }
-    if (!inMembers) { //if not, add this level
-        var colIndex = myTeam.members.length // will be 0, 1, or 2
-        var colorArray = ["DarkTurquoise", "Gold", "GreenYellow"];
+    if (!inMembers) { //if not, make a new member
         myMember = new member;
+        myTeam.members.push(myMember);
         myMember.startTime = ro["time"];
         //        myMember.startPTime = unixTimeConversion(myMember.startTime);
-        myMember.board = parseInt(ro["board"]) + 1;
         //        myMember.colIndex = colIndex; //used for identifying member when counting actions
-        myMember.colIndex = colIndex; //A numerical index that will follow the member
+        myMember.colIndex = myTeam.members.length - 1 // will be 0, 1, or 2
+        var colorArray = ["DarkTurquoise", "Gold", "GreenYellow"];
         //from level to level. Used in identifying the member when we count or score actions.
-        myMember.color = colorArray[colIndex];
+        myMember.color = colorArray[myMember.colIndex];
         myMember.id = userID;
-        myMember.name = ro["event_value"];
-        myMember.studentName = "";
-        myMember.teacherName = "";
+        if (myMember.name) { // if we've assigned a name to this member
+            myMember.styledName = "<span style= \"background-color: " + myMember.color + "\">" + myMember.name + "</span>"
+        }
+        myMember.studentName = ""; //Placeholder for the student's real name (if available)
+        myMember.teacherName = ""; //Placeholder for the teacher's name (if available)
         for (var i = 0; i < studentDataObjs.length; i++) {
             if (studentDataObjs[i]["UserID"] == myMember.id) {
+                if (!studentDataObjs[i]["team"]) {
+                    studentDataObjs[i]["team"] = myTeam;
+                } else if (studentDataObjs[i] != myTeam) {
+                    console.log("More than one team found for student id " + myMember.id +
+                        ", first team = " + studentDataObjs[i]["team"].name +
+                        ", second team = " + myTeam.name + ", time = " + ro["time"]);
+                }
+                studentDataObjs[i]["team"] = myTeam;
                 myMember.studentName = studentDataObjs[i]["Student Name"];
                 myMember.teacherName = studentDataObjs[i]["Teachers"];
                 myMember.classID = studentDataObjs[i]["Class ID"];
                 myMember.school = studentDataObjs[i]["School"];
+                break;
             }
         }
         if (myMember.studentName == "") {
             console.log("Student id " + myMember.id) + " not found, Team = " + myTeam;
         }
-        myMember.styledName = "<span style= \"background-color: " + myMember.color + "\">" + myMember.name + "</span>";
         myMember.team = myTeam;
         myTeam.teacherName = myMember.teacherName.replace(" ", "_");
         myTeam.classID = myMember.classID;
         myTeam.school = myMember.school;
-        myTeam.members.push(myMember);
         var notInTeachers = true;
+        //if this team is not yet registered to a teacher...
         for (var j = 0; j < teachers.length; j++) {
             if (myTeam.teacherName == teachers[j]) {
                 notInTeachers = false;
             }
         }
+        //push it to the teachers array
         if (notInTeachers) {
             teachers.push(myTeam.teacherName)
         }
+    }
+    // Regardless of whether or not this is a new member fill in these values, if possible
+    if (ro["event"] == "Selected Username") {
+        myMember.name = ro["event_value"];
+        if (myMember.color) {
+            myMember.styledName = "<span style= \"background-color: " + myMember.color + "\">" + myMember.name + "</span>";
+        }
+    }
+    if (ro["event"] == "Selected board") {
+        myMember.board = parseInt(ro["board"]) + 1;
+        if ((myMember.color) && (myMember.name)) {
+            myMember.styledName = "<span style= \"background-color: " + myMember.color + "\">" + myMember.name + "</span>";
+        }
+
     }
 }
 
@@ -571,33 +580,26 @@ function getLevel(ro) { //assumes that groupName and levelName are properties of
             initializeVarRefs(myLevel); //Set all the arrays empty
         }
     }
-    // if (!myLevel) {
-    //     console.log("get level didn't come back with anything");
-    // }
     return myLevel;
 }
 
 function addLevelValues(myLevel, ro) {
-    try {
-        myLevel.E = ro["E"];
-    } catch (err) {
-        console.log("Missing level values");
+    if (ro["event"] == "model values") {
+        myLevel.goalR = [parseInt(ro["GoalR1"]), parseInt(ro["GoalR2"]), parseInt(ro["GoalR3"])];
+        myLevel.goalV = [parseFloat(ro["V1"]), parseFloat(ro["V2"]), parseFloat(ro["V3"])];
     }
-    myLevel.initR = [parseInt(ro["R1"]), parseInt(ro["R2"]), parseInt(ro["R3"])];
-    myLevel.R = myLevel.initR;
-    myLevel.goalR = [parseInt(ro["GoalR1"]), parseInt(ro["GoalR2"]), parseInt(ro["GoalR3"])];
-    myLevel.goalV = [parseFloat(ro["V1"]), parseFloat(ro["V2"]), parseFloat(ro["V3"])];
-    var Rtot = myLevel.R0 + myLevel.R[0] + myLevel.R[1] + myLevel.R[2];
-    myLevel.I = Math.round((myLevel.E / Rtot) * 100000) / 100000;
-    myLevel.V = [(Math.round(((myLevel.E * myLevel.R[0]) / Rtot) * 100) / 100),
-        (Math.round(((myLevel.E * myLevel.R[1]) / Rtot) * 100) / 100),
-        (Math.round(((myLevel.E * myLevel.R[2]) / Rtot) * 100) / 100)
-    ];
-}
-
-function addR0(ro) { //adds R0 to the current level. Activated on an "Activity Settings" event
-    myLevel = getLevel(ro);
-    myLevel.R0 = parseInt(ro["R0"]);
+    if (ro["event"] == "Activity Settings") {
+        myLevel.E = parseInt(ro["E"]);
+        myLevel.R0 = parseInt(ro["R0"]);
+        myLevel.initR = [parseInt(ro["r1"]), parseInt(ro["r2"]), parseInt(ro["r3"])];
+        myLevel.R = myLevel.initR;
+        var Rtot = myLevel.R0 + myLevel.R[0] + myLevel.R[1] + myLevel.R[2];
+        myLevel.V = [(Math.round((myLevel.E * myLevel.R[0] * 100) / Rtot) / 100),
+            (Math.round((myLevel.E * myLevel.R[1] * 100) / Rtot) / 100),
+            (Math.round((myLevel.E * myLevel.R[2] * 100) / Rtot) / 100)
+        ];
+        //    myLevel.I = Math.round((myLevel.E / Rtot) * 100000) / 100000;
+    }
 }
 
 //Check to see whether the team at this row is in the teams array
@@ -612,27 +614,6 @@ function findTeam(teams, ro) {
     }
 }
 
-//Check to see whether the level at this row is in the levels array for this team
-//If we don't find the level in the array, return a new level
-// function findLevel(myTeam, ro) {
-//     //  var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-//     var number = ro["levelName"].charAt(ro["levelName"].length - 1);
-//     var levelFound = false;
-//     if (!myTeam) {
-//         console.log("stop");
-//     }
-//     for (var i = 0; i < myTeam.levels.length; i++) {
-//         if (myTeam.levels[i].number == number) {
-//             levelFound = true;
-//             return myTeam.levels[i];
-//         }
-//     }
-//     if (!levelFound) {
-//         console.log("Level not found! team = " + team + ", level number " + number);
-//         addLevel(team, ro);
-//
-//     }
-// }
 
 function getMemberDataObj(userID) { //Takes the userID and returns the studentData object for that ID
     var memberDataObject = function() {};
