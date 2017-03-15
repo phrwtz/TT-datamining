@@ -26,6 +26,9 @@ function reportResults(teams) {
                         var levelTime = Math.round(myLevel.endUTime - myLevel.startUTime);
                         var levelMinutes = Math.round(levelTime / 60);
                         var levelSeconds = levelTime % 60;
+                        if (levelSeconds < 10) {
+                            levelSeconds = "0" + levelSeconds;
+                        }
                         var levelMsg = (myLevel.success ? "Goal voltages attained." : "Goal voltages not attained.");
                         var levelEMsg = (myLevel.successE ? " E correctly reported." : " E not reported correctly.");
                         var levelRMsg = (myLevel.successR ? " R0 correctly reported." : " R0 not reported correctly.");

@@ -46,24 +46,68 @@ function analyze(rowObjs) {
 
 //General function for adding a new action. Sets all the parameters the different actions have in common.
 function addAction(ro, type) {
-    var myTeam = findTeam(teams, ro);
-    if (!myTeam) {
-        console.log("no team found in add action");
+    if (ro["time"] == "1488386790") {
+        console.log("something wrong here");
+    }
+    var teamFound = false;
+    var teamName = ro["groupname"];
+    if ((type == "joined-group") && (teamName == "Tools")) {
+        console.log("Tools");
+    }
+    for (var k = 0; k < teams.length; k++) {
+        if (teams[k].name == teamName) {
+            teamFound = true;
+            myTeam = teams[k];
+            break;
+        }
+    }
+    if (!teamFound) {
+        // console.log("looking in vain for team " + teamName + " in action " + type + " at " + ro["time"]);
         return;
     }
-    var myLevel = addLevel(myTeam, ro); //try to find the level in the team.levels array.
-    //if level not found, create a new one.
-    if (!myLevel.E) {
-        addLevelValues(myLevel, ro);
+    var levelFound = false;
+    var number = ro["levelName"].charAt(ro["levelName"].length - 1);
+    for (var i = 0; i < myTeam.levels.length; i++) {
+        if (myTeam.levels[i].number == number) {
+            myLevel = myTeam.levels[i];
+            levelFound = true;
+            break;
+        }
     }
-    var id = ro["username"].slice(0, 5);
-    var myMember = findMember(id);
+    if (!levelFound) {
+        //        console.log("No level found in add action. Team = " + myTeam.name + ", level number = " + number);
+        return;
+    }
+    var memberID = ro["username"].slice(0, 5);
+    var memberFound = false;
+    for (var j = 0; j < myTeam.members.length; j++) {
+        if (myTeam.members[j].id == memberID) {
+            memberFound = true;
+            myMember = myTeam.members[j];
+            break
+        }
+    }
+    if (!memberFound) {
+        console.log("No member. Team = " + myTeam.name + ", level number = " + number +
+            ", id = " + memberID + ", action type = " + type + ", time = " + ro["time"]);
+        for (i = 0; i < teams.length; i++) {
+            for (j = 0; j < teams[i].members.length; j++) {
+                if (teams[i].members[j].id == memberID) {
+                    matchingTeamName = teams[i].name;
+                }
+            }
+        }
+        console.log("That member is in team " + matchingTeamName);
+    }
     var myAction = new action;
     myAction.type = type;
     myAction.team = myTeam;
     myAction.level = myLevel;
     myAction.actor = myMember;
     myAction.uTime = ro["time"];
+    if (myAction.uTime == "1488328082") {
+        console.log(myAction.uTime);
+    }
     //    myAction.pTime = unixTimeConversion(myAction.uTime);
     myAction.board = parseInt(ro["board"]);
     myAction.index = myLevel.actions.length; //The length of the array before the action is pushed. (The index of the action
