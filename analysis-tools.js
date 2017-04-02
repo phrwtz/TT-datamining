@@ -46,14 +46,8 @@ function analyze(rowObjs) {
 
 //General function for adding a new action. Sets all the parameters the different actions have in common.
 function addAction(ro, type) {
-    if (ro["time"] == "1488386790") {
-        console.log("something wrong here");
-    }
     var teamFound = false;
     var teamName = ro["groupname"];
-    if ((type == "joined-group") && (teamName == "Tools")) {
-        console.log("Tools");
-    }
     for (var k = 0; k < teams.length; k++) {
         if (teams[k].name == teamName) {
             teamFound = true;
@@ -98,6 +92,7 @@ function addAction(ro, type) {
             }
         }
         console.log("That member is in team " + matchingTeamName);
+        return;
     }
     var myAction = new action;
     myAction.type = type;
@@ -105,15 +100,12 @@ function addAction(ro, type) {
     myAction.level = myLevel;
     myAction.actor = myMember;
     myAction.uTime = ro["time"];
-    if (myAction.uTime == "1488328082") {
-        console.log(myAction.uTime);
-    }
     //    myAction.pTime = unixTimeConversion(myAction.uTime);
     myAction.board = parseInt(ro["board"]);
     myAction.index = myLevel.actions.length; //The length of the array before the action is pushed. (The index of the action
     //if it is pushed will equal this.)
     myAction.id = myMember.id;
-    myAction.currentFlowing = (ro["currentFlowing"] == "true" ? true : false);
+    myAction.currentFlowing = (ro["currentFlowing"] == "TRUE" ? true : false);
     myAction.R = [parseInt(ro["r1"]), parseInt(ro["r2"]), parseInt(ro["r3"])];
     var Rtot = myLevel.R0 + myAction.R[0] + myAction.R[1] + myAction.R[2];
     myAction.V = [Math.round(((myLevel.E * myAction.R[0]) / Rtot) * 100) / 100,
@@ -205,7 +197,7 @@ function addRChange(ro) {
             myAction.oldGoalBDifference = myAction.oldV[bdB] - myLevel.goalV[bdB];
             myAction.newGoalBDifference = myAction.V[bdB] - myLevel.goalV[bdB];
             if (Math.abs(myAction.newGoalDifference) < .01) {
-                myAction.goalMsg = ". Goal achieved";
+                myAction.goalMsg = ". Local goal met";
             } else if (Math.sign(myAction.oldGoalDifference) != Math.sign(myAction.newGoalDifference) &&
                 (myAction.newGoalDifference > 0)) {
                 myAction.goalMsg = ". Goal overshot";
@@ -219,7 +211,7 @@ function addRChange(ro) {
             }
 
             if (Math.abs(myAction.newGoalADifference) < .01) {
-                myAction.goalAMsg = ". Goal achieved";
+                myAction.goalAMsg = ". Local goal met";
             } else if (Math.sign(myAction.oldGoalADifference) != Math.sign(myAction.newGoalADifference) &&
                 (myAction.newGoalADifference > 0)) {
                 myAction.goalAMsg = ". Goal overshot";
@@ -233,7 +225,7 @@ function addRChange(ro) {
             }
 
             if (Math.abs(myAction.newGoalBDifference) < .01) {
-                myAction.goalBMsg = ". Goal achieved";
+                myAction.goalBMsg = ". Local goal met";
             } else if (Math.sign(myAction.oldGoalBDifference) != Math.sign(myAction.newGoalBDifference) &&
                 (myAction.newGoalBDifference > 0)) {
                 myAction.goalBMsg = ". Goal overshot";

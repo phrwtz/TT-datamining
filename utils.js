@@ -24,6 +24,7 @@ function initializeVarRefs(level) { //Initializes variable references for this l
     level.varRefs["V1"] = [];
     level.varRefs["V2"] = [];
     level.varRefs["V3"] = [];
+    level.varRefs["sumVs"] = [];
     level.varRefs["Rtot"] = [];
     level.varRefs["V0"] = [];
     level.varRefs["IA"] = [];
@@ -77,6 +78,9 @@ function score(varStr, action) {
             break;
         case "V3":
             (bd == 3 ? score = 2 : score = 3);
+            break;
+        case "sumVs":
+            score = 4;
             break;
         case "goalV0":
             score = 4;
@@ -158,7 +162,7 @@ function highlightMessage(act) { //Highlights the variable names, if any, in a m
                 vrVar = vrArray[i][j][1]; //the string representing the variable
                 if (numStr == vrNum) { //if it matches the number in the message
                     vrScore = vrArray[i][j][3];
-                    matchedVariables.push(vrVar + "(" + vrScore + ")"); //put it in the array
+                    matchedVariables.push(vrVar); //put it in the array
                 }
             }
             var highlightedStr = " <mark>["
@@ -222,6 +226,7 @@ function findVars(act, numStr) {
         V1 = act.V[0],
         V2 = act.V[1],
         V3 = act.V[2],
+        sumVs = V1 + V2 + V3,
         IA = E / Rtot,
         ImA = 1000 * IA,
         goalIA = E / goalRtot,
@@ -292,6 +297,13 @@ function findVars(act, numStr) {
     if (about(num, V3, tol)) {
         variableFound = true;
         thisStr = "V3";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, sumVs, tol)) {
+        variableFound = true;
+        thisStr = "sumVs";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
@@ -414,12 +426,20 @@ function addTeam(ro) {
     var userID = ro["username"].slice(0, 5); //First five characters are the user id
     var myClass = getMemberDataObj(userID)["Class"];
     var classID = getMemberDataObj(userID)["Class ID"];
+    var teacher = getMemberDataObj(userID)["Teachers"];
     var inTeams = false;
     var groupName = ro["groupname"];
     var levelNumber = ro["levelName"].charAt(ro["levelName"].length - 1); //number = 1 ... 4
 
+
     //check to see whether we already have a team with this name in this class
     for (var j = 0; j < teams.length; j++) {
+        
+        //if we have a team with this name but a different class
+
+        if ((teams[j].name == groupName) && (teams[j].classID != classID)) {
+            console.log("same name, different class.");
+        }
         if ((teams[j].name == groupName) && (teams[j].classID == classID)) {
             inTeams = true;
             myTeam = teams[j]; //set myTeam to be the one we found in the array
@@ -434,6 +454,7 @@ function addTeam(ro) {
         myTeam.classID = classID;
         myTeam.levels = [];
         myTeam.members = [];
+        myTeam.teacher = teacher;
     }
     addLevel(myTeam, ro); //add level, if new
     addMember(myTeam, ro)

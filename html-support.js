@@ -64,7 +64,7 @@ function setupForm(teams) {
     var labelStr = '<b>All teams</b><br>';
     teamData.innerHTML = "<input " + typeStr + IDStr + onChangeStr + ">" + labelStr;
     for (var i = 0; i < teams.length; i++) {
-        IDStr = 'id=team-' + teams[i].name + ' name=team>';
+        IDStr = 'id=team-' + teams[i].name + teams[i].classID + ' name=team>';
         labelStr = teams[i].name + "<br>";
         teamData.innerHTML += "<input " + typeStr + IDStr + labelStr;
     }
@@ -104,7 +104,7 @@ function setupForm(teams) {
     onChangeStr = "onchange = \"toggleSelectAll('varRef')\"";
     labelStr = '<b>All refs</b><br>';
     varRefData.innerHTML = "<input + " + typeStr + IDStr + onChangeStr + ">" + labelStr;
-    var varRefLabels = ["E", "R0", "R1", "R2", "R3", "V0", "V1", "V2", "V3", "goalR1", "goalR2", "goalR3", "goalV1", "goalV2", "goalV3", "Rtot", "goalRtot", "IA", "ImA", "goalIA", "goalIma"]
+    var varRefLabels = ["E", "R0", "R1", "R2", "R3", "V0", "V1", "V2", "V3", "sumVs", "goalR1", "goalR2", "goalR3", "goalV1", "goalV2", "goalV3", "Rtot", "goalRtot", "IA", "ImA", "goalIA", "goalIma"]
     for (var kk = 0; kk < varRefLabels.length; kk++) {
         IDStr = 'id=varRef-' + varRefLabels[kk] + " name=varRef>";
         labelStr = varRefLabels[kk] + "<br>";
