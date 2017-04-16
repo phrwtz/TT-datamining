@@ -108,7 +108,7 @@ function reportResults(teams) {
 
                                 case "resistorChange":
                                     if ($("#action-resistorChange")[0].checked) {
-                                        var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
+                                        var Rtot = myLevel.R0 + act.newR[0] + act.newR[1] + act.newR[2];
                                         var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
                                         if ((act.uTime - preTime) > interval) {
@@ -117,10 +117,10 @@ function reportResults(teams) {
                                         preTime = act.uTime;
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
                                             ": " + styledName + " changed R" + (bd) + " from " + act.oldR[bd - 1] +
-                                            " to " + act.R[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
-                                            " to " + act.V[bd - 1] + ". (Goal is " + myLevel.goalV[bd - 1] + ")" + act.goalMsg + "<br>");
-                                        document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
-                                        document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
+                                            " to " + act.newR[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
+                                            " to " + act.newV[bd - 1] + ". (Goal is " + myLevel.goalV[bd - 1] + ")" + act.goalMsg + "<br>");
+                                        document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.newR[0] + ", R2 = " + act.newR[1] + ", R3 = " + act.newR[2] + ";  ");
+                                        document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.newV[0] + ", V2 = " + act.newV[1] + ", V3 = " + act.newV[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
 
                                     }

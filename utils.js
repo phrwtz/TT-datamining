@@ -462,12 +462,14 @@ function addTeam(ro) {
 
 function addLevel(myTeam, ro) { //construct a new level from ro and add it to levels array.
     //If we already have a level with that number, use it
+ //   console.log("Adding a level");
     var inLevels = false;
     //Check to see whether we already have a level with this number in this team
     var num = ro["levelName"].charAt(ro["levelName"].length - 1);
     for (j = 0; j < myTeam.levels.length; j++) {
         if (myTeam.levels[j].number == num) {
             inLevels = true;
+  //          console.log("Level already found, adding values");
             myLevel = myTeam.levels[j];
             addLevelValues(myLevel, ro);
             break;
@@ -475,6 +477,7 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
     }
     if (!inLevels) { //if not, add this level
         var myLevel = new level;
+ //       console.log("new level, not in teams");
         myTeam.levels.push(myLevel);
         myLevel.startUTime = ro["time"];
         var startDate = new Date(parseFloat(myLevel.startUTime * 1000));
@@ -490,7 +493,7 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
         //to that variable, paired with a string that defines whether the
         //variable is globally known, known to the actor, known to some other
         //team member, or unknown (e.g., E or R0 at higher levels)
-        initializeVarRefs(myLevel); //Set all the arrays empty
+       initializeVarRefs(myLevel); //Set all the arrays empty
         myLevel.actions = [];
     }
 }
@@ -597,8 +600,8 @@ function getLevel(ro) { //assumes that groupName and levelName are properties of
             myLevel.team = myTeam;
             myLevel.actions = [];
             myLevel.success = false;
-            myLevel.varRefs = function() {}
-            initializeVarRefs(myLevel); //Set all the arrays empty
+        //    myLevel.varRefs = function() {}
+        //    initializeVarRefs(myLevel); //Set all the arrays empty
         }
     }
     return myLevel;
@@ -610,16 +613,15 @@ function addLevelValues(myLevel, ro) {
         myLevel.goalV = [parseFloat(ro["V1"]), parseFloat(ro["V2"]), parseFloat(ro["V3"])];
     }
     if (ro["event"] == "Activity Settings") {
+        console.log("In addLevelValues. Level name = " + myLevel.name + ", level " + myLevel.label);
         myLevel.E = parseInt(ro["E"]);
         myLevel.R0 = parseInt(ro["R0"]);
         myLevel.initR = [parseInt(ro["r1"]), parseInt(ro["r2"]), parseInt(ro["r3"])];
-        myLevel.R = myLevel.initR;
-        var Rtot = myLevel.R0 + myLevel.R[0] + myLevel.R[1] + myLevel.R[2];
-        myLevel.V = [(Math.round((myLevel.E * myLevel.R[0] * 100) / Rtot) / 100),
-            (Math.round((myLevel.E * myLevel.R[1] * 100) / Rtot) / 100),
-            (Math.round((myLevel.E * myLevel.R[2] * 100) / Rtot) / 100)
-        ];
-        //    myLevel.I = Math.round((myLevel.E / Rtot) * 100000) / 100000;
+        myLevel.R = [];
+        for (var i = 0; i < myLevel.initR.length; i++) {
+            myLevel.R[i] = myLevel.initR[i];    
+        }
+        myLevel.V = findVValues(myLevel.E, myLevel.R0, myLevel.R);
     }
 }
 

@@ -69,7 +69,7 @@ function addAction(ro, type) {
         }
     }
     if (!levelFound) {
-        //        console.log("No level found in add action. Team = " + myTeam.name + ", level number = " + number);
+        // console.log("No level found in add action. Team = " + myTeam.name + ", level number = " + number);
         return;
     }
     var memberID = ro["username"].slice(0, 5);
@@ -106,14 +106,37 @@ function addAction(ro, type) {
     //if it is pushed will equal this.)
     myAction.id = myMember.id;
     myAction.currentFlowing = (ro["currentFlowing"] == "TRUE" ? true : false);
-    myAction.R = [parseInt(ro["r1"]), parseInt(ro["r2"]), parseInt(ro["r3"])];
-    var Rtot = myLevel.R0 + myAction.R[0] + myAction.R[1] + myAction.R[2];
-    myAction.V = [Math.round(((myLevel.E * myAction.R[0]) / Rtot) * 100) / 100,
-        Math.round(((myLevel.E * myAction.R[1]) / Rtot) * 100) / 100,
-        Math.round(((myLevel.E * myAction.R[2]) / Rtot) * 100) / 100
-    ];
+    myAction.R = myLevel.R;
+    myAction.V = myLevel.V;
     myLevel.endUTime = myAction.uTime;
+    myAction.R;
     return myAction;
+}
+
+//Find resistance values from row; return resistance matrix. If no value found, return the old value.
+function findRValues(ro, oldR) {
+    var newR = [];
+    newR = oldR;
+    if ((ro["r1"] != "") && (ro["r1"] != "unknown")) {
+        newR[0] = parseInt(ro["r1"])
+    }
+    if ((ro["r2"] != "") && (ro["r2"] != "unknown")) {
+        newR[1] = parseInt(ro["r2"])
+    }
+    if ((ro["r3"] != "") && (ro["r3"] != "unknown")) {
+        newR[0] = parseInt(ro["r3"])
+    }
+    return newR;
+}
+
+function findVValues(E, R0, R) { //Computes V given E, R0 and current R values. Returns V values.
+    var Rtot;
+    var V = [];
+    Rtot = R0 + R[0] + R[1] + R[2];
+    for (var i = 0; i < 3; i++) {
+        V[i] = Math.round(100 * (E * R[i] / Rtot)) / 100;
+    }
+    return V;
 }
 
 //Function for detecting duplicate actions by comparing them to previous actions
@@ -177,68 +200,42 @@ function addDisconnectLead(ro) {
 
 function addRChange(ro) {
     var myAction = addAction(ro, "resistorChange");
-    if (myAction) {
+    if (!(duplicate(myAction))) {
+        myAction.oldR = [];
+        myAction.newR = [];
         var myLevel = myAction.level,
             bd = myAction.board,
             bdA = (bd + 1) % 3,
-            bdB = (bd + 2) % 3;
-        myAction.oldR = myLevel.R;
-        myAction.oldV = myLevel.V;
-        if (!myAction.oldR) {
-            console.log("stop");
+            bdB = (bd + 2) % 3,
+            oldGoalDifference,
+            newGoalDifference;
+        for (var i = 0; i < 3; i++) {
+            myAction.oldR[i] = myLevel.R[i];
+            myAction.newR[i] = myAction.oldR[i];
         }
-        //if the new resistor values are all numbers and at least one of them is indeed new
-        if ((!(isNaN(myAction.R[0])) && !(isNaN(myAction.R[1])) && !(isNaN(myAction.R[2]))) &&
-            ((myAction.R[0] != myAction.oldR[0]) || (myAction.R[1] != myAction.oldR[1]) || (myAction.R[2] != myAction.oldR[2]))) {
-            myAction.oldGoalDifference = myAction.oldV[bd] - myLevel.goalV[bd];
-            myAction.newGoalDifference = myAction.V[bd] - myLevel.goalV[bd];
-            myAction.oldGoalADifference = myAction.oldV[bdA] - myLevel.goalV[bdA];
-            myAction.newGoalADifference = myAction.V[bdA] - myLevel.goalV[bdA];
-            myAction.oldGoalBDifference = myAction.oldV[bdB] - myLevel.goalV[bdB];
-            myAction.newGoalBDifference = myAction.V[bdB] - myLevel.goalV[bdB];
-            if (Math.abs(myAction.newGoalDifference) < .01) {
+        myAction.newR[bd] = parseInt(ro["value"]); //Then set the value for the changed R
+        myAction.oldV = findVValues(myLevel.E, myLevel.R0, myAction.oldR);
+        myAction.newV = findVValues(myLevel.E, myLevel.R0, myAction.newR)
+
+        if ((!(isNaN(myAction.newR[0])) && !(isNaN(myAction.newR[1])) && !(isNaN(myAction.newR[2]))) &&
+            ((myAction.newR[0] != myAction.oldR[0]) || (myAction.newR[1] != myAction.oldR[1]) || (myAction.newR[2] != myAction.oldR[2]))) {
+            oldGoalDifference = myAction.oldV[bd] - myLevel.goalV[bd];
+            newGoalDifference = myAction.newV[bd] - myLevel.goalV[bd];
+            if (Math.abs(newGoalDifference) < .01) {
                 myAction.goalMsg = ". Local goal met";
-            } else if (Math.sign(myAction.oldGoalDifference) != Math.sign(myAction.newGoalDifference) &&
-                (myAction.newGoalDifference > 0)) {
+            } else if (Math.sign(oldGoalDifference) != Math.sign(newGoalDifference) &&
+                (newGoalDifference > 0)) {
                 myAction.goalMsg = ". Goal overshot";
-            } else if (Math.sign(myAction.oldGoalDifference) != Math.sign(myAction.newGoalDifference) &&
-                (myAction.newGoalDifference < 0)) {
+            } else if (Math.sign(oldGoalDifference) != Math.sign(newGoalDifference) &&
+                (newGoalDifference > 0)) {
                 myAction.goalMsg = ". Goal undershot";
-            } else if (Math.abs(myAction.newGoalDifference) < Math.abs(myAction.oldGoalDifference)) {
+            } else if (Math.abs(newGoalDifference) < Math.abs(oldGoalDifference)) {
                 myAction.goalMsg = ". Goal closer";
-            } else if (Math.abs(myAction.newGoalDifference) > Math.abs(myAction.oldGoalDifference)) {
+            } else if (Math.abs(newGoalDifference) > Math.abs(oldGoalDifference)) {
                 myAction.goalMsg = ". Goal farther";
             }
-
-            if (Math.abs(myAction.newGoalADifference) < .01) {
-                myAction.goalAMsg = ". Local goal met";
-            } else if (Math.sign(myAction.oldGoalADifference) != Math.sign(myAction.newGoalADifference) &&
-                (myAction.newGoalADifference > 0)) {
-                myAction.goalAMsg = ". Goal overshot";
-            } else if (Math.sign(myAction.oldGoalADifference) != Math.sign(myAction.newGoalADifference) &&
-                (myAction.newGoalADifference < 0)) {
-                myAction.goalAMsg = ". Goal undershot";
-            } else if (Math.abs(myAction.newGoalADifference) < Math.abs(myAction.oldGoalADifference)) {
-                myAction.goalAMsg = ". Goal closer";
-            } else if (Math.abs(myAction.newGoalADifference) > Math.abs(myAction.oldGoalADifference)) {
-                myAction.goalAMsg = ". Goal farther";
-            }
-
-            if (Math.abs(myAction.newGoalBDifference) < .01) {
-                myAction.goalBMsg = ". Local goal met";
-            } else if (Math.sign(myAction.oldGoalBDifference) != Math.sign(myAction.newGoalBDifference) &&
-                (myAction.newGoalBDifference > 0)) {
-                myAction.goalBMsg = ". Goal overshot";
-            } else if (Math.sign(myAction.oldGoalBDifference) != Math.sign(myAction.newGoalBDifference) &&
-                (myAction.newGoalBDifference < 0)) {
-                myAction.goalBMsg = ". Goal undershot";
-            } else if (Math.abs(myAction.newGoalBDifference) < Math.abs(myAction.oldGoalBDifference)) {
-                myAction.goalBMsg = ". Goal closer";
-            } else if (Math.abs(myAction.newGoalBDifference) > Math.abs(myAction.oldGoalBDifference)) {
-                myAction.goalBMsg = ". Goal farther";
-            }
-            myLevel.R = myAction.R; // Update level so that we have something to compare to next time around
-            myLevel.V = myAction.V;
+            myLevel.R = myAction.newR; // Update level so that we have something to compare to next time around
+            myLevel.V = myAction.newV;
             myAction.level.actions.push(myAction); //and push the action onto the level
         }
     }
