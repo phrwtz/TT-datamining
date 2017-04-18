@@ -74,7 +74,7 @@ function reportResults(teams) {
                             eTime = Math.round((act.uTime - myLevel.startUTime) + 10) / 10;
                             switch (act.type) {
                                 case "submitClicked":
-                                    if ($("#action-submit")[0].checked) {
+                                    if ($("#action-submit-V")[0].checked) {
                                         if (myLevel.label == "B") {
                                             console.log("stop");
                                         }
@@ -94,7 +94,7 @@ function reportResults(teams) {
                                     break;
 
                                 case "submitCorrect":
-                                    if ($("#action-submit")[0].checked) {
+                                    if ($("#action-submit-V")[0].checked) {
                                         var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
                                         var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
@@ -105,6 +105,31 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
                                     }
                                     break;
+
+                                case "submitER":
+                                    if ($("#action-submit-ER")[0].checked) {
+                                        var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
+                                        var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
+                                        var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
+                                        var msg = "";
+                                        var Elabel = "";
+                                        var Rlabel = "";
+                                        (myLevel.successE ? Elabel = "correct" : Elabel = "incorrect");
+                                        (myLevel.successR ? Rlabel = "correct" : Rlabel = "incorrect");
+                                        if((myLevel.label == "C") || (myLevel.label == "D")) {
+                                            msg = ", submitted " + Elabel + " value for E (" + act.ESubmitValue + " " + act.ESubmitUnit + ")<br>";
+                                        }
+                                        if (myLevel.label == "D") {
+                                            msg += " and submitted " + Rlabel + " value for R0 (" + act.RSubmitValue + " " + act.RSubmitUnit + ").<br>";
+                                        }
+                                        document.getElementById("data").innerHTML += ("At " + uTime + " seconds " + act.actor.styledName +
+                                            ", board " + bd + msg);
+                                        document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
+                                        document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
+                                        document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
+                                    }
+                                    break;
+
 
                                 case "resistorChange":
                                     if ($("#action-resistorChange")[0].checked) {

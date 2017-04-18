@@ -613,7 +613,7 @@ function addLevelValues(myLevel, ro) {
         myLevel.goalV = [parseFloat(ro["V1"]), parseFloat(ro["V2"]), parseFloat(ro["V3"])];
     }
     if (ro["event"] == "Activity Settings") {
-        console.log("In addLevelValues. Level name = " + myLevel.name + ", level " + myLevel.label);
+   //     console.log("In addLevelValues. Level name = " + myLevel.name + ", level " + myLevel.label);
         myLevel.E = parseInt(ro["E"]);
         myLevel.R0 = parseInt(ro["R0"]);
         myLevel.initR = [parseInt(ro["r1"]), parseInt(ro["r2"]), parseInt(ro["r3"])];

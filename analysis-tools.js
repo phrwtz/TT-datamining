@@ -273,9 +273,9 @@ function addSubmit(ro) {
     var myAction = addAction(ro, "submitClicked");
     if (!duplicate(myAction)) {
         myLevel = myAction.level;
-        var V1 = myAction.V[0];
-        var V2 = myAction.V[1];
-        var V3 = myAction.V[2];
+        var V1 = myLevel.V[0];
+        var V2 = myLevel.V[1];
+        var V3 = myLevel.V[2];
         var goalV1 = myLevel.goalV[0];
         var goalV2 = myLevel.goalV[1];
         var goalV3 = myLevel.goalV[2];
@@ -287,9 +287,16 @@ function addSubmit(ro) {
 function addSubmitER(ro) {
     var myAction = addAction(ro, "submitER");
     if (!duplicate(myAction)) {
+        myTeam = myAction.team;
         myLevel = myAction.level;
-        (ro["E: Correct"] == "true" ? myLevel.successE = true : myLevel.successE = false);
-        (ro["R: Correct"] == "true" ? myLevel.successR = true : myLevel.successR = false);
+        if((myTeam.name == "Fruit") && (myLevel.label == "D")) {console.log(ro["R: Value"]);}
+        (ro["E: Value"] ? myAction.ESubmitValue = ro["E: Value"] : myAction.ESubmitValue = "No value submitted");
+        (ro["E: Value"] ? myAction.ESubmitUnit = ro["E: Unit"] : myAction.ESubmitUnit = "");
+        (ro["R: Value"] ? myAction.RSubmitValue = ro["R: Value"] : myAction.RSubmitValue = "No value submitted");
+        (ro["R: Value"] ? myAction.RSubmitUnit = ro["R: Unit"] : myAction.RSubmitUnit = "");
+        (ro["E: Value"] == myLevel.E ? myLevel.successE = true : myLevel.successE = false);
+        (ro["R: Value"] == myLevel.R0 ? myLevel.successR = true : myLevel.successR = false);
+        myAction.level.actions.push(myAction);
     }
 }
 
