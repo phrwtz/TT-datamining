@@ -11,16 +11,20 @@ function clearScreen() { //clears data and summary tables
 function initializeVarRefs(level) { //Initializes variable references for this level
     level.varRefs["E"] = [];
     level.varRefs["R0"] = [];
+    level.varRefs["goalV0"] = [];
     level.varRefs["goalV1"] = [];
     level.varRefs["goalV2"] = [];
     level.varRefs["goalV3"] = [];
-    level.varRefs["goalV0"] = [];
+    level.varRefs["goalVs"] = [];
     level.varRefs["goalR1"] = [];
     level.varRefs["goalR2"] = [];
     level.varRefs["goalR3"] = [];
+    level.varRefs["sumGoalRs"] = [];
     level.varRefs["R1"] = [];
     level.varRefs["R2"] = [];
     level.varRefs["R3"] = [];
+    level.varRefs["sumRs"] = [];
+    level.varRefs["sumRsPlusR0"] = [];
     level.varRefs["V1"] = [];
     level.varRefs["V2"] = [];
     level.varRefs["V3"] = [];
@@ -204,22 +208,31 @@ function getVarRefs(action) {
 
 
 //This function looks for variables by matching numStr to their numeric values.
-//If it finds a match it returns a variable reference object
+//If it finds a match it returns an array of variable reference objects, each of 
+//which is itself a four-dimensional array consisting of the action object, 
+//the label of the variable matched, the string that was matched, and a score  
+//(0 to 5). Note: numStr can match more than one variable, which is why the 
+//function returns an array, rather than a single varRef
 function findVars(act, numStr) {
     var num = parseFloat(numStr);
     var myLevel = act.level;
+    var returnArray = [];
     var E = myLevel.E,
         R0 = myLevel.R0,
         goalV1 = myLevel.goalV[0],
         goalV2 = myLevel.goalV[1],
         goalV3 = myLevel.goalV[2],
         goalV0 = E - goalV1 - goalV2 - goalV3,
+        sumGoalVs = goalV1 + goalV2 + goalV3,
         goalR1 = myLevel.goalR[0],
         goalR2 = myLevel.goalR[1],
         goalR3 = myLevel.goalR[2],
+        sumGoalRs = goalR1 + goalR2 + goalR3,
         R1 = act.R[0],
         R2 = act.R[1],
         R3 = act.R[2],
+        sumRs = R1 + R2 + R3,
+        sumRsPlusR0 = sumRs + R0,
         Rtot = R0 + R1 + R2 + R3,
         goalRtot = R0 + goalR1 + goalR2 + goalR3,
         V0 = E * R0 / Rtot,
@@ -234,9 +247,6 @@ function findVars(act, numStr) {
     //tol is how close two numbers have to be to considered "about equal"
     //Note: we compare tol to |x - y| / (x + y) so it's a relative value
     var tol = .005;
-    var returnArray = []; //Array that will contain any returned varRefs.
-    //Note: there may be more than one if the number matches more than one
-    //variable
     var variableFound = false;
     var thisStr = "no match";
     if (about(num, E, tol)) {
@@ -269,6 +279,20 @@ function findVars(act, numStr) {
     if (about(num, R3, tol)) {
         variableFound = true;
         thisStr = "R3";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, sumRs, tol)) {
+        variableFound = true;
+        thisStr = "sumRs";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, sumRsPlusR0, tol)) {
+        variableFound = true;
+        thisStr = "sumRsPlusR0";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
@@ -545,7 +569,7 @@ function addMember(myTeam, ro) { //If the member doesn't already exist, construc
             }
         }
         if (myMember.studentName == "") {
-            console.log("Student id " + myMember.id) + " not found, Team = " + myTeam;
+            console.log("Student id " + myMember.id + " not found, Team = " + myTeam.name);
         }
         myMember.team = myTeam;
         myTeam.teacherName = myMember.teacherName.replace(" ", "_");

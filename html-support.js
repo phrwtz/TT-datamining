@@ -33,21 +33,21 @@ function setupForm(teams) {
     var headerCell1 = document.createElement("th");
     var headerCell2 = document.createElement("th");
     var headerCell3 = document.createElement("th");
-    var headerCell4 = document.createElement("th");
+ //   var headerCell4 = document.createElement("th");
     var headerCell5 = document.createElement("th");
     var headerCell6 = document.createElement("th");
 
     headerCell1.innerHTML = "Teams";
     headerCell2.innerHTML = "Levels";
     headerCell3.innerHTML = "Actions";
-    headerCell4.innerHTML = "Variable Refs";
+//    headerCell4.innerHTML = "Variable Refs";
     headerCell5.innerHTML = "Summary Data";
     headerCell6.innerHTML = "Teacher Reports";
 
     headerRow.appendChild(headerCell1);
     headerRow.appendChild(headerCell2);
     headerRow.appendChild(headerCell3);
-    headerRow.appendChild(headerCell4);
+//    headerRow.appendChild(headerCell4);
     headerRow.appendChild(headerCell5);
     headerRow.appendChild(headerCell6);
 
@@ -55,7 +55,7 @@ function setupForm(teams) {
     var levelData = document.createElement("td");
     var actionData = document.createElement("td");
     var summaryData = document.createElement("td");
-    var varRefData = document.createElement("td");
+ //   var varRefData = document.createElement("td");
     var teacherData = document.createElement("td");
 
     var typeStr = 'type="checkbox"  ';
@@ -100,16 +100,16 @@ function setupForm(teams) {
         actionData.innerHTML += "<input " + typeStr + IDStr + labelStr;
     }
 
-    IDStr = 'id="all-varRefs" name="varRef" ';
-    onChangeStr = "onchange = \"toggleSelectAll('varRef')\"";
-    labelStr = '<b>All refs</b><br>';
-    varRefData.innerHTML = "<input + " + typeStr + IDStr + onChangeStr + ">" + labelStr;
-    var varRefLabels = ["E", "R0", "R1", "R2", "R3", "V0", "V1", "V2", "V3", "sumVs", "goalR1", "goalR2", "goalR3", "goalV1", "goalV2", "goalV3", "Rtot", "goalRtot", "IA", "ImA", "goalIA", "goalIma"]
-    for (var kk = 0; kk < varRefLabels.length; kk++) {
-        IDStr = 'id=varRef-' + varRefLabels[kk] + " name=varRef>";
-        labelStr = varRefLabels[kk] + "<br>";
-        varRefData.innerHTML += "<input + " + typeStr + IDStr + labelStr;
-    }
+    // IDStr = 'id="all-varRefs" name="varRef" ';
+    // onChangeStr = "onchange = \"toggleSelectAll('varRef')\"";
+    // labelStr = '<b>All refs</b><br>';
+    // varRefData.innerHTML = "<input + " + typeStr + IDStr + onChangeStr + ">" + labelStr;
+    // var varRefLabels = ["E", "R0", "R1", "R2", "R3", "V0", "V1", "V2", "V3", "sumVs", "goalR1", "goalR2", "goalR3", "goalV1", "goalV2", "goalV3", "Rtot", "goalRtot", "IA", "ImA", "goalIA", "goalIma"]
+    // for (var kk = 0; kk < varRefLabels.length; kk++) {
+    //     IDStr = 'id=varRef-' + varRefLabels[kk] + " name=varRef>";
+    //     labelStr = varRefLabels[kk] + "<br>";
+    //     varRefData.innerHTML += "<input + " + typeStr + IDStr + labelStr;
+    // }
 
     var summaryNames = ["rChg", "iRep", "results"];
     var summaryIDs = ["resistor-change", "action-scores", "teacher-report"];
@@ -128,7 +128,7 @@ function setupForm(teams) {
     checkBoxRow.appendChild(teamData);
     checkBoxRow.appendChild(levelData);
     checkBoxRow.appendChild(actionData);
-    checkBoxRow.appendChild(varRefData);
+//    checkBoxRow.appendChild(varRefData);
     checkBoxRow.appendChild(summaryData);
     checkBoxRow.appendChild(teacherData);
 

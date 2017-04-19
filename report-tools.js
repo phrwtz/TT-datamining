@@ -8,8 +8,8 @@ function generateReport(teams) {
     console.log("action report generated");
     teacherReport(teams);
     console.log("teacher report generated");
-    reportVarRefs(teams);
-    console.log("variable references report generated");
+//    reportVarRefs(teams);
+ //   console.log("variable references report generated");
 }
 
 function reportResults(teams) {
@@ -61,17 +61,15 @@ function reportResults(teams) {
                         }
                         document.getElementById("data").innerHTML += "<br>";
                         for (var i = 0; i < acts.length; i++) {
-                            var preTime,
-                                interval = 45, //Maximum interval between logged actions for considering them linked.
-                                act = acts[i],
+                            var  act = acts[i],
                                 bd = act.board + 1,
                                 actor = act.actor,
-                                uTime,
-                                eTime, //Elapsed time to nearest tenth of a second since start of level
                                 styledName = actor.styledName,
-                                currentMsg = (act.currentFlowing ? ". Current is flowing. " : ". Current is not flowing.");
-                            uTime = Math.round(act.uTime);
-                            eTime = Math.round((act.uTime - myLevel.startUTime) + 10) / 10;
+                                currentMsg = (act.currentFlowing ? ". Current is flowing. " : ". Current is not flowing."),
+                                preTime, //Used to decide when to insert a horizontal line in the output
+                                uTime = act.uTime,
+                                eTime = Math.round((act.uTime - myLevel.startUTime) * 10) / 10, //Elapsed time since start of level
+                                interval = 45; //Maximum interval between logged actions for considering them linked. 
                             switch (act.type) {
                                 case "submitClicked":
                                     if ($("#action-submit-V")[0].checked) {
@@ -122,7 +120,7 @@ function reportResults(teams) {
                                         if (myLevel.label == "D") {
                                             msg += " and submitted " + Rlabel + " value for R0 (" + act.RSubmitValue + " " + act.RSubmitUnit + ").<br>";
                                         }
-                                        document.getElementById("data").innerHTML += ("At " + uTime + " seconds " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd + msg);
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
@@ -151,40 +149,6 @@ function reportResults(teams) {
                                     }
                                     break;
 
-                                case "submitUnknown":
-                                    if ($("#action-submit")[0].checked) {
-                                        var EMsg = "";
-                                        var RMsg = "";
-                                        if (act.eCorrect == "true") {
-                                            EMsg = " E answer correct. "
-                                        } else if (act.eHaveValue == "true") {
-                                            EMsg = " E answer incorrect."
-                                        } else {
-                                            EMsg = " No answer for E."
-                                        }
-
-                                        if (act.eHaveUnit == "true") {
-                                            EMsg += " E units correct."
-                                        } else {
-                                            EMsg += " E units incorrect."
-                                        }
-                                        if (act.rCorrect == "true") {
-                                            RMsg = " R answer correct."
-                                        } else if (act.rHaveValue == "true") {
-                                            RMsg = " R answer incorrect."
-                                        } else {
-                                            RMsg = " No answer for R."
-                                        }
-                                        if (act.rHaveUnit == "true") {
-                                            RMsg += " R units correct."
-                                        } else {
-                                            RMsg += " R units incorrect."
-                                        }
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
-                                            act.actor.styledName + ", board " + bd + ", submitted incorrect values." +
-                                            EMsg + RMsg + "<br>")
-                                    }
-                                    break;
                                 case "message":
                                     if ($("#action-message")[0].checked) {
                                         var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
@@ -281,7 +245,7 @@ function reportResults(teams) {
     }
 }
 
-function reportVarRefs(teams) {
+/*function reportVarRefs(teams) {
     var team,
         level,
         varRefs,
@@ -291,8 +255,7 @@ function reportVarRefs(teams) {
         vrStr,
         vrNum,
         vrScore,
-        vrLabelsArray = ["E", "R0", "R1", "R2", "R3", "V0", "V1", "V2", "V3", "sumVs", "goalR1", "goalR2", "goalR3", "goalV1", "goalV2", "goalV3", "Rtot", "goalRtot", "IA", "ImA", "goalIA", "goalIma"]
-
+        vrLabelsArray = ["E", "R0", "R1", "R2", "R3", "sumRs", "sumRsPlusR0", "V0", "V1", "V2", "V3", "sumVs", "goalR1", "goalR2", "goalR3", "sumGoalRs", "goalV1", "goalV2", "goalV3", "sumGoalVs", "Rtot", "goalRtot", "IA", "ImA", "goalIA", "goalIma"]
 
     for (var k = 0; k < teams.length; k++) {
         team = teams[k];
@@ -324,6 +287,7 @@ function reportVarRefs(teams) {
         }
     }
 }
+*/
 
 //Reports on total number of resistor changes in each category for each team member, per level.
 function reportSummary(teams) {
