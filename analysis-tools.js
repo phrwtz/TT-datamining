@@ -246,9 +246,9 @@ function addMessage(ro) {
     if (myAction) {
         myAction.msg = ro["event_value"];
         myAction.varRefs = getVarRefs(myAction);
-        if (myAction.varRefs.length > 1) {
-            console.log("Action contains multiple varRefs");
-        }
+        // if (myAction.varRefs.length > 1) {
+        //     console.log("Action contains multiple varRefs");
+        // }
         myAction.score = scoreAction(myAction);
         myAction.highlightedMsg = highlightMessage(myAction);
         myAction.R = myAction.level.R;
