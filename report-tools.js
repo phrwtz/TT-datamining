@@ -110,10 +110,14 @@ function reportResults(teams) {
                                         var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
                                         var msg = "";
-                                        var Elabel = "";
-                                        var Rlabel = "";
-                                        (myLevel.successE ? Elabel = "correct" : Elabel = "incorrect");
-                                        (myLevel.successR ? Rlabel = "correct" : Rlabel = "incorrect");
+                                        var Elabel = "incorrect";
+                                        var Rlabel = "incorrect";
+                                        if ((act.ESubmitValue == myLevel.E) && (act.ESubmitUnit = "volts")) {
+                                            Elabel = "correct";
+                                        }
+                                        if ((act.RSubmitValue == myLevel.R0) && (act.RSubmitUnit = "ohms")) {
+                                            Rlabel = "correct";
+                                        }
                                         if((myLevel.label == "C") || (myLevel.label == "D")) {
                                             msg = ", submitted " + Elabel + " value for E (" + act.ESubmitValue + " " + act.ESubmitUnit + ")<br>";
                                         }

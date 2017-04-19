@@ -510,6 +510,8 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
         myLevel.label = getAlphabeticLabel(num);
         myLevel.team = myTeam;
         myLevel.success = false;
+        myLevel.successE = false;
+        myLevel.successR = false;
         addLevelValues(myLevel, ro);
         myLevel.varRefs = function() {} //List of references to known variables
         //Each property is a variable label and is associated with an array of
