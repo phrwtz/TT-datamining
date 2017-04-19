@@ -294,11 +294,11 @@ function addSubmitER(ro) {
         myLevel = myAction.level;
         if((myTeam.name == "Fruit") && (myLevel.label == "D")) {console.log(myAction.uTime - myLevel.startUTime);}
         (ro["E: Value"] ? myAction.ESubmitValue = ro["E: Value"] : myAction.ESubmitValue = "No value submitted");
-        (ro["E: Value"] ? myAction.ESubmitUnit = ro["E: Unit"] : myAction.ESubmitUnit = "");
+        (ro["E: Unit"] ? myAction.ESubmitUnit = ro["E: Unit"] : myAction.ESubmitUnit = "");
         (ro["R: Value"] ? myAction.RSubmitValue = ro["R: Value"] : myAction.RSubmitValue = "No value submitted");
-        (ro["R: Value"] ? myAction.RSubmitUnit = ro["R: Unit"] : myAction.RSubmitUnit = "");
-        (ro["E: Correct"] == "TRUE" ? myLevel.successE = true : myLevel.successE = false);
-        (ro["R: Correct"] == "TRUE" ? myLevel.successR = true : myLevel.successR = false);
+        (ro["R: Unit"] ? myAction.RSubmitUnit = ro["R: Unit"] : myAction.RSubmitUnit = "");
+        (ro["E: Value"] == myLevel.E ? myLevel.successE = true : myLevel.successE = false);
+        (ro["R: Value"] == myLevel.R0 ? myLevel.successR = true : myLevel.successR = false);
         myAction.level.actions.push(myAction);
     }
 }
