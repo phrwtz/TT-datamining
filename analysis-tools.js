@@ -105,7 +105,10 @@ function addAction(ro, type) {
     myAction.index = myLevel.actions.length; //The length of the array before the action is pushed. (The index of the action
     //if it is pushed will equal this.)
     myAction.id = myMember.id;
-    myAction.currentFlowing = (ro["currentFlowing"] == "TRUE" ? true : false);
+    myAction.currentFlowing = false;
+    if ((ro["currentFlowing"] == "true") || ro["currentFlowing"] == "TRUE") {
+    myAction.currentFlowing = true;
+    }
     myAction.R = myLevel.R;
     myAction.V = myLevel.V;
     myLevel.endUTime = myAction.uTime;
