@@ -25,7 +25,7 @@ function setupForm(teams) {
     checkForm.ID = "checkForm";
     var checkTeacher = document.createElement("input");
     checkTeacher.ID = "checkTeacher";
-    checkTeacher.setAttribute("type", "radio");
+ //   checkTeacher.setAttribute("type", "radio");
     checkForm.appendChild(checkTeacher);
     var checkTable = document.createElement("table");
     var headerRow = document.createElement("tr");
