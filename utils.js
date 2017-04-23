@@ -36,6 +36,7 @@ function initializeVarRefs(level) { //Initializes variable references for this l
     level.varRefs["goalIA"] = [];
     level.varRefs["goalImA"] = [];
     level.varRefs["no match"] = [];
+    level.varRefs["??"] = [];
 }
 
 //Takes a variable string and an action and returns 1 if the variable
@@ -113,6 +114,9 @@ function score(varStr, action) {
         case "no match":
             score = 0;
             break;
+        case "??":
+            score = 0;
+            break;
     }
     return score;
 }
@@ -128,6 +132,7 @@ function scoreAction(action) {
     var s = [];
     var ns;
     var score = 0;
+    if (vrs) {
     for (var i = 0; i < vrs.length; i++) { //iterating over the numbers
         s[i] = 5;
         for (var j = 0; j < vrs[i].length; j++) { //iterating over the variables for each number
@@ -145,13 +150,13 @@ function scoreAction(action) {
         //each of its numbers
     } //next i
     return score;
-}
+}}
 
 function highlightMessage(act) { //Highlights the variable names, if any, in a message
     //returns the highlighted message
-    var message = act.msg;
+    var msg = act.msg;
     vrArray = act.varRefs;
-    var messageWithoutSpaces = message.replace(/\s/g, '');
+    var messageWithoutSpaces = msg.replace(/\s/g, '');
     var numRegEx = new RegExp(/([[0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
     var numArray = messageWithoutSpaces.match(numRegEx);
     //numArray is an array of all the numbers in the message, including those
@@ -174,14 +179,14 @@ function highlightMessage(act) { //Highlights the variable names, if any, in a m
                 highlightedStr += matchedVariables[k] + ", ";
             }
             highlightedStr = highlightedStr.substring(0, highlightedStr.length - 2) + "]</mark>";
-            message = message.replace(numArray[i], numArray[i] + highlightedStr);
+            msg = msg.replace(numArray[i], numArray[i] + highlightedStr);
         }
     }
-    return message;
+    return msg;
 }
 
-function getVarRefs(action) {
-    //returns an array (possibly empty) of variable references contained in the text.
+function getVarRefs(action, text) {
+    //returns an array (possibly empty) of variable references contained in text.
     //(the message of a message action and/or the input or output of a calculation)
     //A variable reference is an array consisting of the action in which the
     //reference occurs, a string representing the variable that is matched, a string
@@ -189,7 +194,7 @@ function getVarRefs(action) {
     //the value of the variable was globally known (e.g., E and/or R0 at some levels),
     //known to the actor of the action (e.g.,the actor's own resistance or voltage),
     //known to some other member of the team, or unknown (presumably, the result of a calculation)
-    var text = action.msg;
+
     var textWithoutSpaces = text.replace(/\s/g, '');
     var pattern = new RegExp(/([[0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
     var nums = textWithoutSpaces.match(pattern);
@@ -206,12 +211,11 @@ function getVarRefs(action) {
     return vrs;
 }
 
-
 //This function looks for variables by matching numStr to their numeric values.
-//If it finds a match it returns an array of variable reference objects, each of 
-//which is itself a four-dimensional array consisting of the action object, 
-//the label of the variable matched, the string that was matched, and a score  
-//(0 to 5). Note: numStr can match more than one variable, which is why the 
+//If it finds a match it returns an array of variable reference objects, each of
+//which is itself a four-dimensional array consisting of the action object,
+//the label of the variable matched, the string that was matched, and a score
+//(0 to 5). Note: numStr can match more than one variable, which is why the
 //function returns an array, rather than a single varRef
 function findVars(act, numStr) {
     var num = parseFloat(numStr);
@@ -246,9 +250,9 @@ function findVars(act, numStr) {
         goalImA = 1000 * goalIA;
     //tol is how close two numbers have to be to considered "about equal"
     //Note: we compare tol to |x - y| / (x + y) so it's a relative value
-    var tol = .005;
+    var tol = .005,
+    thisStr = "";
     var variableFound = false;
-    var thisStr = "no match";
     if (about(num, E, tol)) {
         variableFound = true;
         thisStr = "E";
@@ -410,7 +414,9 @@ function findVars(act, numStr) {
         returnArray.push(thisVarRef);
     }
     if (!variableFound) { //if there is no match
-        thisVarRef = [act, "no match", numStr, 0];
+        (act.type == "message" ? thisStr = "no match" : 
+            thisStr = "??");
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
@@ -458,7 +464,7 @@ function addTeam(ro) {
 
     //check to see whether we already have a team with this name in this class
     for (var j = 0; j < teams.length; j++) {
-        
+
         //if we have a team with this name but a different class
 
         if ((teams[j].name == groupName) && (teams[j].classID != classID)) {
@@ -486,14 +492,14 @@ function addTeam(ro) {
 
 function addLevel(myTeam, ro) { //construct a new level from ro and add it to levels array.
     //If we already have a level with that number, use it
- //   console.log("Adding a level");
+    //   console.log("Adding a level");
     var inLevels = false;
     //Check to see whether we already have a level with this number in this team
     var num = ro["levelName"].charAt(ro["levelName"].length - 1);
     for (j = 0; j < myTeam.levels.length; j++) {
         if (myTeam.levels[j].number == num) {
             inLevels = true;
-  //          console.log("Level already found, adding values");
+            //          console.log("Level already found, adding values");
             myLevel = myTeam.levels[j];
             addLevelValues(myLevel, ro);
             break;
@@ -501,7 +507,7 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
     }
     if (!inLevels) { //if not, add this level
         var myLevel = new level;
- //       console.log("new level, not in teams");
+        //       console.log("new level, not in teams");
         myTeam.levels.push(myLevel);
         myLevel.startUTime = ro["time"];
         var startDate = new Date(parseFloat(myLevel.startUTime * 1000));
@@ -519,7 +525,7 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
         //to that variable, paired with a string that defines whether the
         //variable is globally known, known to the actor, known to some other
         //team member, or unknown (e.g., E or R0 at higher levels)
-       initializeVarRefs(myLevel); //Set all the arrays empty
+        initializeVarRefs(myLevel); //Set all the arrays empty
         myLevel.actions = [];
     }
 }
@@ -626,8 +632,8 @@ function getLevel(ro) { //assumes that groupName and levelName are properties of
             myLevel.team = myTeam;
             myLevel.actions = [];
             myLevel.success = false;
-        //    myLevel.varRefs = function() {}
-        //    initializeVarRefs(myLevel); //Set all the arrays empty
+            //    myLevel.varRefs = function() {}
+            //    initializeVarRefs(myLevel); //Set all the arrays empty
         }
     }
     return myLevel;
@@ -639,13 +645,13 @@ function addLevelValues(myLevel, ro) {
         myLevel.goalV = [parseFloat(ro["V1"]), parseFloat(ro["V2"]), parseFloat(ro["V3"])];
     }
     if (ro["event"] == "Activity Settings") {
-   //     console.log("In addLevelValues. Level name = " + myLevel.name + ", level " + myLevel.label);
+        //     console.log("In addLevelValues. Level name = " + myLevel.name + ", level " + myLevel.label);
         myLevel.E = parseInt(ro["E"]);
         myLevel.R0 = parseInt(ro["R0"]);
         myLevel.initR = [parseInt(ro["r1"]), parseInt(ro["r2"]), parseInt(ro["r3"])];
         myLevel.R = [];
         for (var i = 0; i < myLevel.initR.length; i++) {
-            myLevel.R[i] = myLevel.initR[i];    
+            myLevel.R[i] = myLevel.initR[i];
         }
         myLevel.V = findVValues(myLevel.E, myLevel.R0, myLevel.R);
     }

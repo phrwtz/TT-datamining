@@ -162,7 +162,7 @@ function reportResults(teams) {
                                             document.getElementById("data").innerHTML += "<hr>"
                                         }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
+                                        document.getElementById("data").innerHTML += ("At " + uTime + " seconds " +
                                             act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + "<br>");
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
@@ -237,6 +237,21 @@ function reportResults(teams) {
                                     if ($("#action-joined-group")[0].checked) {
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd + ", joined team " + team.name + "<br>");
+                                    }
+                                    break;
+
+                                case "measurement":
+                                    if ($("#action-measurement")[0].checked) {
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                            ", board " + bd + ", measured " + act.measurementType + ". Dial is set to " + 
+                                            act.dial_position + ", reading is " + act.reading + ".<br>");
+                                    }
+                                    break;
+
+                                case "move-dial":
+                                    if ($("#action-move-DMM-dial")[0].checked) {
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                            ", board " + bd + ", changed the DMM dial to " + act.dialPosition + ".<br>");
                                     }
                                     break;
 

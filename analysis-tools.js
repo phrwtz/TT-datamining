@@ -40,6 +40,13 @@ function analyze(rowObjs) {
             case "Detached probe":
                 addDetachProbe(ro, i);
                 break;
+            case "DMM measurement":
+                addMeasurement(ro, i);
+                break;
+
+            case "Moved DMM dial":
+                addMovedDial(ro, i);
+                break;
         }
     }
 }
@@ -95,6 +102,12 @@ function addAction(ro, type) {
         return;
     }
     var myAction = new action;
+    myAction.R = [];
+    myAction.V = [];
+    for (var j = 0; j < 3; j++) {
+        myAction.R[j] = myLevel.R[j];
+        myAction.V[j] = myLevel.V[j];
+    }
     myAction.type = type;
     myAction.team = myTeam;
     myAction.level = myLevel;
@@ -107,12 +120,9 @@ function addAction(ro, type) {
     myAction.id = myMember.id;
     myAction.currentFlowing = false;
     if ((ro["currentFlowing"] == "true") || ro["currentFlowing"] == "TRUE") {
-    myAction.currentFlowing = true;
+        myAction.currentFlowing = true;
     }
-    myAction.R = myLevel.R;
-    myAction.V = myLevel.V;
     myLevel.endUTime = myAction.uTime;
-    myAction.R;
     return myAction;
 }
 
@@ -246,32 +256,38 @@ function addRChange(ro) {
 
 function addMessage(ro) {
     var myAction = addAction(ro, "message");
-    if (myAction) {
+    if (!(duplicate(myAction))) {
         myAction.msg = ro["event_value"];
-        myAction.varRefs = getVarRefs(myAction);
-        // if (myAction.varRefs.length > 1) {
-        //     console.log("Action contains multiple varRefs");
-        // }
+        if(myAction.msg == "Yeah") {
+            console.log("stop")
+        };
+        myAction.varRefs = getVarRefs(myAction, myAction.msg);
         myAction.score = scoreAction(myAction);
         myAction.highlightedMsg = highlightMessage(myAction);
         myAction.R = myAction.level.R;
         myAction.V = myAction.level.V;
         myAction.level.actions.push(myAction);
     }
+
 }
 
 function addCalculation(ro) {
-    var myAction = addAction(ro, "calculation");
-    if (myAction) {
-        myAction.result = ro["result"];
-        myAction.calculation = ro["calculation"];
-        myAction.msg = myAction.calculation + " = " + myAction.result;
-        myAction.varRefs = getVarRefs(myAction);
-        myAction.score = scoreAction(myAction);
-        myAction.highlightedMsg = highlightMessage(myAction);
-        if (!(duplicate(myAction))) {
-            myAction.level.actions.push(myAction);
-        }
+    myAction = addAction(ro, "calculation");
+    if (!(duplicate(myAction))) {
+    myAction.cMsg = ro["calculation"];
+    myAction.rMsg = ro["result"];
+    myAction.msg = myAction.cMsg +  " = " + myAction.rMsg
+
+    myAction.cvarRefs = getVarRefs(myAction, myAction.cMsg);
+    myAction.rvarRefs = getVarRefs(myAction, myAction.rMsg);
+    myAction.varRefs = myAction.cvarRefs.concat(myAction.rvarRefs);
+    myAction.score = scoreAction(myAction);
+    
+    myAction.highlightedMsg = highlightMessage(myAction);
+    
+    myAction.R = myAction.level.R;
+    myAction.V = myAction.level.V;
+    myAction.level.actions.push(myAction);
     }
 }
 
@@ -295,7 +311,9 @@ function addSubmitER(ro) {
     if (!duplicate(myAction)) {
         myTeam = myAction.team;
         myLevel = myAction.level;
-        if((myTeam.name == "Fruit") && (myLevel.label == "D")) {console.log(myAction.uTime - myLevel.startUTime);}
+        if ((myTeam.name == "Fruit") && (myLevel.label == "D")) {
+            console.log(myAction.uTime - myLevel.startUTime);
+        }
         (ro["E: Value"] ? myAction.ESubmitValue = ro["E: Value"] : myAction.ESubmitValue = "No value submitted");
         (ro["E: Unit"] ? myAction.ESubmitUnit = ro["E: Unit"] : myAction.ESubmitUnit = "");
         (ro["R: Value"] ? myAction.RSubmitValue = ro["R: Value"] : myAction.RSubmitValue = "No value submitted");
@@ -325,5 +343,33 @@ function addDetachProbe(ro, i) {
         myAction.level.actions.push(myAction);
     } else {
         //        console.log("Passed over a detach probe action at . " + myAction.time);
+    }
+}
+
+function addMeasurement(ro, i) {
+    var myAction = addAction(ro, "measurement");
+    //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+    if (!(duplicate(myAction))) {
+        myAction.dial_position = ro["dial_position"];
+        myAction.measurementType = ro["measurement"];
+        myAction.black_probe = ro["black_probe"];
+        myAction.red_probe = ro["red_probe"];
+        myAction.reading = ro["result"].replace(/\s/g, '');
+        myAction.r1 = ro["r1"];
+        myAction.r2 = ro["r2"];
+        myAction.r3 = ro["r3"];
+        myAction.level.actions.push(myAction);
+    }
+}
+
+function addMovedDial(ro, i) {
+    var myAction = addAction(ro, "move-dial");
+    //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+    if (!(duplicate(myAction))) {
+        myAction.dialPosition = ro["value"];
+        myAction.r1 = ro["r1"];
+        myAction.r2 = ro["r2"];
+        myAction.r3 = ro["r3"];
+        myAction.level.actions.push(myAction);
     }
 }
