@@ -31,7 +31,7 @@ function reportResults(teams) {
                         var levelVMsg = (myLevel.success ? "Goal voltages attained." : "Goal voltages not attained.");
                         var levelEMsg = (myLevel.successE ? " E correctly reported." : " E not reported correctly.");
                         var levelRMsg = (myLevel.successR ? " R0 correctly reported." : " R0 not reported correctly.");
-var levelMsg = "";
+                        var levelMsg = "";
                         if ((myLevel.label == "A") || (myLevel.label == "B")) {
                             levelMsg = levelVMsg;
                         }
@@ -41,7 +41,12 @@ var levelMsg = "";
                         if (myLevel.label == "D") {
                             levelMsg = levelVMsg + levelEMsg + levelRMsg;
                         }
-                        document.getElementById("data").innerHTML += "<br>";
+                        document.getElementById("data").innerHTML += ("<br>Team " +
+                            team.name + ", level " + myLevel.label + ", start time: " + myLevel.startPTime + ", duration: " +
+                            levelMinutes + ":" + levelSeconds + ", E = " + myLevel.E + ", R0 = " + myLevel.R0 + "<br>" +
+                            "goal V1 = " + myLevel.goalV[0] + ", goal V2 = " + myLevel.goalV[1] + ", goal V3 = " + myLevel.goalV[2] +
+                            ", goal R1 = " + myLevel.goalR[0] + ", goal R2 = " + myLevel.goalR[1] + ", goal R3 = " + myLevel.goalR[2] +
+                            "<br>" + levelMsg + "<br>");
                         for (var i = 0; i < acts.length; i++) {
                             var act = acts[i],
                                 bd = act.board + 1,
@@ -144,8 +149,8 @@ var levelMsg = "";
                                             document.getElementById("data").innerHTML += "<hr>"
                                         }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("<span style=\"color:#FF0000;\">Message:</span> At "  
-                                        + eTime + " seconds " + act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + "<br>");
+                                        document.getElementById("data").innerHTML += ("<span style=\"color:#FF0000;\">Message:</span> At " +
+                                            eTime + " seconds " + act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + "<br>");
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
@@ -225,7 +230,7 @@ var levelMsg = "";
                                 case "measurement":
                                     if ($("#action-measurement")[0].checked) {
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
-                                            ", board " + bd + ", measured " + act.measurementType + ". Dial is set to " + 
+                                            ", board " + bd + ", measured " + act.measurementType + ". Dial is set to " +
                                             act.dial_position + ", reading is " + act.reading + ".<br>");
                                     }
                                     break;
