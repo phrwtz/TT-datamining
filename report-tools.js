@@ -31,15 +31,15 @@ function reportResults(teams) {
                         var levelVMsg = (myLevel.success ? "Goal voltages attained." : "Goal voltages not attained.");
                         var levelEMsg = (myLevel.successE ? " E correctly reported." : " E not reported correctly.");
                         var levelRMsg = (myLevel.successR ? " R0 correctly reported." : " R0 not reported correctly.");
-                        var levelMsg = "";
+                        var levelMsg = "<mark>";
                         if ((myLevel.label == "A") || (myLevel.label == "B")) {
-                            levelMsg = levelVMsg;
+                            levelMsg += levelVMsg;
                         }
                         if (myLevel.label == "C") {
-                            levelMsg = levelVMsg + levelEMsg;
+                            levelMsg += levelVMsg + levelEMsg;
                         }
                         if (myLevel.label == "D") {
-                            levelMsg = levelVMsg + levelEMsg + levelRMsg;
+                            levelMsg += levelVMsg + levelEMsg + levelRMsg;
                         }
                         document.getElementById("data").innerHTML += ("<br>Team " +
                             team.name + ", level " + myLevel.label + ", start time: " + myLevel.startPTime + ", duration: " +
@@ -125,9 +125,9 @@ function reportResults(teams) {
                                         var Rtot = myLevel.R0 + act.newR[0] + act.newR[1] + act.newR[2];
                                         var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
-                                        if ((act.uTime - preTime) > interval) {
-                                            document.getElementById("data").innerHTML += "<hr>"
-                                        }
+                                        // if ((act.uTime - preTime) > interval) {
+                                        //     document.getElementById("data").innerHTML += "<hr>"
+                                        // }
                                         preTime = act.uTime;
                                         document.getElementById("data").innerHTML += ("<span style=\"color:#0000FF;\">Resistor change:</span> At " + eTime + " seconds " +
                                             ": " + styledName + " changed R" + (bd) + " from " + act.oldR[bd - 1] +
@@ -145,9 +145,9 @@ function reportResults(teams) {
                                         var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
                                         var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
-                                        if ((act.uTime - preTime) > interval) {
-                                            document.getElementById("data").innerHTML += "<hr>"
-                                        }
+                                        // if ((act.uTime - preTime) > interval) {
+                                        //     document.getElementById("data").innerHTML += "<hr>"
+                                        // }
                                         preTime = act.uTime;
                                         document.getElementById("data").innerHTML += ("<span style=\"color:#FF0000;\">Message:</span> At " +
                                             eTime + " seconds " + act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + "<br>");
@@ -163,9 +163,9 @@ function reportResults(teams) {
                                         var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
                                         var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
-                                        if ((act.uTime - preTime) > interval) {
-                                            document.getElementById("data").innerHTML += "<hr>"
-                                        }
+                                        // if ((act.uTime - preTime) > interval) {
+                                        //     document.getElementById("data").innerHTML += "<hr>"
+                                        // }
                                         preTime = act.uTime;
                                         document.getElementById("data").innerHTML += ("<span style=\"color:#FF00FF;\">Calculation:</span> At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd + ", performed the calculation  " + act.highlightedMsg + ".<br>");
@@ -177,9 +177,9 @@ function reportResults(teams) {
 
                                 case "attach-probe":
                                     if ($("#action-attach-probe")[0].checked) {
-                                        if ((act.uTime - preTime) > interval) {
-                                            document.getElementById("data").innerHTML += "<hr>"
-                                        }
+                                        // if ((act.uTime - preTime) > interval) {
+                                        //     document.getElementById("data").innerHTML += "<hr>"
+                                        // }
                                         preTime = act.uTime;
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd +
@@ -188,9 +188,9 @@ function reportResults(teams) {
                                     break;
                                 case "detach-probe":
                                     if ($("#action-detach-probe")[0].checked) {
-                                        if ((act.uTime - preTime) > interval) {
-                                            document.getElementById("data").innerHTML += "<hr>"
-                                        }
+                                        // if ((act.uTime - preTime) > interval) {
+                                        //     document.getElementById("data").innerHTML += "<hr>"
+                                        // }
                                         preTime = act.uTime;
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd +
@@ -199,9 +199,9 @@ function reportResults(teams) {
                                     break;
                                 case "connect-lead":
                                     if ($("#action-connect-lead")[0].checked) {
-                                        if ((act.uTime - preTime) > interval) {
-                                            document.getElementById("data").innerHTML += "<hr>"
-                                        }
+                                        // if ((act.uTime - preTime) > interval) {
+                                        //     document.getElementById("data").innerHTML += "<hr>"
+                                        // }
                                         preTime = act.uTime;
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd +
@@ -211,9 +211,9 @@ function reportResults(teams) {
 
                                 case "disconnect-lead":
                                     if ($("#action-disconnect-lead")[0].checked) {
-                                        if ((act.uTime - preTime) > interval) {
-                                            document.getElementById("data").innerHTML += "<hr>"
-                                        }
+                                        // if ((act.uTime - preTime) > interval) {
+                                        //     document.getElementById("data").innerHTML += "<hr>"
+                                        // }
                                         preTime = act.uTime;
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd +
