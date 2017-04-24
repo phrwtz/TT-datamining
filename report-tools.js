@@ -162,7 +162,7 @@ function reportResults(teams) {
                                             document.getElementById("data").innerHTML += "<hr>"
                                         }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + uTime + " seconds " +
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
                                             act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + "<br>");
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");

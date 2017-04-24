@@ -250,7 +250,7 @@ function findVars(act, numStr) {
         goalImA = 1000 * goalIA;
     //tol is how close two numbers have to be to considered "about equal"
     //Note: we compare tol to |x - y| / (x + y) so it's a relative value
-    var tol = .005,
+    var tol = .001,
     thisStr = "";
     var variableFound = false;
     if (about(num, E, tol)) {
@@ -441,13 +441,9 @@ function makeTeams(rowObjs) { //parse the row objects array looking for and popu
     return teams;
 }
 
-function about(num, target, tolerance) {
-    if (Math.abs((num - target) / (num + target)) < tolerance) {
-        return true;
-    } else {
-        return false;
+function about(num, target, tol) {
+    return (Math.abs((num - target) / Math.abs(num + target)) < tol)
     }
-}
 
 //We invoke this function when the event is "Selected Username" or "Joined Group"
 //we construct a new team from ro and add it to teams array.
