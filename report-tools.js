@@ -28,36 +28,18 @@ function reportResults(teams) {
                         if (levelSeconds < 10) {
                             levelSeconds = "0" + levelSeconds;
                         }
-                        var levelMsg = (myLevel.success ? "Goal voltages attained." : "Goal voltages not attained.");
+                        var levelVMsg = (myLevel.success ? "Goal voltages attained." : "Goal voltages not attained.");
                         var levelEMsg = (myLevel.successE ? " E correctly reported." : " E not reported correctly.");
                         var levelRMsg = (myLevel.successR ? " R0 correctly reported." : " R0 not reported correctly.");
-                        document.getElementById("data").innerHTML += ("<br>Team " +
-                            team.name + ", level " + myLevel.label + ", start time: " + myLevel.startPTime + ", duration: " +
-                            levelMinutes + ":" + levelSeconds + ". E = " + myLevel.E + ", R0 = " + myLevel.R0 +
-                            ", goal V1 = " + myLevel.goalV[0] + ", goal V2 = " + myLevel.goalV[1] +
-                            ", goal V3 = " + myLevel.goalV[2] + "<br>" + levelMsg);
+var levelMsg = "";
                         if ((myLevel.label == "A") || (myLevel.label == "B")) {
-                            if (myLevel.success) {
-                                document.getElementById("data").innerHTML += "<mark> Level successful.<br>"
-                            } else {
-                                document.getElementById("data").innerHTML += "<mark> Level failed.<br>"
-                            }
+                            levelMsg = levelVMsg;
                         }
                         if (myLevel.label == "C") {
-                            document.getElementById("data").innerHTML += levelEMsg;
-                            if (myLevel.success && myLevel.successE) {
-                                document.getElementById("data").innerHTML += "<mark> Level successful."
-                            } else {
-                                document.getElementById("data").innerHTML += "<mark> Level failed."
-                            }
+                            levelMsg = levelVMsg + levelEMsg;
                         }
                         if (myLevel.label == "D") {
-                            document.getElementById("data").innerHTML += levelEMsg + levelRMsg;
-                            if (myLevel.success && myLevel.successE && myLevel.successR) {
-                                document.getElementById("data").innerHTML += "<mark>   Level successful."
-                            } else {
-                                document.getElementById("data").innerHTML += "<mark> Level failed."
-                            }
+                            levelMsg = levelVMsg + levelEMsg + levelRMsg;
                         }
                         document.getElementById("data").innerHTML += "<br>";
                         for (var i = 0; i < acts.length; i++) {
@@ -142,7 +124,7 @@ function reportResults(teams) {
                                             document.getElementById("data").innerHTML += "<hr>"
                                         }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
+                                        document.getElementById("data").innerHTML += ("<span style=\"color:#0000FF;\">Resistor change:</span> At " + eTime + " seconds " +
                                             ": " + styledName + " changed R" + (bd) + " from " + act.oldR[bd - 1] +
                                             " to " + act.newR[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
                                             " to " + act.newV[bd - 1] + ". (Goal is " + myLevel.goalV[bd - 1] + ")" + act.goalMsg + "<br>");
@@ -162,8 +144,8 @@ function reportResults(teams) {
                                             document.getElementById("data").innerHTML += "<hr>"
                                         }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
-                                            act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + "<br>");
+                                        document.getElementById("data").innerHTML += ("<span style=\"color:#FF0000;\">Message:</span> At "  
+                                        + eTime + " seconds " + act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + "<br>");
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
@@ -180,7 +162,7 @@ function reportResults(teams) {
                                             document.getElementById("data").innerHTML += "<hr>"
                                         }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("<span style=\"color:#FF00FF;\">Calculation:</span> At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd + ", performed the calculation  " + act.highlightedMsg + ".<br>");
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
