@@ -240,7 +240,7 @@ function addRChange(ro) {
                 (newGoalDifference > 0)) {
                 myAction.goalMsg = ". Goal overshot";
             } else if (Math.sign(oldGoalDifference) != Math.sign(newGoalDifference) &&
-                (newGoalDifference > 0)) {
+                (newGoalDifference < 0)) {
                 myAction.goalMsg = ". Goal undershot";
             } else if (Math.abs(newGoalDifference) < Math.abs(oldGoalDifference)) {
                 myAction.goalMsg = ". Goal closer";

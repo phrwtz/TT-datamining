@@ -250,7 +250,7 @@ function findVars(act, numStr) {
         goalImA = 1000 * goalIA;
     //tol is how close two numbers have to be to considered "about equal"
     //Note: we compare tol to |x - y| / (x + y) so it's a relative value
-    var tol = .001,
+    var tol = .01,
     thisStr = "";
     var variableFound = false;
     if (about(num, E, tol)) {
