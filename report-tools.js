@@ -31,22 +31,50 @@ function reportResults(teams) {
                         var levelVMsg = (myLevel.success ? "Goal voltages attained." : "Goal voltages not attained.");
                         var levelEMsg = (myLevel.successE ? " E correctly reported." : " E not reported correctly.");
                         var levelRMsg = (myLevel.successR ? " R0 correctly reported." : " R0 not reported correctly.");
-                        var levelMsg = "<mark>";
+                        var levelMsg = "",
+                            goalVMsg = "",
+                            goalV1Communicated = false,
+                            goalV2Communicated = false,
+                            goalV3Communicated = false;
                         if ((myLevel.label == "A") || (myLevel.label == "B")) {
-                            levelMsg += levelVMsg;
+                            levelMsg = levelVMsg;
                         }
                         if (myLevel.label == "C") {
-                            levelMsg += levelVMsg + levelEMsg;
+                            levelMsg = levelVMsg + levelEMsg;
                         }
                         if (myLevel.label == "D") {
-                            levelMsg += levelVMsg + levelEMsg + levelRMsg;
+                            levelMsg = levelVMsg + levelEMsg + levelRMsg;
                         }
-                        document.getElementById("data").innerHTML += ("<br>Team " +
-                            team.name + ", level " + myLevel.label + ", start time: " + myLevel.startPTime + ", duration: " +
+                        for (var i = 0; i < myLevel.varRefs["goalV1"].length; i++) {
+                            if (myLevel.varRefs["goalV1"][i][0].type == "message") {
+                                goalV1Communicated = true;
+                                break;
+                            }
+                        }
+                        for (i = 0; i < myLevel.varRefs["goalV2"].length; i++) {
+                            if (myLevel.varRefs["goalV2"][i][0].type == "message") {
+                                goalV2Communicated = true;
+                                break;
+                            }
+                        }
+                        for (i = 0; i < myLevel.varRefs["goalV3"].length; i++) {
+                            if (myLevel.varRefs["goalV3"][i][0].type == "message") {
+                                goalV3Communicated = true;
+                                break;
+                            }
+                        }
+                        if ((goalV1Communicated) && (goalV2Communicated) && (goalV3Communicated)) {
+                            goalVMsg = " Goal voltages communicated. ";
+                        } else {
+                            goalVMsg = "Goal voltages not communicated. ";
+                        }
+
+                        document.getElementById("data").innerHTML += ("<br><br><mark>Team " +
+                            team.name + ", level " + myLevel.label + "</mark>, start time: " + myLevel.startPTime + ", duration: " +
                             levelMinutes + ":" + levelSeconds + ", E = " + myLevel.E + ", R0 = " + myLevel.R0 + "<br>" +
                             "goal V1 = " + myLevel.goalV[0] + ", goal V2 = " + myLevel.goalV[1] + ", goal V3 = " + myLevel.goalV[2] +
                             ", goal R1 = " + myLevel.goalR[0] + ", goal R2 = " + myLevel.goalR[1] + ", goal R3 = " + myLevel.goalR[2] +
-                            "<br>" + levelMsg + "<br>");
+                            "<br>" + goalVMsg + levelMsg + "<br>");
                         for (var i = 0; i < acts.length; i++) {
                             var act = acts[i],
                                 bd = act.board + 1,
@@ -97,19 +125,20 @@ function reportResults(teams) {
                                         var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
                                         var msg = "";
-                                        var Elabel = "incorrect";
-                                        var Rlabel = "incorrect";
+                                        var Elabel = "<mark>incorrect</mark>";
+                                        var Rlabel = "<mark>incorrect</mark>";
                                         if ((act.ESubmitValue == myLevel.E) && (act.ESubmitUnit = "volts")) {
-                                            Elabel = "correct";
+                                            Elabel = "<mark>correct</mark>";
                                         }
                                         if ((act.RSubmitValue == myLevel.R0) && (act.RSubmitUnit = "ohms")) {
-                                            Rlabel = "correct";
+                                            Rlabel = "<mark>correct</mark>";
                                         }
-                                        if ((myLevel.label == "C") || (myLevel.label == "D")) {
+                                        if (myLevel.label == "C") {
                                             msg = ", submitted " + Elabel + " value for E (" + act.ESubmitValue + " " + act.ESubmitUnit + ")<br>";
                                         }
                                         if (myLevel.label == "D") {
-                                            msg += " and submitted " + Rlabel + " value for R0 (" + act.RSubmitValue + " " + act.RSubmitUnit + ").<br>";
+                                            msg += ", submitted " + Elabel + " value for E (" + act.ESubmitValue + " " + act.ESubmitUnit + ")" +
+                                                " and submitted " + Rlabel + " value for R0 (" + act.RSubmitValue + " " + act.RSubmitUnit + ").<br>";
                                         }
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd + msg);
