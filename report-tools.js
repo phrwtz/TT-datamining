@@ -28,14 +28,21 @@ function reportResults(teams) {
                         if (levelSeconds < 10) {
                             levelSeconds = "0" + levelSeconds;
                         }
-                        var levelVMsg = (myLevel.success ? "Goal voltages attained." : "Goal voltages not attained.");
+                        var levelVMsg = (myLevel.success ? "Goal voltages correctly reported." : "Goal voltages not reported correctly.");
                         var levelEMsg = (myLevel.successE ? " E correctly reported." : " E not reported correctly.");
                         var levelRMsg = (myLevel.successR ? " R0 correctly reported." : " R0 not reported correctly.");
                         var levelMsg = "",
-                            goalVMsg = "",
+                            goalVMsg,
                             goalV1Communicated = false,
                             goalV2Communicated = false,
                             goalV3Communicated = false;
+                            if (myLevel.movedAwayFromVs) {
+                                goalVMsg = "Attained goal voltages and then moved away. "
+                            } else if (myLevel.attainedVs) {
+                                goalVMsg = "Attained correct goal voltages. "
+                            } else {
+                                goalVMsg = "Never attained goal voltages. "
+                            }
                         if ((myLevel.label == "A") || (myLevel.label == "B")) {
                             levelMsg = levelVMsg;
                         }
@@ -64,9 +71,9 @@ function reportResults(teams) {
                             }
                         }
                         if ((goalV1Communicated) && (goalV2Communicated) && (goalV3Communicated)) {
-                            goalVMsg = " Goal voltages communicated. ";
+                            goalVMsg += " Goal voltages chatted. ";
                         } else {
-                            goalVMsg = "Goal voltages not communicated. ";
+                            goalVMsg += "Goal voltages not chatted. ";
                         }
 
                         document.getElementById("data").innerHTML += ("<br><br><mark>Team " +

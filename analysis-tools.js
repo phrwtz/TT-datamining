@@ -236,19 +236,28 @@ function addRChange(ro) {
             newGoalDifference = myAction.newV[bd] - myLevel.goalV[bd];
             if (Math.abs(newGoalDifference) < .01) {
                 myAction.goalMsg = ". Local goal met";
+                myLevel.attainedVs = true;
             } else if (Math.sign(oldGoalDifference) != Math.sign(newGoalDifference) &&
                 (newGoalDifference > 0)) {
                 myAction.goalMsg = ". Goal overshot";
+                if (myLevel.attainedVs) {myLevel.movedAwayFromVs = true}
             } else if (Math.sign(oldGoalDifference) != Math.sign(newGoalDifference) &&
                 (newGoalDifference < 0)) {
                 myAction.goalMsg = ". Goal undershot";
+                if (myLevel.attainedVs) {myLevel.movedAwayFromVs = true}
             } else if (Math.abs(newGoalDifference) < Math.abs(oldGoalDifference)) {
                 myAction.goalMsg = ". Goal closer";
+                if (myLevel.attainedVs) {myLevel.movedAwayFromVs = true}
             } else if (Math.abs(newGoalDifference) > Math.abs(oldGoalDifference)) {
                 myAction.goalMsg = ". Goal farther";
+                if (myLevel.attainedVs) {myLevel.movedAwayFromVs = true}
             }
             myLevel.R = myAction.newR; // Update level so that we have something to compare to next time around
             myLevel.V = myAction.newV;
+            if ((myLevel.R[0] == myLevel.R[1]) && (myLevel.R[1] == myLevel.R[2]) && (myLevel.label != "A")) {
+                var eTime = myAction.uTime - myLevel.startUTime;
+                console.log("All resistor values equal at time " + eTime + ". team " + myLevel.team.name + ", level " + myLevel.label + ", E/4 = " + (myLevel.E / 4) + ", all Vs = " + myAction.newV[0])
+            } 
             myAction.level.actions.push(myAction); //and push the action onto the level
         }
     }
@@ -268,7 +277,6 @@ function addMessage(ro) {
         myAction.V = myAction.level.V;
         myAction.level.actions.push(myAction);
     }
-
 }
 
 function addCalculation(ro) {
