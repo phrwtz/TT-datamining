@@ -28,7 +28,7 @@ function reportResults(teams) {
                         if (levelSeconds < 10) {
                             levelSeconds = "0" + levelSeconds;
                         }
-<<<<<<< HEAD
+
                         var messageCount = [0,0,0],
                         messageTotal = 0,
                         calculationCount = [0,0,0],
@@ -55,9 +55,9 @@ function reportResults(teams) {
                         }
                         
                         var levelMsg = (myLevel.success ? "Goal voltages attained." : "Goal voltages not attained.");
-=======
+
                         var levelVMsg = (myLevel.success ? "Goal voltages correctly reported." : "Goal voltages not reported correctly.");
->>>>>>> gh-pages
+
                         var levelEMsg = (myLevel.successE ? " E correctly reported." : " E not reported correctly.");
                         var levelRMsg = (myLevel.successR ? " R0 correctly reported." : " R0 not reported correctly.");
                         var levelMsg = "",
@@ -93,14 +93,14 @@ function reportResults(teams) {
                                 break;
                             }
                         }
-<<<<<<< HEAD
+
                         document.getElementById("data").innerHTML += "<br>";
                         document.getElementById("data").innerHTML += "Messages sent: " + messageCount[0] +  " + " + messageCount[1] +  " + " + messageCount[2] + " = " +  messageTotal + "<br>";
                         document.getElementById("data").innerHTML += "Calculations: " + calculationCount[0] +  " + " + calculationCount[1] +  " + " + calculationCount[2] + " = " +  calculationTotal + "<br>";
                         document.getElementById("data").innerHTML += "Resistor changes: " + resistorChangeCount[0] +  " + " + resistorChangeCount[1] + " + " + resistorChangeCount[2] + " = " +  resistorChangeTotal + "<br><br>";
 
                         
-=======
+
                         for (i = 0; i < myLevel.varRefs["goalV3"].length; i++) {
                             if (myLevel.varRefs["goalV3"][i][0].type == "message") {
                                 goalV3Communicated = true;
@@ -119,7 +119,7 @@ function reportResults(teams) {
                             "goal V1 = " + myLevel.goalV[0] + ", goal V2 = " + myLevel.goalV[1] + ", goal V3 = " + myLevel.goalV[2] +
                             ", goal R1 = " + myLevel.goalR[0] + ", goal R2 = " + myLevel.goalR[1] + ", goal R3 = " + myLevel.goalR[2] +
                             "<br>" + goalVMsg + levelMsg + "<br>");
->>>>>>> gh-pages
+
                         for (var i = 0; i < acts.length; i++) {
                             var act = acts[i],
                                 bd = act.board + 1,
@@ -169,7 +169,7 @@ function reportResults(teams) {
                                         var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
                                         var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
-<<<<<<< HEAD
+
                                         // if ((act.uTime - preTime) > interval) {
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
@@ -178,7 +178,7 @@ function reportResults(teams) {
                                             ": " + styledName + " changed R" + (bd) + " from " + act.oldR[bd - 1] +
                                             " to " + act.R[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
                                             " to " + act.V[bd - 1] + ". (Goal is " + myLevel.goalV[bd - 1] + ")" + act.goalMsg + "<br>");
-=======
+
                                         var msg = "";
                                         var Elabel = "<mark>incorrect</mark>";
                                         var Rlabel = "<mark>incorrect</mark>";
@@ -197,7 +197,7 @@ function reportResults(teams) {
                                         }
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd + msg);
->>>>>>> gh-pages
+
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
@@ -234,19 +234,19 @@ function reportResults(teams) {
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
-<<<<<<< HEAD
+
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
                                             act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + ", score = " + act.score + "<br>");
                                          document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                          document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                          document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
-=======
+
                                         document.getElementById("data").innerHTML += ("<span style=\"color:#FF0000;\">Message:</span> At " +
                                             eTime + " seconds " + act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + "<br>");
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
->>>>>>> gh-pages
+
 
                                     }
                                     break;
