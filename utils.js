@@ -406,7 +406,7 @@ function findVars(act, numStr) {
         act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
-    if (about(num, ImA, tol)) {
+    if (about(num, goalImA, tol)) {
         variableFound = true;
         thisStr = "goalImA";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
