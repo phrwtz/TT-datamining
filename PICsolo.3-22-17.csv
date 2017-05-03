@@ -1,0 +1,3 @@
+session,username,application,activity,event,time,created_at,updated_at,event_value,page_id,run_remote_id,run_remote_endpoint,activity_id,url,run_key,activity_name
+7b183e47d3c5a68a3f4a95b82ccf563a,26@learn.concord.org,LARA-log-poc,activity: 7091,open activity page,1490203125,0,0,,93458,,,7091,https://authoring.concord.org/activities/7091/pages/93458/a1757712-5e25-4e54-983d-13b282d42486,a1757712-5e25-4e54-983d-13b282d42486,Teaching Teamwork - Light it up! (Solo)
+7b183e47d3c5a68a3f4a95b82ccf563a,26@learn.concord.org,LARA-log-poc,activity: 7091,open activity page,1490203352,0,0,,93458,,,7091,https://authoring.concord.org/activities/7091/pages/93458/a1757712-5e25-4e54-983d-13b282d42486,a1757712-5e25-4e54-983d-13b282d42486,Teaching Teamwork - Light it up! (Solo)

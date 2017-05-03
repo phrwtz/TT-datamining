@@ -11,19 +11,24 @@ function clearScreen() { //clears data and summary tables
 function initializeVarRefs(level) { //Initializes variable references for this level
     level.varRefs["E"] = [];
     level.varRefs["R0"] = [];
+    level.varRefs["goalV0"] = [];
     level.varRefs["goalV1"] = [];
     level.varRefs["goalV2"] = [];
     level.varRefs["goalV3"] = [];
-    level.varRefs["goalV0"] = [];
+    level.varRefs["goalVs"] = [];
     level.varRefs["goalR1"] = [];
     level.varRefs["goalR2"] = [];
     level.varRefs["goalR3"] = [];
+    level.varRefs["sumGoalRs"] = [];
     level.varRefs["R1"] = [];
     level.varRefs["R2"] = [];
     level.varRefs["R3"] = [];
+    level.varRefs["sumRs"] = [];
+    level.varRefs["sumRsPlusR0"] = [];
     level.varRefs["V1"] = [];
     level.varRefs["V2"] = [];
     level.varRefs["V3"] = [];
+    level.varRefs["sumVs"] = [];
     level.varRefs["Rtot"] = [];
     level.varRefs["V0"] = [];
     level.varRefs["IA"] = [];
@@ -31,6 +36,7 @@ function initializeVarRefs(level) { //Initializes variable references for this l
     level.varRefs["goalIA"] = [];
     level.varRefs["goalImA"] = [];
     level.varRefs["no match"] = [];
+    level.varRefs["??"] = [];
 }
 
 //Takes a variable string and an action and returns 1 if the variable
@@ -78,6 +84,9 @@ function score(varStr, action) {
         case "V3":
             (bd == 3 ? score = 2 : score = 3);
             break;
+        case "sumVs":
+            score = 4;
+            break;
         case "goalV0":
             score = 4;
             break;
@@ -105,6 +114,9 @@ function score(varStr, action) {
         case "no match":
             score = 0;
             break;
+        case "??":
+            score = 0;
+            break;
     }
     return score;
 }
@@ -120,6 +132,7 @@ function scoreAction(action) {
     var s = [];
     var ns;
     var score = 0;
+    if (vrs) {
     for (var i = 0; i < vrs.length; i++) { //iterating over the numbers
         s[i] = 5;
         for (var j = 0; j < vrs[i].length; j++) { //iterating over the variables for each number
@@ -137,13 +150,13 @@ function scoreAction(action) {
         //each of its numbers
     } //next i
     return score;
-}
+}}
 
 function highlightMessage(act) { //Highlights the variable names, if any, in a message
     //returns the highlighted message
-    var message = act.msg;
+    var msg = act.msg;
     vrArray = act.varRefs;
-    var messageWithoutSpaces = message.replace(/\s/g, '');
+    var messageWithoutSpaces = msg.replace(/\s/g, '');
     var numRegEx = new RegExp(/([[0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
     var numArray = messageWithoutSpaces.match(numRegEx);
     //numArray is an array of all the numbers in the message, including those
@@ -158,7 +171,7 @@ function highlightMessage(act) { //Highlights the variable names, if any, in a m
                 vrVar = vrArray[i][j][1]; //the string representing the variable
                 if (numStr == vrNum) { //if it matches the number in the message
                     vrScore = vrArray[i][j][3];
-                    matchedVariables.push(vrVar + "(" + vrScore + ")"); //put it in the array
+                    matchedVariables.push(vrVar); //put it in the array
                 }
             }
             var highlightedStr = " <mark>["
@@ -166,14 +179,14 @@ function highlightMessage(act) { //Highlights the variable names, if any, in a m
                 highlightedStr += matchedVariables[k] + ", ";
             }
             highlightedStr = highlightedStr.substring(0, highlightedStr.length - 2) + "]</mark>";
-            message = message.replace(numArray[i], numArray[i] + highlightedStr);
+            msg = msg.replace(numArray[i], numArray[i] + highlightedStr);
         }
     }
-    return message;
+    return msg;
 }
 
-function getVarRefs(action) {
-    //returns an array (possibly empty) of variable references contained in the text.
+function getVarRefs(action, text) {
+    //returns an array (possibly empty) of variable references contained in text.
     //(the message of a message action and/or the input or output of a calculation)
     //A variable reference is an array consisting of the action in which the
     //reference occurs, a string representing the variable that is matched, a string
@@ -181,7 +194,7 @@ function getVarRefs(action) {
     //the value of the variable was globally known (e.g., E and/or R0 at some levels),
     //known to the actor of the action (e.g.,the actor's own resistance or voltage),
     //known to some other member of the team, or unknown (presumably, the result of a calculation)
-    var text = action.msg;
+
     var textWithoutSpaces = text.replace(/\s/g, '');
     var pattern = new RegExp(/([[0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
     var nums = textWithoutSpaces.match(pattern);
@@ -198,42 +211,48 @@ function getVarRefs(action) {
     return vrs;
 }
 
-
 //This function looks for variables by matching numStr to their numeric values.
-//If it finds a match it returns a variable reference object
+//If it finds a match it returns an array of variable reference objects, each of
+//which is itself a four-dimensional array consisting of the action object,
+//the label of the variable matched, the string that was matched, and a score
+//(0 to 5). Note: numStr can match more than one variable, which is why the
+//function returns an array, rather than a single varRef
 function findVars(act, numStr) {
     var num = parseFloat(numStr);
     var myLevel = act.level;
+    var returnArray = [];
     var E = myLevel.E,
         R0 = myLevel.R0,
         goalV1 = myLevel.goalV[0],
         goalV2 = myLevel.goalV[1],
         goalV3 = myLevel.goalV[2],
         goalV0 = E - goalV1 - goalV2 - goalV3,
+        sumGoalVs = goalV1 + goalV2 + goalV3,
         goalR1 = myLevel.goalR[0],
         goalR2 = myLevel.goalR[1],
         goalR3 = myLevel.goalR[2],
+        sumGoalRs = goalR1 + goalR2 + goalR3,
         R1 = act.R[0],
         R2 = act.R[1],
         R3 = act.R[2],
+        sumRs = R1 + R2 + R3,
+        sumRsPlusR0 = sumRs + R0,
         Rtot = R0 + R1 + R2 + R3,
         goalRtot = R0 + goalR1 + goalR2 + goalR3,
         V0 = E * R0 / Rtot,
         V1 = act.V[0],
         V2 = act.V[1],
         V3 = act.V[2],
+        sumVs = V1 + V2 + V3,
         IA = E / Rtot,
         ImA = 1000 * IA,
         goalIA = E / goalRtot,
         goalImA = 1000 * goalIA;
     //tol is how close two numbers have to be to considered "about equal"
     //Note: we compare tol to |x - y| / (x + y) so it's a relative value
-    var tol = .005;
-    var returnArray = []; //Array that will contain any returned varRefs.
-    //Note: there may be more than one if the number matches more than one
-    //variable
+    var tol = .01,
+    thisStr = "";
     var variableFound = false;
-    var thisStr = "no match";
     if (about(num, E, tol)) {
         variableFound = true;
         thisStr = "E";
@@ -268,6 +287,20 @@ function findVars(act, numStr) {
         act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
+    if (about(num, sumRs, tol)) {
+        variableFound = true;
+        thisStr = "sumRs";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, sumRsPlusR0, tol)) {
+        variableFound = true;
+        thisStr = "sumRsPlusR0";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
+        returnArray.push(thisVarRef);
+    }
     if (about(num, V0, tol)) {
         variableFound = true;
         thisStr = "V0";
@@ -292,6 +325,13 @@ function findVars(act, numStr) {
     if (about(num, V3, tol)) {
         variableFound = true;
         thisStr = "V3";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, sumVs, tol)) {
+        variableFound = true;
+        thisStr = "sumVs";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
@@ -374,7 +414,9 @@ function findVars(act, numStr) {
         returnArray.push(thisVarRef);
     }
     if (!variableFound) { //if there is no match
-        thisVarRef = [act, "no match", numStr, 0];
+        (act.type == "message" ? thisStr = "no match" : 
+            thisStr = "??");
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
@@ -399,13 +441,9 @@ function makeTeams(rowObjs) { //parse the row objects array looking for and popu
     return teams;
 }
 
-function about(num, target, tolerance) {
-    if (Math.abs((num - target) / (num + target)) < tolerance) {
-        return true;
-    } else {
-        return false;
+function about(num, target, tol) {
+    return (Math.abs((num - target) / Math.abs(num + target)) < tol)
     }
-}
 
 //We invoke this function when the event is "Selected Username" or "Joined Group"
 //we construct a new team from ro and add it to teams array.
@@ -414,12 +452,20 @@ function addTeam(ro) {
     var userID = ro["username"].slice(0, 5); //First five characters are the user id
     var myClass = getMemberDataObj(userID)["Class"];
     var classID = getMemberDataObj(userID)["Class ID"];
+    var teacher = getMemberDataObj(userID)["Teachers"];
     var inTeams = false;
     var groupName = ro["groupname"];
     var levelNumber = ro["levelName"].charAt(ro["levelName"].length - 1); //number = 1 ... 4
 
+
     //check to see whether we already have a team with this name in this class
     for (var j = 0; j < teams.length; j++) {
+
+        //if we have a team with this name but a different class
+
+        if ((teams[j].name == groupName) && (teams[j].classID != classID)) {
+            console.log("same name, different class.");
+        }
         if ((teams[j].name == groupName) && (teams[j].classID == classID)) {
             inTeams = true;
             myTeam = teams[j]; //set myTeam to be the one we found in the array
@@ -434,6 +480,7 @@ function addTeam(ro) {
         myTeam.classID = classID;
         myTeam.levels = [];
         myTeam.members = [];
+        myTeam.teacher = teacher;
     }
     addLevel(myTeam, ro); //add level, if new
     addMember(myTeam, ro)
@@ -441,12 +488,14 @@ function addTeam(ro) {
 
 function addLevel(myTeam, ro) { //construct a new level from ro and add it to levels array.
     //If we already have a level with that number, use it
+    //   console.log("Adding a level");
     var inLevels = false;
     //Check to see whether we already have a level with this number in this team
     var num = ro["levelName"].charAt(ro["levelName"].length - 1);
     for (j = 0; j < myTeam.levels.length; j++) {
         if (myTeam.levels[j].number == num) {
             inLevels = true;
+            //          console.log("Level already found, adding values");
             myLevel = myTeam.levels[j];
             addLevelValues(myLevel, ro);
             break;
@@ -454,6 +503,7 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
     }
     if (!inLevels) { //if not, add this level
         var myLevel = new level;
+        //       console.log("new level, not in teams");
         myTeam.levels.push(myLevel);
         myLevel.startUTime = ro["time"];
         var startDate = new Date(parseFloat(myLevel.startUTime * 1000));
@@ -462,6 +512,10 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
         myLevel.label = getAlphabeticLabel(num);
         myLevel.team = myTeam;
         myLevel.success = false;
+        myLevel.successE = false;
+        myLevel.successR = false;
+        myLevel.attainedVs = false;
+        myLevel.movedAwayFromVs = false;
         addLevelValues(myLevel, ro);
         myLevel.varRefs = function() {} //List of references to known variables
         //Each property is a variable label and is associated with an array of
@@ -521,7 +575,7 @@ function addMember(myTeam, ro) { //If the member doesn't already exist, construc
             }
         }
         if (myMember.studentName == "") {
-            console.log("Student id " + myMember.id) + " not found, Team = " + myTeam;
+            console.log("Student id " + myMember.id + " not found, Team = " + myTeam.name);
         }
         myMember.team = myTeam;
         myTeam.teacherName = myMember.teacherName.replace(" ", "_");
@@ -576,8 +630,8 @@ function getLevel(ro) { //assumes that groupName and levelName are properties of
             myLevel.team = myTeam;
             myLevel.actions = [];
             myLevel.success = false;
-            myLevel.varRefs = function() {}
-            initializeVarRefs(myLevel); //Set all the arrays empty
+            //    myLevel.varRefs = function() {}
+            //    initializeVarRefs(myLevel); //Set all the arrays empty
         }
     }
     return myLevel;
@@ -589,16 +643,15 @@ function addLevelValues(myLevel, ro) {
         myLevel.goalV = [parseFloat(ro["V1"]), parseFloat(ro["V2"]), parseFloat(ro["V3"])];
     }
     if (ro["event"] == "Activity Settings") {
+        //     console.log("In addLevelValues. Level name = " + myLevel.name + ", level " + myLevel.label);
         myLevel.E = parseInt(ro["E"]);
         myLevel.R0 = parseInt(ro["R0"]);
         myLevel.initR = [parseInt(ro["r1"]), parseInt(ro["r2"]), parseInt(ro["r3"])];
-        myLevel.R = myLevel.initR;
-        var Rtot = myLevel.R0 + myLevel.R[0] + myLevel.R[1] + myLevel.R[2];
-        myLevel.V = [(Math.round((myLevel.E * myLevel.R[0] * 100) / Rtot) / 100),
-            (Math.round((myLevel.E * myLevel.R[1] * 100) / Rtot) / 100),
-            (Math.round((myLevel.E * myLevel.R[2] * 100) / Rtot) / 100)
-        ];
-        //    myLevel.I = Math.round((myLevel.E / Rtot) * 100000) / 100000;
+        myLevel.R = [];
+        for (var i = 0; i < myLevel.initR.length; i++) {
+            myLevel.R[i] = myLevel.initR[i];
+        }
+        myLevel.V = findVValues(myLevel.E, myLevel.R0, myLevel.R);
     }
 }
 
