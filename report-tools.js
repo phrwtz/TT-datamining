@@ -94,13 +94,6 @@ function reportResults(teams) {
                             }
                         }
 
-                        document.getElementById("data").innerHTML += "<br>";
-                        document.getElementById("data").innerHTML += "Messages sent: " + messageCount[0] +  " + " + messageCount[1] +  " + " + messageCount[2] + " = " +  messageTotal + "<br>";
-                        document.getElementById("data").innerHTML += "Calculations: " + calculationCount[0] +  " + " + calculationCount[1] +  " + " + calculationCount[2] + " = " +  calculationTotal + "<br>";
-                        document.getElementById("data").innerHTML += "Resistor changes: " + resistorChangeCount[0] +  " + " + resistorChangeCount[1] + " + " + resistorChangeCount[2] + " = " +  resistorChangeTotal + "<br><br>";
-
-                        
-
                         for (i = 0; i < myLevel.varRefs["goalV3"].length; i++) {
                             if (myLevel.varRefs["goalV3"][i][0].type == "message") {
                                 goalV3Communicated = true;
@@ -119,6 +112,11 @@ function reportResults(teams) {
                             "goal V1 = " + myLevel.goalV[0] + ", goal V2 = " + myLevel.goalV[1] + ", goal V3 = " + myLevel.goalV[2] +
                             ", goal R1 = " + myLevel.goalR[0] + ", goal R2 = " + myLevel.goalR[1] + ", goal R3 = " + myLevel.goalR[2] +
                             "<br>" + goalVMsg + levelMsg + "<br>");
+                        document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent: </span>" + messageCount[0] +  " + " + messageCount[1] +  " + " + messageCount[2] + " = " +  messageTotal + "<br>";
+                        document.getElementById("data").innerHTML += "<span style=\"color:#FF00FF;\">Calculations performed: </span>" + calculationCount[0] +  " + " + calculationCount[1] +  " + " + calculationCount[2] + " = " +  calculationTotal + "<br>";
+                        document.getElementById("data").innerHTML += "<span style=\"color:#0000FF;\">Resistor changes: </span>" + resistorChangeCount[0] +  " + " + resistorChangeCount[1] + " + " + resistorChangeCount[2] + " = " +  resistorChangeTotal + "<br><br>";
+
+                        
 
                         for (var i = 0; i < acts.length; i++) {
                             var act = acts[i],
