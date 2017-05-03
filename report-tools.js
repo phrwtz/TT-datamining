@@ -8,17 +8,16 @@ function generateReport(teams) {
     console.log("action report generated");
     teacherReport(teams);
     console.log("teacher report generated");
-    reportVarRefs(teams);
-    console.log("variable references report generated");
+    //    reportVarRefs(teams);
+    //   console.log("variable references report generated");
 }
 
 function reportResults(teams) {
-    document.getElementById("data").innerHTML = "";
+    document.getElementById("data").innerHTML = ""; //Clear data
     for (var k = 0; k < teams.length; k++) {
         var team = teams[k];
         if ((team.members.length == 3)) {
-            if ($("#team-" + team.name)[0].checked) {
-                document.getElementById("data").innerHTML += "<br>"
+            if ($("#team-" + team.name + team.classID)[0].checked) {
                 for (var j = 0; j < team.levels.length; j++) {
                     var myLevel = team.levels[j];
                     if ($("#level-" + myLevel.label)[0].checked) {
@@ -29,6 +28,7 @@ function reportResults(teams) {
                         if (levelSeconds < 10) {
                             levelSeconds = "0" + levelSeconds;
                         }
+<<<<<<< HEAD
                         var messageCount = [0,0,0],
                         messageTotal = 0,
                         calculationCount = [0,0,0],
@@ -55,55 +55,84 @@ function reportResults(teams) {
                         }
                         
                         var levelMsg = (myLevel.success ? "Goal voltages attained." : "Goal voltages not attained.");
+=======
+                        var levelVMsg = (myLevel.success ? "Goal voltages correctly reported." : "Goal voltages not reported correctly.");
+>>>>>>> gh-pages
                         var levelEMsg = (myLevel.successE ? " E correctly reported." : " E not reported correctly.");
                         var levelRMsg = (myLevel.successR ? " R0 correctly reported." : " R0 not reported correctly.");
-                        document.getElementById("data").innerHTML += ("<br>Team " +
-                            team.name + ", level " + myLevel.label + ", start time: " + myLevel.startPTime + ", duration: " +
-                            levelMinutes + ":" + levelSeconds + ". " + levelMsg);
-                        if ((myLevel.label == "A") || (myLevel.label == "B")) {
-                            if (myLevel.success) {
-                                document.getElementById("data").innerHTML += "<mark> Level successful."
+                        var levelMsg = "",
+                            goalVMsg,
+                            goalV1Communicated = false,
+                            goalV2Communicated = false,
+                            goalV3Communicated = false;
+                            if (myLevel.movedAwayFromVs) {
+                                goalVMsg = "Attained goal voltages and then moved away. "
+                            } else if (myLevel.attainedVs) {
+                                goalVMsg = "Attained correct goal voltages. "
                             } else {
-                                document.getElementById("data").innerHTML += "<mark> Level failed."
+                                goalVMsg = "Never attained goal voltages. "
                             }
+                        if ((myLevel.label == "A") || (myLevel.label == "B")) {
+                            levelMsg = levelVMsg;
                         }
                         if (myLevel.label == "C") {
-                            document.getElementById("data").innerHTML += levelEMsg;
-                            if (myLevel.success && myLevel.successE) {
-                                document.getElementById("data").innerHTML += "<mark> Level successful."
-                            } else {
-                                document.getElementById("data").innerHTML += "<mark> Level failed."
-                            }
+                            levelMsg = levelVMsg + levelEMsg;
                         }
                         if (myLevel.label == "D") {
-                            document.getElementById("data").innerHTML += levelEMsg + levelRMsg;
-                            if (myLevel.success && myLevel.successE && myLevel.successR) {
-                                document.getElementById("data").innerHTML += "<mark>   Level successful."
-                            } else {
-                                document.getElementById("data").innerHTML += "<mark> Level failed."
+                            levelMsg = levelVMsg + levelEMsg + levelRMsg;
+                        }
+                        for (var i = 0; i < myLevel.varRefs["goalV1"].length; i++) {
+                            if (myLevel.varRefs["goalV1"][i][0].type == "message") {
+                                goalV1Communicated = true;
+                                break;
                             }
                         }
+                        for (i = 0; i < myLevel.varRefs["goalV2"].length; i++) {
+                            if (myLevel.varRefs["goalV2"][i][0].type == "message") {
+                                goalV2Communicated = true;
+                                break;
+                            }
+                        }
+<<<<<<< HEAD
                         document.getElementById("data").innerHTML += "<br>";
                         document.getElementById("data").innerHTML += "Messages sent: " + messageCount[0] +  " + " + messageCount[1] +  " + " + messageCount[2] + " = " +  messageTotal + "<br>";
                         document.getElementById("data").innerHTML += "Calculations: " + calculationCount[0] +  " + " + calculationCount[1] +  " + " + calculationCount[2] + " = " +  calculationTotal + "<br>";
                         document.getElementById("data").innerHTML += "Resistor changes: " + resistorChangeCount[0] +  " + " + resistorChangeCount[1] + " + " + resistorChangeCount[2] + " = " +  resistorChangeTotal + "<br><br>";
 
                         
+=======
+                        for (i = 0; i < myLevel.varRefs["goalV3"].length; i++) {
+                            if (myLevel.varRefs["goalV3"][i][0].type == "message") {
+                                goalV3Communicated = true;
+                                break;
+                            }
+                        }
+                        if ((goalV1Communicated) && (goalV2Communicated) && (goalV3Communicated)) {
+                            goalVMsg += " Goal voltages chatted. ";
+                        } else {
+                            goalVMsg += "Goal voltages not chatted. ";
+                        }
+
+                        document.getElementById("data").innerHTML += ("<br><br><mark>Team " +
+                            team.name + ", level " + myLevel.label + "</mark>, start time: " + myLevel.startPTime + ", duration: " +
+                            levelMinutes + ":" + levelSeconds + ", E = " + myLevel.E + ", R0 = " + myLevel.R0 + "<br>" +
+                            "goal V1 = " + myLevel.goalV[0] + ", goal V2 = " + myLevel.goalV[1] + ", goal V3 = " + myLevel.goalV[2] +
+                            ", goal R1 = " + myLevel.goalR[0] + ", goal R2 = " + myLevel.goalR[1] + ", goal R3 = " + myLevel.goalR[2] +
+                            "<br>" + goalVMsg + levelMsg + "<br>");
+>>>>>>> gh-pages
                         for (var i = 0; i < acts.length; i++) {
-                            var preTime,
-                                interval = 45, //Maximum interval between logged actions for considering them linked.
-                                act = acts[i],
+                            var act = acts[i],
                                 bd = act.board + 1,
                                 actor = act.actor,
-                                uTime,
-                                eTime, //Elapsed time to nearest tenth of a second since start of level
                                 styledName = actor.styledName,
-                                currentMsg = (act.currentFlowing ? ". Current is flowing. " : ". Current is not flowing.");
-                            uTime = Math.round(act.uTime);
-                            eTime = Math.round((act.uTime - myLevel.startUTime) + 10) / 10;
+                                currentMsg = (act.currentFlowing ? ". Current is flowing. " : ". Current is not flowing."),
+                                preTime, //Used to decide when to insert a horizontal line in the output
+                                uTime = act.uTime,
+                                eTime = Math.round((act.uTime - myLevel.startUTime) * 10) / 10, //Elapsed time since start of level
+                                interval = 45; //Maximum interval between logged actions for considering them linked.
                             switch (act.type) {
                                 case "submitClicked":
-                                    if ($("#action-submit")[0].checked) {
+                                    if ($("#action-submit-V")[0].checked) {
                                         if (myLevel.label == "B") {
                                             console.log("stop");
                                         }
@@ -123,7 +152,7 @@ function reportResults(teams) {
                                     break;
 
                                 case "submitCorrect":
-                                    if ($("#action-submit")[0].checked) {
+                                    if ($("#action-submit-V")[0].checked) {
                                         var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
                                         var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
@@ -131,15 +160,16 @@ function reportResults(teams) {
                                             ", board " + bd + ", submitted correct answers.<br>");
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
-                                        document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
+                                        document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
                                     }
                                     break;
 
-                                case "resistorChange":
-                                    if ($("#action-resistorChange")[0].checked) {
+                                case "submitER":
+                                    if ($("#action-submit-ER")[0].checked) {
                                         var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
                                         var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
+<<<<<<< HEAD
                                         // if ((act.uTime - preTime) > interval) {
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
@@ -148,47 +178,53 @@ function reportResults(teams) {
                                             ": " + styledName + " changed R" + (bd) + " from " + act.oldR[bd - 1] +
                                             " to " + act.R[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
                                             " to " + act.V[bd - 1] + ". (Goal is " + myLevel.goalV[bd - 1] + ")" + act.goalMsg + "<br>");
+=======
+                                        var msg = "";
+                                        var Elabel = "<mark>incorrect</mark>";
+                                        var Rlabel = "<mark>incorrect</mark>";
+                                        if ((act.ESubmitValue == myLevel.E) && (act.ESubmitUnit = "volts")) {
+                                            Elabel = "<mark>correct</mark>";
+                                        }
+                                        if ((act.RSubmitValue == myLevel.R0) && (act.RSubmitUnit = "ohms")) {
+                                            Rlabel = "<mark>correct</mark>";
+                                        }
+                                        if (myLevel.label == "C") {
+                                            msg = ", submitted " + Elabel + " value for E (" + act.ESubmitValue + " " + act.ESubmitUnit + ")<br>";
+                                        }
+                                        if (myLevel.label == "D") {
+                                            msg += ", submitted " + Elabel + " value for E (" + act.ESubmitValue + " " + act.ESubmitUnit + ")" +
+                                                " and submitted " + Rlabel + " value for R0 (" + act.RSubmitValue + " " + act.RSubmitUnit + ").<br>";
+                                        }
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                            ", board " + bd + msg);
+>>>>>>> gh-pages
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
-                                        document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
+                                        document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
+                                    }
+                                    break;
+
+
+                                case "resistorChange":
+                                    if ($("#action-resistorChange")[0].checked) {
+                                        var Rtot = myLevel.R0 + act.newR[0] + act.newR[1] + act.newR[2];
+                                        var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
+                                        var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
+                                        // if ((act.uTime - preTime) > interval) {
+                                        //     document.getElementById("data").innerHTML += "<hr>"
+                                        // }
+                                        preTime = act.uTime;
+                                        document.getElementById("data").innerHTML += ("<span style=\"color:#0000FF;\">Resistor change:</span> At " + eTime + " seconds " +
+                                            ": " + styledName + " changed R" + (bd) + " from " + act.oldR[bd - 1] +
+                                            " to " + act.newR[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
+                                            " to " + act.newV[bd - 1] + ". (Goal is " + myLevel.goalV[bd - 1] + ")" + act.goalMsg + "<br>");
+                                        document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.newR[0] + ", R2 = " + act.newR[1] + ", R3 = " + act.newR[2] + ";  ");
+                                        document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.newV[0] + ", V2 = " + act.newV[1] + ", V3 = " + act.newV[2] + ";  ");
+                                        document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
 
                                     }
                                     break;
 
-                                case "submitUnknown":
-                                    if ($("#action-submit")[0].checked) {
-                                        var EMsg = "";
-                                        var RMsg = "";
-                                        if (act.eCorrect == "true") {
-                                            EMsg = " E answer correct. "
-                                        } else if (act.eHaveValue == "true") {
-                                            EMsg = " E answer incorrect."
-                                        } else {
-                                            EMsg = " No answer for E."
-                                        }
-
-                                        if (act.eHaveUnit == "true") {
-                                            EMsg += " E units correct."
-                                        } else {
-                                            EMsg += " E units incorrect."
-                                        }
-                                        if (act.rCorrect == "true") {
-                                            RMsg = " R answer correct."
-                                        } else if (act.rHaveValue == "true") {
-                                            RMsg = " R answer incorrect."
-                                        } else {
-                                            RMsg = " No answer for R."
-                                        }
-                                        if (act.rHaveUnit == "true") {
-                                            RMsg += " R units correct."
-                                        } else {
-                                            RMsg += " R units incorrect."
-                                        }
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
-                                            act.actor.styledName + ", board " + bd + ", submitted incorrect values." +
-                                            EMsg + RMsg + "<br>")
-                                    }
-                                    break;
                                 case "message":
                                     if ($("#action-message")[0].checked) {
                                         var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
@@ -198,11 +234,19 @@ function reportResults(teams) {
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
+<<<<<<< HEAD
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
                                             act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + ", score = " + act.score + "<br>");
                                          document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                          document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                          document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
+=======
+                                        document.getElementById("data").innerHTML += ("<span style=\"color:#FF0000;\">Message:</span> At " +
+                                            eTime + " seconds " + act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + "<br>");
+                                        document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
+                                        document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
+                                        document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
+>>>>>>> gh-pages
 
                                     }
                                     break;
@@ -216,11 +260,11 @@ function reportResults(teams) {
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("<span style=\"color:#FF00FF;\">Calculation:</span> At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd + ", performed the calculation  " + act.highlightedMsg + ".<br>");
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
-                                        document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
+                                        document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
                                     }
                                     break;
 
@@ -276,6 +320,21 @@ function reportResults(teams) {
                                     }
                                     break;
 
+                                case "measurement":
+                                    if ($("#action-measurement")[0].checked) {
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                            ", board " + bd + ", measured " + act.measurementType + ". Dial is set to " +
+                                            act.dial_position + ", reading is " + act.reading + ".<br>");
+                                    }
+                                    break;
+
+                                case "move-dial":
+                                    if ($("#action-move-DMM-dial")[0].checked) {
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                            ", board " + bd + ", changed the DMM dial to " + act.dialPosition + ".<br>");
+                                    }
+                                    break;
+
                             }
                         }
                     }
@@ -285,7 +344,7 @@ function reportResults(teams) {
     }
 }
 
-function reportVarRefs(teams) {
+/*function reportVarRefs(teams) {
     var team,
         level,
         varRefs,
@@ -295,13 +354,12 @@ function reportVarRefs(teams) {
         vrStr,
         vrNum,
         vrScore,
-        vrLabelsArray = ["E", "R0", "R1", "R2", "R3", "V0", "V1", "V2", "V3", "goalR1", "goalR2", "goalR3", "goalV1", "goalV2", "goalV3", "Rtot", "goalRtot", "IA", "ImA", "goalIA", "goalIma"]
-
+        vrLabelsArray = ["E", "R0", "R1", "R2", "R3", "sumRs", "sumRsPlusR0", "V0", "V1", "V2", "V3", "sumVs", "goalR1", "goalR2", "goalR3", "sumGoalRs", "goalV1", "goalV2", "goalV3", "sumGoalVs", "Rtot", "goalRtot", "IA", "ImA", "goalIA", "goalIma"]
 
     for (var k = 0; k < teams.length; k++) {
         team = teams[k];
         if (team.members.length == 3) {
-            if ($("#team-" + team.name)[0].checked) {
+            if ($("#team-" + team.name + team.classID)[0].checked) {
                 for (var j = 0; j < team.levels.length; j++) {
                     level = team.levels[j];
                     if ($("#level-" + myLevel.label)[0].checked) {
@@ -328,6 +386,7 @@ function reportVarRefs(teams) {
         }
     }
 }
+*/
 
 //Reports on total number of resistor changes in each category for each team member, per level.
 function reportSummary(teams) {
@@ -335,88 +394,87 @@ function reportSummary(teams) {
     if ($("#summary-resistor-change")[0].checked) {
         for (var k = 0; k < teams.length; k++) {
             var team = teams[k];
-            if (team.members.length == 3) {
-                if ($("#team-" + team.name)[0].checked) {
-                    count[team.name] = {};
-                    for (var j = 0; j < team.levels.length; j++) {
-                        var myLevel = team.levels[j];
-                        if ($("#level-" + myLevel.label)[0].checked) {
-                            count[team.name][myLevel.label] = {};
-                            var acts = myLevel.actions;
-                            for (var i = 0; i < team.members.length; i++) {
-                                var member = team.members[i];
-                                count[team.name][myLevel.label][member.name] = {};
-                                count[team.name][myLevel.label][member.name].achieved = 0;
-                                count[team.name][myLevel.label][member.name].overshot = 0;
-                                count[team.name][myLevel.label][member.name].undershot = 0;
-                                count[team.name][myLevel.label][member.name].closer = 0;
-                                count[team.name][myLevel.label][member.name].farther = 0;;
-                                count[team.name][myLevel.label][member.name].total = 0;
-                            } //clear all the counts for all members for this level
-                            for (var ii = 0; ii < acts.length; ii++) {
-                                act = acts[ii];
-                                if (act.type == "resistorChange") {
-                                    member = act.actor;
-                                    switch (act.goalMsg) {
-                                        case ". Goal achieved":
-                                            count[team.name][myLevel.label][member.name].achieved += 1;
-                                            count[team.name][myLevel.label][member.name].total += 1;
-                                            break;
-                                        case ". Goal overshot":
-                                            count[team.name][myLevel.label][member.name].overshot += 1;
-                                            count[team.name][myLevel.label][member.name].total += 1;
-                                            break;
-                                        case ". Goal undershot":
-                                            count[team.name][myLevel.label][member.name].undershot += 1;
-                                            count[team.name][myLevel.label][member.name].total += 1;
-                                            break;
-                                        case ". Goal closer":
-                                            count[team.name][myLevel.label][member.name].closer += 1;
-                                            count[team.name][myLevel.label][member.name].total += 1;
-                                            break;
-                                        case ". Goal farther":
-                                            count[team.name][myLevel.label][member.name].farther += 1;
-                                            count[team.name][myLevel.label][member.name].total += 1;
-                                            break;
-                                    } //end of goalMsg switch
-                                } //end of resistor change
-                            } //end of actions
-                        } //end of level check
-                    } //end of levels loop
-                    document.getElementById("data").innerHTML += ('<mark> <br> <tr> <td colspan = "4" align = "center" > Summary Resistor Change Report </td> </tr></mark>');
-                    for (var k = 0; k < teams.length; k++) {
-                        team = teams[k];
-                        if ($("#team-" + team.name)[0].checked) {
-                            document.getElementById("data").innerHTML += ("<br><br>");
-                            for (var j = 0; j < team.levels.length; j++) {
-                                myLevel = team.levels[j];
-                                if ($("#level-" + myLevel.label)[0].checked) {
-                                    document.getElementById("data").innerHTML += ("<br>");
-                                    for (var i = 0; i < team.members.length; i++) {
-                                        member = team.members[i];
-                                        var ach = count[team.name][myLevel.label][member.name].achieved;
-                                        var clo = count[team.name][myLevel.label][member.name].closer;
-                                        var und = count[team.name][myLevel.label][member.name].undershot;
-                                        var ove = count[team.name][myLevel.label][member.name].overshot;
-                                        var far = count[team.name][myLevel.label][member.name].farther;
-                                        var tot = count[team.name][myLevel.label][member.name].total;
-                                        var score = (tot ? Math.round(100 * ((tot - far) / tot)) : 0) / 100;
-                                        document.getElementById("data").innerHTML += ("Team: " + team.name +
-                                            ", level " + myLevel.label +
-                                            ", member " + member.styledName + ": achieved = " + ach +
-                                            ", overshot = " + ove + ", undershot = " + und + ", closer = " +
-                                            clo + ", farther = " + far + ", total = " + tot + ", score = " +
-                                            score + "<br>");
-                                    }
-                                }
-                            }
+            if ($("#team-" + team.name + team.classID)[0].checked) {
+                count[team.name] = {};
+                for (var j = 0; j < team.levels.length; j++) {
+                    var myLevel = team.levels[j];
+                    if ($("#level-" + myLevel.label)[0].checked) {
+                        count[team.name][myLevel.label] = {};
+                        var acts = myLevel.actions;
+                        for (var i = 0; i < team.members.length; i++) {
+                            var member = team.members[i];
+                            count[team.name][myLevel.label][member.name] = {};
+                            count[team.name][myLevel.label][member.name].achieved = 0;
+                            count[team.name][myLevel.label][member.name].overshot = 0;
+                            count[team.name][myLevel.label][member.name].undershot = 0;
+                            count[team.name][myLevel.label][member.name].closer = 0;
+                            count[team.name][myLevel.label][member.name].farther = 0;;
+                            count[team.name][myLevel.label][member.name].total = 0;
+                        } //clear all the counts for all members for this level
+                        for (var ii = 0; ii < acts.length; ii++) {
+                            act = acts[ii];
+                            if (act.type == "resistorChange") {
+                                member = act.actor;
+                                switch (act.goalMsg) {
+                                    case ". Local goal met":
+                                        count[team.name][myLevel.label][member.name].achieved += 1;
+                                        count[team.name][myLevel.label][member.name].total += 1;
+                                        break;
+                                    case ". Goal overshot":
+                                        count[team.name][myLevel.label][member.name].overshot += 1;
+                                        count[team.name][myLevel.label][member.name].total += 1;
+                                        break;
+                                    case ". Goal undershot":
+                                        count[team.name][myLevel.label][member.name].undershot += 1;
+                                        count[team.name][myLevel.label][member.name].total += 1;
+                                        break;
+                                    case ". Goal closer":
+                                        count[team.name][myLevel.label][member.name].closer += 1;
+                                        count[team.name][myLevel.label][member.name].total += 1;
+                                        break;
+                                    case ". Goal farther":
+                                        count[team.name][myLevel.label][member.name].farther += 1;
+                                        count[team.name][myLevel.label][member.name].total += 1;
+                                        break;
+                                } //end of goalMsg switch
+                            } //end of resistor change
+                        } //end of actions
+                    } //end of level check
+                } //end of levels loop
+            } //end of team check
+        } //end of team loop
+        document.getElementById("data").innerHTML += ('<mark> <br> <tr> <td colspan = "4" align = "center" > Summary Resistor Change Report </td> </tr></mark>');
+        for (var kk = 0; kk < teams.length; kk++) {
+            team = teams[kk];
+            if ($("#team-" + team.name + team.classID)[0].checked) {
+                document.getElementById("data").innerHTML += ("<br><br>");
+                for (var j = 0; j < team.levels.length; j++) {
+                    myLevel = team.levels[j];
+                    if ($("#level-" + myLevel.label)[0].checked) {
+                        document.getElementById("data").innerHTML += ("<br>");
+                        for (var i = 0; i < team.members.length; i++) {
+                            member = team.members[i];
+                            var ach = count[team.name][myLevel.label][member.name].achieved;
+                            var clo = count[team.name][myLevel.label][member.name].closer;
+                            var und = count[team.name][myLevel.label][member.name].undershot;
+                            var ove = count[team.name][myLevel.label][member.name].overshot;
+                            var far = count[team.name][myLevel.label][member.name].farther;
+                            var tot = count[team.name][myLevel.label][member.name].total;
+                            var score = (tot ? Math.round(100 * ((tot - far) / tot)) : 0) / 100;
+                            document.getElementById("data").innerHTML += ("Team: " + team.name +
+                                ", level " + myLevel.label +
+                                ", member " + member.styledName + ": local goal met = " + ach +
+                                ", overshot = " + ove + ", undershot = " + und + ", closer = " +
+                                clo + ", farther = " + far + ", total = " + tot + ", score = " +
+                                score + "<br>");
                         }
                     }
-                } //end of team check
-            } //end of teams loop
+                }
+            }
         }
     }
 }
+
 
 
 
