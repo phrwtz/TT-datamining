@@ -29,6 +29,31 @@ function reportResults(teams) {
                         if (levelSeconds < 10) {
                             levelSeconds = "0" + levelSeconds;
                         }
+                        var messageCount = [0,0,0],
+                        messageTotal = 0,
+                        calculationCount = [0,0,0],
+                        calculationTotal = 0,
+                        resistorChangeCount = [0,0,0],
+                        resistorChangeTotal = 0;
+                        for (var ii = 0; ii < acts.length; ii++) {
+                            thisAction = acts[ii];
+                            index = thisAction.actor.colIndex;
+                            switch(thisAction.type) {
+                                case "message":
+                                messageCount[index]++;
+                                messageTotal++;
+                                break;
+                                case "calculation":
+                                calculationCount[index]++;
+                                calculationTotal++;
+                                break;
+                                case "resistorChange":
+                                resistorChangeCount[index]++;
+                                resistorChangeTotal++;
+                                break;
+                            }
+                        }
+                        
                         var levelMsg = (myLevel.success ? "Goal voltages attained." : "Goal voltages not attained.");
                         var levelEMsg = (myLevel.successE ? " E correctly reported." : " E not reported correctly.");
                         var levelRMsg = (myLevel.successR ? " R0 correctly reported." : " R0 not reported correctly.");
@@ -59,6 +84,11 @@ function reportResults(teams) {
                             }
                         }
                         document.getElementById("data").innerHTML += "<br>";
+                        document.getElementById("data").innerHTML += "Messages sent: " + messageCount[0] +  " + " + messageCount[1] +  " + " + messageCount[2] + " = " +  messageTotal + "<br>";
+                        document.getElementById("data").innerHTML += "Calculations: " + calculationCount[0] +  " + " + calculationCount[1] +  " + " + calculationCount[2] + " = " +  calculationTotal + "<br>";
+                        document.getElementById("data").innerHTML += "Resistor changes: " + resistorChangeCount[0] +  " + " + resistorChangeCount[1] + " + " + resistorChangeCount[2] + " = " +  resistorChangeTotal + "<br><br>";
+
+                        
                         for (var i = 0; i < acts.length; i++) {
                             var preTime,
                                 interval = 45, //Maximum interval between logged actions for considering them linked.
@@ -110,9 +140,9 @@ function reportResults(teams) {
                                         var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
                                         var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
-                                        if ((act.uTime - preTime) > interval) {
-                                            document.getElementById("data").innerHTML += "<hr>"
-                                        }
+                                        // if ((act.uTime - preTime) > interval) {
+                                        //     document.getElementById("data").innerHTML += "<hr>"
+                                        // }
                                         preTime = act.uTime;
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
                                             ": " + styledName + " changed R" + (bd) + " from " + act.oldR[bd - 1] +
@@ -164,15 +194,15 @@ function reportResults(teams) {
                                         var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
                                         var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
-                                        if ((act.uTime - preTime) > interval) {
-                                            document.getElementById("data").innerHTML += "<hr>"
-                                        }
+                                        // if ((act.uTime - preTime) > interval) {
+                                        //     document.getElementById("data").innerHTML += "<hr>"
+                                        // }
                                         preTime = act.uTime;
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
                                             act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + ", score = " + act.score + "<br>");
-                                        // document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
-                                        // document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
-                                        // document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
+                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
+                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
+                                         document.getElementById("data").innerHTML += ("I = " + current + " mA. <br><br>");
 
                                     }
                                     break;
@@ -182,9 +212,9 @@ function reportResults(teams) {
                                         var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
                                         var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
-                                        if ((act.uTime - preTime) > interval) {
-                                            document.getElementById("data").innerHTML += "<hr>"
-                                        }
+                                        // if ((act.uTime - preTime) > interval) {
+                                        //     document.getElementById("data").innerHTML += "<hr>"
+                                        // }
                                         preTime = act.uTime;
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd + ", performed the calculation  " + act.highlightedMsg + ".<br>");
@@ -196,9 +226,9 @@ function reportResults(teams) {
 
                                 case "attach-probe":
                                     if ($("#action-attach-probe")[0].checked) {
-                                        if ((act.uTime - preTime) > interval) {
-                                            document.getElementById("data").innerHTML += "<hr>"
-                                        }
+                                        // if ((act.uTime - preTime) > interval) {
+                                        //     document.getElementById("data").innerHTML += "<hr>"
+                                        // }
                                         preTime = act.uTime;
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd +
@@ -207,9 +237,9 @@ function reportResults(teams) {
                                     break;
                                 case "detach-probe":
                                     if ($("#action-detach-probe")[0].checked) {
-                                        if ((act.uTime - preTime) > interval) {
-                                            document.getElementById("data").innerHTML += "<hr>"
-                                        }
+                                        // if ((act.uTime - preTime) > interval) {
+                                        //     document.getElementById("data").innerHTML += "<hr>"
+                                        // }
                                         preTime = act.uTime;
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd +
@@ -218,9 +248,9 @@ function reportResults(teams) {
                                     break;
                                 case "connect-lead":
                                     if ($("#action-connect-lead")[0].checked) {
-                                        if ((act.uTime - preTime) > interval) {
-                                            document.getElementById("data").innerHTML += "<hr>"
-                                        }
+                                        // if ((act.uTime - preTime) > interval) {
+                                        //     document.getElementById("data").innerHTML += "<hr>"
+                                        // }
                                         preTime = act.uTime;
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd +
@@ -230,9 +260,9 @@ function reportResults(teams) {
 
                                 case "disconnect-lead":
                                     if ($("#action-disconnect-lead")[0].checked) {
-                                        if ((act.uTime - preTime) > interval) {
-                                            document.getElementById("data").innerHTML += "<hr>"
-                                        }
+                                        // if ((act.uTime - preTime) > interval) {
+                                        //     document.getElementById("data").innerHTML += "<hr>"
+                                        // }
                                         preTime = act.uTime;
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd +
