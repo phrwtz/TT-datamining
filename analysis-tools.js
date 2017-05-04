@@ -113,7 +113,8 @@ function addAction(ro, type) {
     myAction.level = myLevel;
     myAction.actor = myMember;
     myAction.uTime = ro["time"];
-    //    myAction.pTime = unixTimeConversion(myAction.uTime);
+    myAction.eTime = Math.round(myAction.uTime - myLevel.startUTime);
+     //    myAction.pTime = unixTimeConversion(myAction.uTime);
     myAction.board = parseInt(ro["board"]);
     myAction.index = myLevel.actions.length; //The length of the array before the action is pushed. (The index of the action
     //if it is pushed will equal this.)
