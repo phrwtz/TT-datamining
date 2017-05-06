@@ -8,8 +8,8 @@ function generateReport(teams) {
     console.log("action report generated");
     teacherReport(teams);
     console.log("teacher report generated");
-    //    reportVarRefs(teams);
-    //   console.log("variable references report generated");
+        reportVarRefs(teams);
+       console.log("variable references report generated");
 }
 
 function reportResults(teams) {
@@ -29,31 +29,33 @@ function reportResults(teams) {
                             levelSeconds = "0" + levelSeconds;
                         }
 
-                        var messageCount = [0,0,0],
-                        messageTotal = 0,
-                        calculationCount = [0,0,0],
-                        calculationTotal = 0,
-                        resistorChangeCount = [0,0,0],
-                        resistorChangeTotal = 0;
+                        var messageCount = [0, 0, 0],
+                            messageTotal = 0,
+                            calculationCount = [0, 0, 0],
+                            calculationTotal = 0,
+                            resistorChangeCount = [0, 0, 0],
+                            resistorChangeTotal = 0;
+                        var eFoundMsg = "E never found.<br>"
                         for (var ii = 0; ii < acts.length; ii++) {
                             thisAction = acts[ii];
                             index = thisAction.actor.colIndex;
-                            switch(thisAction.type) {
+                            switch (thisAction.type) {
                                 case "message":
-                                messageCount[index]++;
-                                messageTotal++;
-                                break;
+                                    messageCount[index]++;
+                                    messageTotal++;
+                                    break;
                                 case "calculation":
-                                calculationCount[index]++;
-                                calculationTotal++;
-                                break;
+                                    calculationCount[index]++;
+                                    calculationTotal++;
+                                    break;
                                 case "resistorChange":
-                                resistorChangeCount[index]++;
-                                resistorChangeTotal++;
-                                break;
+                                    resistorChangeCount[index]++;
+                                    resistorChangeTotal++;
+                                    break;
                             }
                         }
-                        
+
+
                         var levelMsg = (myLevel.success ? "Goal voltages attained." : "Goal voltages not attained.");
 
                         var levelVMsg = (myLevel.success ? "Goal voltages correctly reported." : "Goal voltages not reported correctly.");
@@ -65,13 +67,13 @@ function reportResults(teams) {
                             goalV1Communicated = false,
                             goalV2Communicated = false,
                             goalV3Communicated = false;
-                            if (myLevel.movedAwayFromVs) {
-                                goalVMsg = "Attained goal voltages and then moved away. "
-                            } else if (myLevel.attainedVs) {
-                                goalVMsg = "Attained correct goal voltages. "
-                            } else {
-                                goalVMsg = "Never attained goal voltages. "
-                            }
+                        if (myLevel.movedAwayFromVs) {
+                            goalVMsg = "Attained goal voltages and then moved away. "
+                        } else if (myLevel.attainedVs) {
+                            goalVMsg = "Attained correct goal voltages. "
+                        } else {
+                            goalVMsg = "Never attained goal voltages. "
+                        }
                         if ((myLevel.label == "A") || (myLevel.label == "B")) {
                             levelMsg = levelVMsg;
                         }
@@ -112,11 +114,9 @@ function reportResults(teams) {
                             "goal V1 = " + myLevel.goalV[0] + ", goal V2 = " + myLevel.goalV[1] + ", goal V3 = " + myLevel.goalV[2] +
                             ", goal R1 = " + myLevel.goalR[0] + ", goal R2 = " + myLevel.goalR[1] + ", goal R3 = " + myLevel.goalR[2] +
                             "<br>" + goalVMsg + levelMsg + "<br>");
-                        document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent: </span>" + messageCount[0] +  " + " + messageCount[1] +  " + " + messageCount[2] + " = " +  messageTotal + "<br>";
-                        document.getElementById("data").innerHTML += "<span style=\"color:#FF00FF;\">Calculations performed: </span>" + calculationCount[0] +  " + " + calculationCount[1] +  " + " + calculationCount[2] + " = " +  calculationTotal + "<br>";
-                        document.getElementById("data").innerHTML += "<span style=\"color:#0000FF;\">Resistor changes: </span>" + resistorChangeCount[0] +  " + " + resistorChangeCount[1] + " + " + resistorChangeCount[2] + " = " +  resistorChangeTotal + "<br><br>";
-
-                        
+                        document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent: </span>" + messageCount[0] + " + " + messageCount[1] + " + " + messageCount[2] + " = " + messageTotal + "<br>";
+                        document.getElementById("data").innerHTML += "<span style=\"color:#FF00FF;\">Calculations performed: </span>" + calculationCount[0] + " + " + calculationCount[1] + " + " + calculationCount[2] + " = " + calculationTotal + "<br>";
+                        document.getElementById("data").innerHTML += "<span style=\"color:#0000FF;\">Resistor changes: </span>" + resistorChangeCount[0] + " + " + resistorChangeCount[1] + " + " + resistorChangeCount[2] + " = " + resistorChangeTotal + "<br>";
 
                         for (var i = 0; i < acts.length; i++) {
                             var act = acts[i],
@@ -336,7 +336,7 @@ function reportResults(teams) {
     }
 }
 
-/*function reportVarRefs(teams) {
+function reportVarRefs(teams) {
     var team,
         level,
         varRefs,
@@ -345,19 +345,20 @@ function reportResults(teams) {
         act,
         vrStr,
         vrNum,
-        vrScore,
-        vrLabelsArray = ["E", "R0", "R1", "R2", "R3", "sumRs", "sumRsPlusR0", "V0", "V1", "V2", "V3", "sumVs", "goalR1", "goalR2", "goalR3", "sumGoalRs", "goalV1", "goalV2", "goalV3", "sumGoalVs", "Rtot", "goalRtot", "IA", "ImA", "goalIA", "goalIma"]
+        vrScore;
+        
 
     for (var k = 0; k < teams.length; k++) {
         team = teams[k];
         if (team.members.length == 3) {
             if ($("#team-" + team.name + team.classID)[0].checked) {
                 for (var j = 0; j < team.levels.length; j++) {
-                    level = team.levels[j];
+                    myLevel = team.levels[j];
                     if ($("#level-" + myLevel.label)[0].checked) {
                         varRefs = myLevel.varRefs;
                         for (var i = 0; i < vrLabelsArray.length; i++) {
                             vrStr = vrLabelsArray[i];
+                            try {
                             if ($("#varRef-" + vrStr)[0].checked) {
                                 vrArray = varRefs[vrStr]; //contains all the varRefs of type vrStr;
                                 for (var ii = 0; ii < vrArray.length; ii++) {
@@ -365,12 +366,14 @@ function reportResults(teams) {
                                     act = vr[0];
                                     vrNum = vr[2];
                                     vrScore = vr[3];
-                                    document.getElementById("data").innerHTML += (eTime +
-                                        ": board " + (act.board + 1) + ", type " +
-                                        act.type + ", text = " + act.msg + ", " + vrNum + " is " +
-                                        vrStr + ", score = " + vrScore + ".<br>");
+                                    console.log(vrStr + "found at " + act.eTime + 
+                                    " in a " + act.type + "<br>")
+                                    document.getElementById("data").innerHTML += ("Variable " + vrStr + " found at " + act.eTime + 
+                                    " in a " + act.type + " by " + act.actor.styledName + "<br>");
                                 }
                             }
+                            }
+                            catch(err) {console.log(err + "In report VarRefs, vrStr = " + vrStr)}
                         }
                     }
                 }
@@ -378,7 +381,6 @@ function reportResults(teams) {
         }
     }
 }
-*/
 
 //Reports on total number of resistor changes in each category for each team member, per level.
 function reportSummary(teams) {

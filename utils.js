@@ -9,34 +9,9 @@ function clearScreen() { //clears data and summary tables
 }
 
 function initializeVarRefs(level) { //Initializes variable references for this level
-    level.varRefs["E"] = [];
-    level.varRefs["R0"] = [];
-    level.varRefs["goalV0"] = [];
-    level.varRefs["goalV1"] = [];
-    level.varRefs["goalV2"] = [];
-    level.varRefs["goalV3"] = [];
-    level.varRefs["goalVs"] = [];
-    level.varRefs["goalR1"] = [];
-    level.varRefs["goalR2"] = [];
-    level.varRefs["goalR3"] = [];
-    level.varRefs["sumGoalRs"] = [];
-    level.varRefs["R1"] = [];
-    level.varRefs["R2"] = [];
-    level.varRefs["R3"] = [];
-    level.varRefs["sumRs"] = [];
-    level.varRefs["sumRsPlusR0"] = [];
-    level.varRefs["V1"] = [];
-    level.varRefs["V2"] = [];
-    level.varRefs["V3"] = [];
-    level.varRefs["sumVs"] = [];
-    level.varRefs["Rtot"] = [];
-    level.varRefs["V0"] = [];
-    level.varRefs["IA"] = [];
-    level.varRefs["ImA"] = [];
-    level.varRefs["goalIA"] = [];
-    level.varRefs["goalImA"] = [];
-    level.varRefs["no match"] = [];
-    level.varRefs["??"] = [];
+    for (var i = 0; i < vrLabelsArray.length; i++) {
+        level.varRefs[vrLabelsArray[i]] = []
+    }
 }
 
 //Takes a variable string and an action and returns 1 if the variable
@@ -110,9 +85,6 @@ function score(varStr, action) {
             break;
         case "goalImA":
             score = 4;
-            break;
-        case "no match":
-            score = 0;
             break;
         case "??":
             score = 0;
@@ -410,12 +382,13 @@ function findVars(act, numStr) {
         variableFound = true;
         thisStr = "goalImA";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        try {
         act.level.varRefs[thisStr].push(thisVarRef);
+        } catch(err) {console.log(err + " var ref label = " + thisStr)}
         returnArray.push(thisVarRef);
     }
     if (!variableFound) { //if there is no match
-        (act.type == "message" ? thisStr = "no match" : 
-            thisStr = "??");
+        thisStr = "??";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);

@@ -7,6 +7,10 @@ var teams = [];
 var teachers = [];
 var studentDataObjs = [];
 var timeZone = -5; //offset for Eastern Standard Time
+vrLabelsArray = ["E", "R0", "R1", "R2", "R3", "sumRs", "sumRsPlusR0", "V0", "V1", "V2", "V3", 
+"sumVs", "goalR1", "goalR2", "goalR3", "sumGoalRs", "goalV0", "goalV1", "goalV2", "goalV3", "sumGoalVs", 
+"Rtot", "goalRtot", "IA", "ImA", "goalIA", "goalImA", "??"] //Array of varRef labels (used to label 
+//and distinguish the ids of the checkboxes. Also used in the varRef report.
 
 function parseCSV() {
     var filteredTeams = [];
