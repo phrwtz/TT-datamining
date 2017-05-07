@@ -35,7 +35,6 @@ function reportResults(teams) {
                             calculationTotal = 0,
                             resistorChangeCount = [0, 0, 0],
                             resistorChangeTotal = 0;
-                        var eFoundMsg = "E never found.<br>"
                         for (var ii = 0; ii < acts.length; ii++) {
                             thisAction = acts[ii];
                             index = thisAction.actor.colIndex;
@@ -172,10 +171,6 @@ function reportResults(teams) {
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
-                                            ": " + styledName + " changed R" + (bd) + " from " + act.oldR[bd - 1] +
-                                            " to " + act.R[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
-                                            " to " + act.V[bd - 1] + ". (Goal is " + myLevel.goalV[bd - 1] + ")" + act.goalMsg + "<br>");
 
                                         var msg = "";
                                         var Elabel = "<mark>incorrect</mark>";
@@ -359,21 +354,20 @@ function reportVarRefs(teams) {
                         for (var i = 0; i < vrLabelsArray.length; i++) {
                             vrStr = vrLabelsArray[i];
                             try {
-                            if ($("#varRef-" + vrStr)[0].checked) {
-                                vrArray = varRefs[vrStr]; //contains all the varRefs of type vrStr;
-                                for (var ii = 0; ii < vrArray.length; ii++) {
-                                    vr = vrArray[ii];
-                                    act = vr[0];
-                                    vrNum = vr[2];
-                                    vrScore = vr[3];
-                                    console.log(vrStr + "found at " + act.eTime + 
-                                    " in a " + act.type + "<br>")
-                                    document.getElementById("data").innerHTML += ("Variable " + vrStr + " found at " + act.eTime + 
-                                    " in a " + act.type + " by " + act.actor.styledName + "<br>");
+                                if ($("#varRef-" + vrStr)[0].checked) {
+                                    vrArray = varRefs[vrStr]; //contains all the varRefs of type vrStr;
+                                    for (var ii = 0; ii < vrArray.length; ii++) {
+                                        vr = vrArray[ii];
+                                        act = vr[0];
+                                        vrNum = vr[2];
+                                        vrScore = vr[3];
+                                        console.log(vrStr + "found at " + act.eTime + 
+                                        " in a " + act.type + "<br>")
+                                        document.getElementById("data").innerHTML += ("Variable " + vrStr + " found at " + act.eTime + 
+                                        " seconds in a " + act.type + " by " + act.actor.styledName + ", board " + (act.board + 1) + ".<br>");
+                                    }
                                 }
-                            }
-                            }
-                            catch(err) {console.log(err + "In report VarRefs, vrStr = " + vrStr)}
+                            } catch(err) {console.log(err + "In report VarRefs, vrStr = " + vrStr)}
                         }
                     }
                 }
