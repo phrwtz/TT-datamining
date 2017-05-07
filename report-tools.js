@@ -8,8 +8,8 @@ function generateReport(teams) {
     console.log("action report generated");
     teacherReport(teams);
     console.log("teacher report generated");
-        reportVarRefs(teams);
-       console.log("variable references report generated");
+    reportVarRefs(teams);
+    console.log("variable references report generated");
 }
 
 function reportResults(teams) {
@@ -54,11 +54,8 @@ function reportResults(teams) {
                             }
                         }
 
-
                         var levelMsg = (myLevel.success ? "Goal voltages attained." : "Goal voltages not attained.");
-
                         var levelVMsg = (myLevel.success ? "Goal voltages correctly reported." : "Goal voltages not reported correctly.");
-
                         var levelEMsg = (myLevel.successE ? " E correctly reported." : " E not reported correctly.");
                         var levelRMsg = (myLevel.successR ? " R0 correctly reported." : " R0 not reported correctly.");
                         var levelMsg = "",
@@ -115,7 +112,7 @@ function reportResults(teams) {
                             "<br>" + goalVMsg + levelMsg + "<br>");
                         document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent: </span>" + messageCount[0] + " + " + messageCount[1] + " + " + messageCount[2] + " = " + messageTotal + "<br>";
                         document.getElementById("data").innerHTML += "<span style=\"color:#FF00FF;\">Calculations performed: </span>" + calculationCount[0] + " + " + calculationCount[1] + " + " + calculationCount[2] + " = " + calculationTotal + "<br>";
-                        document.getElementById("data").innerHTML += "<span style=\"color:#0000FF;\">Resistor changes: </span>" + resistorChangeCount[0] + " + " + resistorChangeCount[1] + " + " + resistorChangeCount[2] + " = " + resistorChangeTotal + "<br>";
+                        document.getElementById("data").innerHTML += "<span style=\"color:#0000FF;\">Resistor changes: </span>" + resistorChangeCount[0] + " + " + resistorChangeCount[1] + " + " + resistorChangeCount[2] + " = " + resistorChangeTotal + "<br><br>";
 
                         for (var i = 0; i < acts.length; i++) {
                             var act = acts[i],
@@ -311,7 +308,7 @@ function reportResults(teams) {
                                     if ($("#action-measurement")[0].checked) {
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd + ", measured " + act.measurementType + ". Dial is set to " +
-                                            act.dial_position + ", reading is " + act.reading + ".<br>");
+                                            act.dial_position + ", reading is " + act.highlightedMsg + ".<br>");
                                     }
                                     break;
 
@@ -341,33 +338,43 @@ function reportVarRefs(teams) {
         vrStr,
         vrNum,
         vrScore;
-        
 
     for (var k = 0; k < teams.length; k++) {
         team = teams[k];
-        if (team.members.length == 3) {
-            if ($("#team-" + team.name + team.classID)[0].checked) {
-                for (var j = 0; j < team.levels.length; j++) {
-                    myLevel = team.levels[j];
-                    if ($("#level-" + myLevel.label)[0].checked) {
-                        varRefs = myLevel.varRefs;
-                        for (var i = 0; i < vrLabelsArray.length; i++) {
-                            vrStr = vrLabelsArray[i];
-                            try {
-                                if ($("#varRef-" + vrStr)[0].checked) {
-                                    vrArray = varRefs[vrStr]; //contains all the varRefs of type vrStr;
-                                    for (var ii = 0; ii < vrArray.length; ii++) {
-                                        vr = vrArray[ii];
-                                        act = vr[0];
-                                        vrNum = vr[2];
-                                        vrScore = vr[3];
-                                        console.log(vrStr + "found at " + act.eTime + 
-                                        " in a " + act.type + "<br>")
-                                        document.getElementById("data").innerHTML += ("Variable " + vrStr + " found at " + act.eTime + 
-                                        " seconds in a " + act.type + " by " + act.actor.styledName + ", board " + (act.board + 1) + ".<br>");
+        if ($("#team-" + team.name + team.classID)[0].checked) {
+            for (var j = 0; j < team.levels.length; j++) {
+                myLevel = team.levels[j];
+                if ($("#level-" + myLevel.label)[0].checked) {
+                    document.getElementById("data").innerHTML += ("<br><mark>Variable references for level " + myLevel.label + ":</mark><br>");
+                    varRefs = myLevel.varRefs;
+                    for (var i = 0; i < vrLabelsArray.length; i++) {
+                        vrStr = vrLabelsArray[i];
+                        try {
+                            if ($("#varRef-" + vrStr)[0].checked) {
+                                vrArray = varRefs[vrStr]; //contains all the varRefs of type vrStr;
+                                for (var ii = 0; ii < vrArray.length; ii++) {
+                                    vr = vrArray[ii];
+                                    act = vr[0];
+                                    vrNum = vr[2];
+                                    vrScore = vr[3];
+                                    var t = act.type;
+                                    switch (t) {
+                                        case "message":
+                                            t = "<span style=\"color:#FF0000;\">message</span>";
+                                            break;
+                                        case "calculation":
+                                            t = "<span style=\"color:#FF00FF;\">calculation</span>";
+                                            break;
+                                        case "measurement":
+                                            t = "<span style=\"color:#0000FF;\">measurement</span>";
+                                            break;
                                     }
+                                    document.getElementById("data").innerHTML += ("Variable " + vrStr + " found at " + act.eTime +
+                                        " seconds in a " + t + " by " + act.actor.styledName + ", board " + (act.board + 1) + ".<br>");
                                 }
-                            } catch(err) {console.log(err + "In report VarRefs, vrStr = " + vrStr)}
+                            }
+                        } catch (err) {
+                            console.log(err + "In report VarRefs, vrStr = " + vrStr)
                         }
                     }
                 }

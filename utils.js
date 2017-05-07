@@ -124,13 +124,12 @@ function scoreAction(action) {
     return score;
 }}
 
-function highlightMessage(act) { //Highlights the variable names, if any, in a message
-    //returns the highlighted message
-    var msg = act.msg;
+function highlightMessage(act, text) { //Highlights the variable names, if any, in a message
+    //or measurement reading, Returns the highlighted message or reading
     vrArray = act.varRefs;
-    var messageWithoutSpaces = msg.replace(/\s/g, '');
+    var textWithoutSpaces = text.replace(/\s/g, '');
     var numRegEx = new RegExp(/([[0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
-    var numArray = messageWithoutSpaces.match(numRegEx);
+    var numArray = textWithoutSpaces.match(numRegEx);
     //numArray is an array of all the numbers in the message, including those
     //for which no matching variable was found
     //to a given number in the message
@@ -151,10 +150,10 @@ function highlightMessage(act) { //Highlights the variable names, if any, in a m
                 highlightedStr += matchedVariables[k] + ", ";
             }
             highlightedStr = highlightedStr.substring(0, highlightedStr.length - 2) + "]</mark>";
-            msg = msg.replace(numArray[i], numArray[i] + highlightedStr);
+            text = text.replace(numArray[i], numArray[i] + highlightedStr);
         }
     }
-    return msg;
+    return text;
 }
 
 function getVarRefs(action, text) {

@@ -273,7 +273,7 @@ function addMessage(ro) {
         };
         myAction.varRefs = getVarRefs(myAction, myAction.msg);
         myAction.score = scoreAction(myAction);
-        myAction.highlightedMsg = highlightMessage(myAction);
+        myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
         myAction.R = myAction.level.R;
         myAction.V = myAction.level.V;
         myAction.level.actions.push(myAction);
@@ -292,11 +292,30 @@ function addCalculation(ro) {
     myAction.varRefs = myAction.cvarRefs.concat(myAction.rvarRefs);
     myAction.score = scoreAction(myAction);
     
-    myAction.highlightedMsg = highlightMessage(myAction);
+    myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
     
     myAction.R = myAction.level.R;
     myAction.V = myAction.level.V;
     myAction.level.actions.push(myAction);
+    }
+}
+
+function addMeasurement(ro, i) {
+    var myAction = addAction(ro, "measurement");
+    //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+    if (!(duplicate(myAction))) {
+        myAction.dial_position = ro["dial_position"];
+        myAction.measurementType = ro["measurement"];
+        myAction.black_probe = ro["black_probe"];
+        myAction.red_probe = ro["red_probe"];
+        myAction.msg = ro["result"].replace(/\s/g, '');
+        myAction.varRefs = getVarRefs(myAction, myAction.msg);
+        myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
+
+        myAction.r1 = ro["r1"];
+        myAction.r2 = ro["r2"];
+        myAction.r3 = ro["r3"];
+        myAction.level.actions.push(myAction);
     }
 }
 
@@ -352,22 +371,6 @@ function addDetachProbe(ro, i) {
         myAction.level.actions.push(myAction);
     } else {
         //        console.log("Passed over a detach probe action at . " + myAction.time);
-    }
-}
-
-function addMeasurement(ro, i) {
-    var myAction = addAction(ro, "measurement");
-    //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    if (!(duplicate(myAction))) {
-        myAction.dial_position = ro["dial_position"];
-        myAction.measurementType = ro["measurement"];
-        myAction.black_probe = ro["black_probe"];
-        myAction.red_probe = ro["red_probe"];
-        myAction.reading = ro["result"].replace(/\s/g, '');
-        myAction.r1 = ro["r1"];
-        myAction.r2 = ro["r2"];
-        myAction.r3 = ro["r3"];
-        myAction.level.actions.push(myAction);
     }
 }
 
