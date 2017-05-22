@@ -64,9 +64,9 @@ function reportResults(teams) {
                             goalV2Communicated = false,
                             goalV3Communicated = false;
                         if (myLevel.movedAwayFromVs) {
-                            goalVMsg = "Attained goal voltages and then moved away. "
+                            goalVMsg = "Attained goal voltages at " + myLevel.attainedVsTime + " secs and then moved away at " + myLevel.movedAwayFromVsTime + " secs. ";
                         } else if (myLevel.attainedVs) {
-                            goalVMsg = "Attained correct goal voltages. "
+                            goalVMsg = "Attained correct goal voltages at " + myLevel.attainedVsTime + " secs. "
                         } else {
                             goalVMsg = "Never attained goal voltages. "
                         }

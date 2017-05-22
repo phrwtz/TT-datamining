@@ -235,23 +235,26 @@ function addRChange(ro) {
             ((myAction.newR[0] != myAction.oldR[0]) || (myAction.newR[1] != myAction.oldR[1]) || (myAction.newR[2] != myAction.oldR[2]))) {
             oldGoalDifference = myAction.oldV[bd] - myLevel.goalV[bd];
             newGoalDifference = myAction.newV[bd] - myLevel.goalV[bd];
+            if ((myLevel.attainedVs) && (!myLevel.movedAwayFromVs))  {
+                myLevel.movedAwayFromVs = true;
+                myLevel.movedAwayFromVsTime = myAction.eTime;
+            }
             if (Math.abs(newGoalDifference) < .01) {
                 myAction.goalMsg = ". Local goal met";
-                myLevel.attainedVs = true;
+                if (!myLevel.attainedVs) { //only record time the first time
+                    myLevel.attainedVs = true;
+                    myLevel.attainedVsTime = myAction.eTime;
+                }
             } else if (Math.sign(oldGoalDifference) != Math.sign(newGoalDifference) &&
                 (newGoalDifference > 0)) {
                 myAction.goalMsg = ". Goal overshot";
-                if (myLevel.attainedVs) {myLevel.movedAwayFromVs = true}
             } else if (Math.sign(oldGoalDifference) != Math.sign(newGoalDifference) &&
                 (newGoalDifference < 0)) {
                 myAction.goalMsg = ". Goal undershot";
-                if (myLevel.attainedVs) {myLevel.movedAwayFromVs = true}
             } else if (Math.abs(newGoalDifference) < Math.abs(oldGoalDifference)) {
                 myAction.goalMsg = ". Goal closer";
-                if (myLevel.attainedVs) {myLevel.movedAwayFromVs = true}
             } else if (Math.abs(newGoalDifference) > Math.abs(oldGoalDifference)) {
                 myAction.goalMsg = ". Goal farther";
-                if (myLevel.attainedVs) {myLevel.movedAwayFromVs = true}
             }
             myLevel.R = myAction.newR; // Update level so that we have something to compare to next time around
             myLevel.V = myAction.newV;
