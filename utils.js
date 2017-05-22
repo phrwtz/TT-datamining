@@ -179,6 +179,13 @@ function getVarRefs(action, text) {
             //returns an array of varRefs;
         }
     }
+    //If we're looking at the result of a calculation and it doesn't correspond to any 
+    //known variable, handle it differently
+    if((action.type == "calculation") && (text == action.rMsg) && (vrs[0] == "??")) {
+        vrs[0] = "uk" + action.level.ukIndex;
+vrLabelsArray.push("uk" + action.level.ukIndex);
+        action.level.ukIndex++;
+    }
     return vrs;
 }
 
@@ -324,6 +331,20 @@ function findVars(act, numStr) {
     if (about(num, goalR3, tol)) {
         variableFound = true;
         thisStr = "goalR3";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, sumGoalRs, tol)) {
+        variableFound = true;
+        thisStr = "sumGoalRs";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, sumGoalVs, tol)) {
+        variableFound = true;
+        thisStr = "sumGoalVs";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);

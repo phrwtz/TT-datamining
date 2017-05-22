@@ -131,7 +131,7 @@ function reportResults(teams) {
                                             console.log("stop");
                                         }
                                         var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
-                                        var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
+                                        var current = ((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
                                         var V1 = myLevel.E * act.R[0] / Rtot;
                                         var V2 = myLevel.E * act.R[1] / Rtot;
@@ -345,12 +345,13 @@ function reportVarRefs(teams) {
             for (var j = 0; j < team.levels.length; j++) {
                 myLevel = team.levels[j];
                 if ($("#level-" + myLevel.label)[0].checked) {
-                    document.getElementById("data").innerHTML += ("<br><mark>Variable references for level " + myLevel.label + ":</mark><br>");
+                    document.getElementById("data").innerHTML += ("<br><mark>Variable references for team " + team.name + ", level " + myLevel.label + ":</mark><br>");
                     varRefs = myLevel.varRefs;
                     for (var i = 0; i < vrLabelsArray.length; i++) {
                         vrStr = vrLabelsArray[i];
                         try {
                             if ($("#varRef-" + vrStr)[0].checked) {
+                                document.getElementById("data").innerHTML += ("<br>");
                                 vrArray = varRefs[vrStr]; //contains all the varRefs of type vrStr;
                                 for (var ii = 0; ii < vrArray.length; ii++) {
                                     vr = vrArray[ii];
