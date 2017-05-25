@@ -9,34 +9,9 @@ function clearScreen() { //clears data and summary tables
 }
 
 function initializeVarRefs(level) { //Initializes variable references for this level
-    level.varRefs["E"] = [];
-    level.varRefs["R0"] = [];
-    level.varRefs["goalV0"] = [];
-    level.varRefs["goalV1"] = [];
-    level.varRefs["goalV2"] = [];
-    level.varRefs["goalV3"] = [];
-    level.varRefs["goalVs"] = [];
-    level.varRefs["goalR1"] = [];
-    level.varRefs["goalR2"] = [];
-    level.varRefs["goalR3"] = [];
-    level.varRefs["sumGoalRs"] = [];
-    level.varRefs["R1"] = [];
-    level.varRefs["R2"] = [];
-    level.varRefs["R3"] = [];
-    level.varRefs["sumRs"] = [];
-    level.varRefs["sumRsPlusR0"] = [];
-    level.varRefs["V1"] = [];
-    level.varRefs["V2"] = [];
-    level.varRefs["V3"] = [];
-    level.varRefs["sumVs"] = [];
-    level.varRefs["Rtot"] = [];
-    level.varRefs["V0"] = [];
-    level.varRefs["IA"] = [];
-    level.varRefs["ImA"] = [];
-    level.varRefs["goalIA"] = [];
-    level.varRefs["goalImA"] = [];
-    level.varRefs["no match"] = [];
-    level.varRefs["??"] = [];
+    for (var i = 0; i < vrLabelsArray.length; i++) {
+        level.varRefs[vrLabelsArray[i]] = []
+    }
 }
 
 //Takes a variable string and an action and returns 1 if the variable
@@ -111,9 +86,6 @@ function score(varStr, action) {
         case "goalImA":
             score = 4;
             break;
-        case "no match":
-            score = 0;
-            break;
         case "??":
             score = 0;
             break;
@@ -152,13 +124,12 @@ function scoreAction(action) {
     return score;
 }}
 
-function highlightMessage(act) { //Highlights the variable names, if any, in a message
-    //returns the highlighted message
-    var msg = act.msg;
+function highlightMessage(act, text) { //Highlights the variable names, if any, in a message
+    //or measurement reading, Returns the highlighted message or reading
     vrArray = act.varRefs;
-    var messageWithoutSpaces = msg.replace(/\s/g, '');
+    var textWithoutSpaces = text.replace(/\s/g, '');
     var numRegEx = new RegExp(/([[0-9]+\.?[0-9]*)|(\.[0-9]+)/g);
-    var numArray = messageWithoutSpaces.match(numRegEx);
+    var numArray = textWithoutSpaces.match(numRegEx);
     //numArray is an array of all the numbers in the message, including those
     //for which no matching variable was found
     //to a given number in the message
@@ -179,10 +150,10 @@ function highlightMessage(act) { //Highlights the variable names, if any, in a m
                 highlightedStr += matchedVariables[k] + ", ";
             }
             highlightedStr = highlightedStr.substring(0, highlightedStr.length - 2) + "]</mark>";
-            msg = msg.replace(numArray[i], numArray[i] + highlightedStr);
+            text = text.replace(numArray[i], numArray[i] + highlightedStr);
         }
     }
-    return msg;
+    return text;
 }
 
 function getVarRefs(action, text) {
@@ -207,6 +178,13 @@ function getVarRefs(action, text) {
             vrs[i] = findVars(action, nums[i]); //matches the numbers to the variables.
             //returns an array of varRefs;
         }
+    }
+    //If we're looking at the result of a calculation and it doesn't correspond to any 
+    //known variable, handle it differently
+    if((action.type == "calculation") && (text == action.rMsg) && (vrs[0] == "??")) {
+        vrs[0] = "uk" + action.level.ukIndex;
+vrLabelsArray.push("uk" + action.level.ukIndex);
+        action.level.ukIndex++;
     }
     return vrs;
 }
@@ -357,6 +335,20 @@ function findVars(act, numStr) {
         act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
+    if (about(num, sumGoalRs, tol)) {
+        variableFound = true;
+        thisStr = "sumGoalRs";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
+        returnArray.push(thisVarRef);
+    }
+    if (about(num, sumGoalVs, tol)) {
+        variableFound = true;
+        thisStr = "sumGoalVs";
+        thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
+        returnArray.push(thisVarRef);
+    }
     if (about(num, goalV0, tol)) {
         variableFound = true;
         thisStr = "goalV0";
@@ -410,12 +402,13 @@ function findVars(act, numStr) {
         variableFound = true;
         thisStr = "goalImA";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        try {
         act.level.varRefs[thisStr].push(thisVarRef);
+        } catch(err) {console.log(err + " var ref label = " + thisStr)}
         returnArray.push(thisVarRef);
     }
     if (!variableFound) { //if there is no match
-        (act.type == "message" ? thisStr = "no match" : 
-            thisStr = "??");
+        thisStr = "??";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
@@ -515,7 +508,9 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
         myLevel.successE = false;
         myLevel.successR = false;
         myLevel.attainedVs = false;
+        myLevel.attainedVsTime = 0;
         myLevel.movedAwayFromVs = false;
+        myLevel.movedAwayFromVsTime = 0;
         addLevelValues(myLevel, ro);
         myLevel.varRefs = function() {} //List of references to known variables
         //Each property is a variable label and is associated with an array of

@@ -113,7 +113,8 @@ function addAction(ro, type) {
     myAction.level = myLevel;
     myAction.actor = myMember;
     myAction.uTime = ro["time"];
-    //    myAction.pTime = unixTimeConversion(myAction.uTime);
+    myAction.eTime = Math.round(myAction.uTime - myLevel.startUTime);
+     //    myAction.pTime = unixTimeConversion(myAction.uTime);
     myAction.board = parseInt(ro["board"]);
     myAction.index = myLevel.actions.length; //The length of the array before the action is pushed. (The index of the action
     //if it is pushed will equal this.)
@@ -234,23 +235,26 @@ function addRChange(ro) {
             ((myAction.newR[0] != myAction.oldR[0]) || (myAction.newR[1] != myAction.oldR[1]) || (myAction.newR[2] != myAction.oldR[2]))) {
             oldGoalDifference = myAction.oldV[bd] - myLevel.goalV[bd];
             newGoalDifference = myAction.newV[bd] - myLevel.goalV[bd];
+            if ((myLevel.attainedVs) && (!myLevel.movedAwayFromVs))  {
+                myLevel.movedAwayFromVs = true;
+                myLevel.movedAwayFromVsTime = myAction.eTime;
+            }
             if (Math.abs(newGoalDifference) < .01) {
                 myAction.goalMsg = ". Local goal met";
-                myLevel.attainedVs = true;
+                if (!myLevel.attainedVs) { //only record time the first time
+                    myLevel.attainedVs = true;
+                    myLevel.attainedVsTime = myAction.eTime;
+                }
             } else if (Math.sign(oldGoalDifference) != Math.sign(newGoalDifference) &&
                 (newGoalDifference > 0)) {
                 myAction.goalMsg = ". Goal overshot";
-                if (myLevel.attainedVs) {myLevel.movedAwayFromVs = true}
             } else if (Math.sign(oldGoalDifference) != Math.sign(newGoalDifference) &&
                 (newGoalDifference < 0)) {
                 myAction.goalMsg = ". Goal undershot";
-                if (myLevel.attainedVs) {myLevel.movedAwayFromVs = true}
             } else if (Math.abs(newGoalDifference) < Math.abs(oldGoalDifference)) {
                 myAction.goalMsg = ". Goal closer";
-                if (myLevel.attainedVs) {myLevel.movedAwayFromVs = true}
             } else if (Math.abs(newGoalDifference) > Math.abs(oldGoalDifference)) {
                 myAction.goalMsg = ". Goal farther";
-                if (myLevel.attainedVs) {myLevel.movedAwayFromVs = true}
             }
             myLevel.R = myAction.newR; // Update level so that we have something to compare to next time around
             myLevel.V = myAction.newV;
@@ -272,7 +276,7 @@ function addMessage(ro) {
         };
         myAction.varRefs = getVarRefs(myAction, myAction.msg);
         myAction.score = scoreAction(myAction);
-        myAction.highlightedMsg = highlightMessage(myAction);
+        myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
         myAction.R = myAction.level.R;
         myAction.V = myAction.level.V;
         myAction.level.actions.push(myAction);
@@ -291,11 +295,30 @@ function addCalculation(ro) {
     myAction.varRefs = myAction.cvarRefs.concat(myAction.rvarRefs);
     myAction.score = scoreAction(myAction);
     
-    myAction.highlightedMsg = highlightMessage(myAction);
+    myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
     
     myAction.R = myAction.level.R;
     myAction.V = myAction.level.V;
     myAction.level.actions.push(myAction);
+    }
+}
+
+function addMeasurement(ro, i) {
+    var myAction = addAction(ro, "measurement");
+    //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+    if (!(duplicate(myAction))) {
+        myAction.dial_position = ro["dial_position"];
+        myAction.measurementType = ro["measurement"];
+        myAction.black_probe = ro["black_probe"];
+        myAction.red_probe = ro["red_probe"];
+        myAction.msg = ro["result"].replace(/\s/g, '');
+        myAction.varRefs = getVarRefs(myAction, myAction.msg);
+        myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
+
+        myAction.r1 = ro["r1"];
+        myAction.r2 = ro["r2"];
+        myAction.r3 = ro["r3"];
+        myAction.level.actions.push(myAction);
     }
 }
 
@@ -351,22 +374,6 @@ function addDetachProbe(ro, i) {
         myAction.level.actions.push(myAction);
     } else {
         //        console.log("Passed over a detach probe action at . " + myAction.time);
-    }
-}
-
-function addMeasurement(ro, i) {
-    var myAction = addAction(ro, "measurement");
-    //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    if (!(duplicate(myAction))) {
-        myAction.dial_position = ro["dial_position"];
-        myAction.measurementType = ro["measurement"];
-        myAction.black_probe = ro["black_probe"];
-        myAction.red_probe = ro["red_probe"];
-        myAction.reading = ro["result"].replace(/\s/g, '');
-        myAction.r1 = ro["r1"];
-        myAction.r2 = ro["r2"];
-        myAction.r3 = ro["r3"];
-        myAction.level.actions.push(myAction);
     }
 }
 
