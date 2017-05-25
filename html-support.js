@@ -135,16 +135,23 @@ function setupForm(teams) {
 
     var submitButton = document.createElement("button");
     var clearButton = document.createElement("button");
-    var t = document.createTextNode("Submit query");
+    var downLoadButton = document.createElement("button");
+
+    var submitText = document.createTextNode("Submit query");
+    submitButton.appendChild(submitText);
     submitButton.type = "submit";
     submitButton.setAttribute("onclick", "generateReport(teams); return false;");
-    submitButton.appendChild(t);
     checkForm.appendChild(submitButton);
 
-    var txt = document.createTextNode("Clear screen");
+    var clearText = document.createTextNode("Clear screen");
+    clearButton.appendChild(clearText);
     clearButton.setAttribute("onclick", "clearScreen(); return false;");
-    clearButton.appendChild(txt);
     checkForm.appendChild(clearButton);
+
+    var downLoadText = document.createTextNode("Download");
+    downLoadButton.appendChild(downLoadText);
+    downLoadButton.setAttribute("onclick", "download(teams); return false")
+    checkForm.appendChild(downLoadButton);
 
     console.log("form created");
     var p = document.createElement("p");
