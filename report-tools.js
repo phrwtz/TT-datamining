@@ -131,7 +131,7 @@ function reportResults(teams) {
                                             console.log("stop");
                                         }
                                         var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
-                                        var current = ((myLevel.E / Rtot) * 1000000) / 1000;
+                                        var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
                                         var V1 = myLevel.E * act.R[0] / Rtot;
                                         var V2 = myLevel.E * act.R[1] / Rtot;
@@ -588,7 +588,7 @@ function teacherReport(teams) {
                     var headerRow = document.createElement("tr");
                     table.appendChild(headerRow);
                     var headerCells = [];
-                    for (var i = 0; i < 6; i++) {
+                    for (var i = 0; i < 5; i++) {
                         headerCells[i] = document.createElement("th");
                         headerRow.appendChild(headerCells[i]);
                     }
@@ -629,28 +629,41 @@ function teacherReport(teams) {
                                     var levelTime = Math.round(myLevel.endUTime - myLevel.startUTime);
                                     var levelMinutes = Math.round(levelTime / 60);
                                     var levelSeconds = levelTime % 60;
-                                    var levelMsg = (myLevel.success ? "<br>Goal voltages attained." : "<br>Goal voltages not attained.");
-                                    var levelEMsg = (myLevel.successE ? "<br>E correctly reported." : "<br>E not reported correctly.");
-                                    var levelRMsg = (myLevel.successR ? "<br>R0 correctly reported." : "<br>R0 not reported correctly.");
-                                    var successMsg;
-                                    var cellContents = "Time: " + levelMinutes + ":" + levelSeconds;
-                                    cellContents += levelMsg;
-                                    if ((myLevel.label == "A") || myLevel.label == "B") {
-                                        successMsg = (myLevel.success ? "<br><b>Level successful.</b>" :
-                                            "<br><b>Level unsuccessful.</b>");
-                                    }
-                                    if (myLevel.label == "C") {
-                                        cellContents += levelEMsg;
-                                        successMsg = ((myLevel.success && myLevel.successE) ? "<br><b>Level successful.</b>" :
-                                            "<br><b>Level unsuccessful.</b>");
-                                    }
-                                    if (myLevel.label == "D") {
-                                        cellContents += levelEMsg + levelRMsg;
-                                        successMsg = ((myLevel.success && myLevel.successE && myLevel.successR) ?
-                                            "<br><b>Level successful.</b>" : "<br><b>Level unsuccessful.</b>");
-                                    }
-                                    cellContents += successMsg;
-                                    dataCells[i][j + 1].innerHTML = cellContents;
+							       var levelMsg = (myLevel.success ? 
+							              "<p class='attained'>Goal voltages attained." : 
+							                     "<p class='not'>Goal voltages not attained.");
+							       var levelEMsg = (myLevel.successE ? 
+							              "<p class='attained'>E correctly reported." : 
+							                     "<p class='not'>E not reported correctly.");
+							       var levelRMsg = (myLevel.successR ? 
+							              "<p class='attained'>R0 correctly reported." : 
+							                     "<p class='not'>R0 not reported correctly.");
+							       var successMsg;
+							       var cellContents = "Time: " + levelMinutes + ":" + levelSeconds;    
+							var sTime = new Date(myLevel.startUTime*1000);
+							       var eTime = new Date(myLevel.endUTime*1000);
+							       cellContents += "<p><small>Start: " +  sTime.getHours() + ":" + (sTime.getMinutes()<10?'0':'') + sTime.getMinutes();
+							       cellContents += ",  End: " + eTime.getHours() + ":" + (eTime.getMinutes()<10?'0':'') + eTime.getMinutes() + "</small>";
+							       cellContents += levelMsg;
+							       if ((myLevel.label == "A") || myLevel.label == "B") {
+							            successMsg = (myLevel.success ? 
+							              "<p class='attained'><b>Level successful.</b>" :
+							                     "<p class='not'><b>Level unsuccessful.</b>");
+							       }
+							       if (myLevel.label == "C") {
+							            cellContents += levelEMsg;
+							            successMsg = ((myLevel.success && myLevel.successE) ? 
+							              "<p class='attained'><b>Level successful.</b>" :
+							                     "<p class='not'><b>Level unsuccessful.</b>");
+							       }
+							       if (myLevel.label == "D") {
+							            cellContents += levelEMsg + levelRMsg;
+							            successMsg = ((myLevel.success && myLevel.successE && myLevel.successR) ?
+							              "<p class='attained'><b>Level successful.</b>" :
+							                     "<p class='not'><b>Level unsuccessful.</b>");
+							       }
+								   cellContents += successMsg;
+                                   dataCells[i][j + 1].innerHTML = cellContents;
                                 }
                             }
                         }
