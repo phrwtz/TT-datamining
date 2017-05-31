@@ -23,7 +23,7 @@ function setupForm(teams) {
     }
     var checkForm = document.createElement("form");
     checkForm.ID = "checkForm";
-    var checkTeacher = document.createElement("input");
+    var checkTeacher = document.createElement("b");
     checkTeacher.ID = "checkTeacher";
     checkForm.appendChild(checkTeacher);
     var checkTable = document.createElement("table");
@@ -35,7 +35,7 @@ function setupForm(teams) {
     var headerCell4 = document.createElement("th");
     var headerCell5 = document.createElement("th");
     var headerCell6 = document.createElement("th");
-
+	
     headerCell1.innerHTML = "Teams";
     headerCell2.innerHTML = "Levels";
     headerCell3.innerHTML = "Actions";

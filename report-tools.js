@@ -580,6 +580,19 @@ function teacherReport(teams) {
                     //create a table for this teacher
                     var table = document.createElement("table");
                     tableDiv.appendChild(table);
+					
+					// jc  (under construction to narrow first column using colgroup)
+					// set colgroup to allow width control AND colspan
+					var colgroup = document.createElement("colgroup");					
+					table.appendChild(colgroup);
+					var col1 = document.createElement("col");
+					//col1.setAttribute("class","narrow");
+					//colgroup.appendChild("col1");
+					//col2 = document.createElement("col");
+					//col2.setAttribute("span","4");
+					//colgroup.appendChild("col2"); 
+					
+					
                     var titleRow = document.createElement("tr");
                     table.appendChild(titleRow);
                     var titleCell = document.createElement("th");
@@ -597,6 +610,7 @@ function teacherReport(teams) {
                     headerCells[2].innerHTML = "Level B";
                     headerCells[3].innerHTML = "Level C";
                     headerCells[4].innerHTML = "Level D";
+
 
                     var dataRows = []; //rows that will contain a team name and level data
                     var dataCells = []; //cells that contain the team name and level data

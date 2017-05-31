@@ -11,6 +11,8 @@
             border-top: solid 1px #000000;
             border-right: solid 1px #000000;
             border-collapse: collapse;
+				table-layout: fixed;
+				width: 800px;
         }
 
         td,
@@ -20,8 +22,14 @@
             border-right: solid 1px #000000;
             border-top: solid 1px #000000;
             vertical-align:top;
-				width:180px;
+				/* width:120px; */
         }
+		  th:nth-child(1) {width:120px;}
+		  th:nth-child(2) {width:80px;}	
+		  
+		  .narrow {width:120px;}
+		  
+		  
 		  p {margin:0;}
 		  p.time {color:black;}
 		  p.attained {color:green;}
