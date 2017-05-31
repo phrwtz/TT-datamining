@@ -1,15 +1,15 @@
 function generateReport(teams) {
     //    document.getElementByID("data").innerHTML = ""; //Clear the screen
     reportResults(teams);
-    console.log("results reported");
+    console.log("report-tools: actions reported");
     reportSummary(teams);
-    console.log("summaries reported");
+    console.log("report-tools: resistor-change summaries reported");
     reportActions(teams);
-    console.log("action report generated");
+    console.log("report-tools: action report generated");
     teacherReport(teams);
-    console.log("teacher report generated");
+    console.log("report-tools: teacher report generated");
     reportVarRefs(teams);
-    console.log("variable references report generated");
+    console.log("report-tools: variable references report generated");
 }
 
 function reportResults(teams) {
@@ -526,14 +526,8 @@ function reportActions(teams, type) {
             var tableDiv = document.getElementById("tableDiv");
             while (tableDiv.firstChild) {
                 tableDiv.removeChild(tableDiv.firstChild);
-            }
-        } else {
-            //if it doesn't, create one.
-            var tableDiv = document.createElement("div");
-            tableDiv.id = "tableDiv";
-            //          tableDiv.setAttribute("style", "overflow-x:auto");
-            document.body.appendChild(tableDiv);
-        }
+            } 
+        } // end empty existing div
         for (var j = 0; j < teams.length; j++) {
             var team = teams[j];
             if (team.members.length == 3) {
@@ -545,6 +539,14 @@ function reportActions(teams, type) {
                 scoreTable = makeTeamTable(team, "Total message score", levelsArray, "Total");
                 numberTable = makeTeamTable(team, "Number of messages", levelsArray, "Number");
                 averageTable = makeTeamTable(team, "Average message score", levelsArray, "Average");
+	            
+				var tableDiv = document.createElement("div");
+    	        tableDiv.id = "tableDiv";
+				//tableDiv.style.margin = "10px 0 0 0";
+				//tableDiv.style.whiteSpace = "nowrap";
+				//tableDiv.style.borderColor = "silver";
+        	    document.body.appendChild(tableDiv);
+
                 tableDiv.appendChild(scoreTable);
                 tableDiv.appendChild(numberTable);
                 tableDiv.appendChild(averageTable);
