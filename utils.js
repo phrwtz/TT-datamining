@@ -105,24 +105,25 @@ function scoreAction(action) {
     var ns;
     var score = 0;
     if (vrs) {
-    for (var i = 0; i < vrs.length; i++) { //iterating over the numbers
-        s[i] = 5;
-        for (var j = 0; j < vrs[i].length; j++) { //iterating over the variables for each number
-            if (vrs[i].length == 0) { //if no variable was matched for this number
-                return 0; //the score is zero
-            } else {
-                ns = vrs[i][j][3]; //the score for the j'th variable
-                if (ns < s[i]) { //if it's smaller than the last one
-                    s[i] = ns; //replace the last one
-                } //s[i] is the minimum score over all the variables associated with
-                //the ith number
-            }
-        } //next j
-        score += s[i]; //the score for the action is the sum of the scores for
-        //each of its numbers
-    } //next i
-    return score;
-}}
+        for (var i = 0; i < vrs.length; i++) { //iterating over the numbers
+            s[i] = 5;
+            for (var j = 0; j < vrs[i].length; j++) { //iterating over the variables for each number
+                if (vrs[i].length == 0) { //if no variable was matched for this number
+                    return 0; //the score is zero
+                } else {
+                    ns = vrs[i][j][3]; //the score for the j'th variable
+                    if (ns < s[i]) { //if it's smaller than the last one
+                        s[i] = ns; //replace the last one
+                    } //s[i] is the minimum score over all the variables associated with
+                    //the ith number
+                }
+            } //next j
+            score += s[i]; //the score for the action is the sum of the scores for
+            //each of its numbers
+        } //next i
+        return score;
+    }
+}
 
 function highlightMessage(act, text) { //Highlights the variable names, if any, in a message
     //or measurement reading, Returns the highlighted message or reading
@@ -179,11 +180,11 @@ function getVarRefs(action, text) {
             //returns an array of varRefs;
         }
     }
-    //If we're looking at the result of a calculation and it doesn't correspond to any 
+    //If we're looking at the result of a calculation and it doesn't correspond to any
     //known variable, handle it differently
-    if((action.type == "calculation") && (text == action.rMsg) && (vrs[0] == "??")) {
+    if ((action.type == "calculation") && (text == action.rMsg) && (vrs[0] == "??")) {
         vrs[0] = "uk" + action.level.ukIndex;
-vrLabelsArray.push("uk" + action.level.ukIndex);
+        vrLabelsArray.push("uk" + action.level.ukIndex);
         action.level.ukIndex++;
     }
     return vrs;
@@ -229,7 +230,7 @@ function findVars(act, numStr) {
     //tol is how close two numbers have to be to considered "about equal"
     //Note: we compare tol to |x - y| / (x + y) so it's a relative value
     var tol = .01,
-    thisStr = "";
+        thisStr = "";
     var variableFound = false;
     if (about(num, E, tol)) {
         variableFound = true;
@@ -403,8 +404,10 @@ function findVars(act, numStr) {
         thisStr = "goalImA";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         try {
-        act.level.varRefs[thisStr].push(thisVarRef);
-        } catch(err) {console.log(err + " var ref label = " + thisStr)}
+            act.level.varRefs[thisStr].push(thisVarRef);
+        } catch (err) {
+            console.log(err + " var ref label = " + thisStr)
+        }
         returnArray.push(thisVarRef);
     }
     if (!variableFound) { //if there is no match
@@ -436,7 +439,7 @@ function makeTeams(rowObjs) { //parse the row objects array looking for and popu
 
 function about(num, target, tol) {
     return (Math.abs((num - target) / Math.abs(num + target)) < tol)
-    }
+}
 
 //We invoke this function when the event is "Selected Username" or "Joined Group"
 //we construct a new team from ro and add it to teams array.
@@ -742,26 +745,72 @@ function testScore(varStr) {
     console.log(score(varStr, act));
 }
 
-function download(teams) {
-    data = teams.length
-    fileName = "teamsLength.json";
-    saveData()(data, fileName);
-}
+//     function download(x) {
+//     var data = [["Team", "Level"], ["Animals", "A"]];
+//     var fileName = "csvFile.csv";
+//     var lineArray = [];
+//     data.forEach(function (infoArray, index) {
+//     var line = infoArray.join(",");
+//     lineArray.push(index == 0 ? "data:text/csv;charset=utf-8," + line : line);
+// });
+//     var csvContent = lineArray.join("\n");
+//     saveData()(csvContent, fileName);
+// }
 
-    function saveData () {
+    function saveData (data) {
     var a = document.createElement("a");
     document.body.appendChild(a);
     a.style = "display: none";
     return function (data, fileName) {
-        var json = JSON.stringify(data),
-            blob = new Blob([json], {type: "octet/stream"}),
-            url = window.URL.createObjectURL(blob);
+     var blob = new Blob([data], {type: "text/csv;encoding:utf-8"});
+        var url = window.URL.createObjectURL(blob);
         a.href = url;
         a.download = fileName;
         a.click();
         window.URL.revokeObjectURL(url);
-    };
-};
+    }
+}
 
-// var data = { x: 42, s: "hello, world", d: new Date() };
-// var fileName = "my-download.json";
+function downloadCSV () { //converts the array into a csv file and downloads it
+
+    var csvContent = '';
+    // Loop through the data array and build the csv file to be downloaded
+    // Columna are seperated by "," and rows are separated by "\n"
+    csvArray.forEach(function(infoArray, index) {
+        dataString = infoArray.join(",");
+        csvContent += index < csvArray.length ? dataString + "\n" : dataString;
+    })
+    saveData()(csvContent,csvFilename);
+}
+
+
+// function download(content, fileName, mimeType) {
+//     var a = document.createElement('a');
+//     var blob = new Blob([content], {type: mimeType});
+//     var url = window.URL.createObjectURL(blob);
+//     a.href = url;
+//     a.download = fileName;
+//   //  a.type = mimeType;
+//     document.body.appendChild(a);
+//     a.click();
+//     document.body.removeChild(a);
+//     window.URL.revokeObjectURL(url);
+// }
+
+// function prepareDownload() { //converts an array to csv format, then calls download.
+//     var data = [
+//         ["Team", "Level"],
+//         ["Animals", "A"]
+//     ];
+//     var csvContent = '';
+//     var mimeType = "text/csv;encoding:utf-8";
+//     var csvContent = '';
+
+//     // Loop through the data array and build the csv file to be downloaded
+//     // Columna are seperated by "," and rows are separated by "\n"
+//     data.forEach(function(infoArray, index) {
+//         dataString = infoArray.join(",");
+//         csvContent += index < data.length ? dataString + '\n' : dataString;
+//     })
+//     download(csvContent, "test.csv", mimeType);
+// };
