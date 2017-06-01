@@ -645,6 +645,7 @@ function teacherReport(teams) {
                                     var levelTime = Math.round(myLevel.endUTime - myLevel.startUTime);
                                     var levelMinutes = Math.round(levelTime / 60);
                                     var levelSeconds = levelTime % 60;
+<<<<<<< HEAD
 							       var levelMsg = (myLevel.success ? 
 							              "<p class='attained'>Goal voltages attained." : 
 							                     "<p class='not'>Goal voltages not attained.");
@@ -654,32 +655,66 @@ function teacherReport(teams) {
 							       var levelRMsg = (myLevel.successR ? 
 							              "<p class='attained'>R0 correctly reported." : 
 							                     "<p class='not'>R0 not reported correctly.");
+=======
+									
+							       var levelMsg = (myLevel.success ? 
+							              "<br><font color=green>Goal voltages attained.</font>" : 
+							                     "<br><font color=red>Goal voltages not attained.</font>");
+							       var levelEMsg = (myLevel.successE ? 
+							              "<br><font color=green>E correctly reported.</font>" : 
+							                     "<br><font color=red>E not reported correctly.</font>");
+							       var levelRMsg = (myLevel.successR ? 
+							              "<br><font color=green>R0 correctly reported.</font>" : 
+							                     "<br><font color=red>R0 not reported correctly.</font>");
+>>>>>>> master
 							       var successMsg;
 							       var cellContents = "Time: " + levelMinutes + ":" + levelSeconds;    
 							var sTime = new Date(myLevel.startUTime*1000);
 							       var eTime = new Date(myLevel.endUTime*1000);
+<<<<<<< HEAD
 							       cellContents += "<p><small>Start: " +  sTime.getHours() + ":" + (sTime.getMinutes()<10?'0':'') + sTime.getMinutes();
+=======
+							       cellContents += "<br><small>Start: " +  sTime.getHours() + ":" + (sTime.getMinutes()<10?'0':'') + sTime.getMinutes();
+>>>>>>> master
 							       cellContents += ",  End: " + eTime.getHours() + ":" + (eTime.getMinutes()<10?'0':'') + eTime.getMinutes() + "</small>";
 							       cellContents += levelMsg;
 							       if ((myLevel.label == "A") || myLevel.label == "B") {
 							            successMsg = (myLevel.success ? 
+<<<<<<< HEAD
 							              "<p class='attained'><b>Level successful.</b>" :
 							                     "<p class='not'><b>Level unsuccessful.</b>");
+=======
+							              "<br><b><font color=green>Level successful.</font></b>" :
+							                     "<br><b><font color=red>Level unsuccessful.</font></b>");
+>>>>>>> master
 							       }
 							       if (myLevel.label == "C") {
 							            cellContents += levelEMsg;
 							            successMsg = ((myLevel.success && myLevel.successE) ? 
+<<<<<<< HEAD
 							              "<p class='attained'><b>Level successful.</b>" :
 							                     "<p class='not'><b>Level unsuccessful.</b>");
+=======
+							              "<br><b><font color=green>Level successful.</font></b>" :
+							                     "<br><b><font color=red>Level unsuccessful.</font></b>");
+>>>>>>> master
 							       }
 							       if (myLevel.label == "D") {
 							            cellContents += levelEMsg + levelRMsg;
 							            successMsg = ((myLevel.success && myLevel.successE && myLevel.successR) ?
+<<<<<<< HEAD
 							              "<p class='attained'><b>Level successful.</b>" :
 							                     "<p class='not'><b>Level unsuccessful.</b>");
 							       }
 								   cellContents += successMsg;
                                    dataCells[i][j + 1].innerHTML = cellContents;
+=======
+							              "<br><b><font color=green>Level successful.</font></b>" :
+							                     "<br><b><font color=red>Level unsuccessful.</font></b>");
+							       }
+                                    cellContents += successMsg;
+                                    dataCells[i][j + 1].innerHTML = cellContents;
+>>>>>>> master
                                 }
                             }
                         }
