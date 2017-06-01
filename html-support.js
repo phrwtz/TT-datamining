@@ -92,8 +92,9 @@ function setupForm(teams) {
     onChangeStr = "onchange = \"toggleSelectAll('action')\"";
     labelStr = '<b>All actions</b><br>';
     actionData.innerHTML = "<input + " + typeStr + IDStr + onChangeStr + ">" + labelStr;
-    var actionLabels = ["message", "calculation", "resistorChange", "attach-probe", "detach-probe", 
-    "connect-lead", "disconnect-lead", "measurement", "move-DMM-dial", "submit-V", "submit-ER", "joined-group"];
+    var actionLabels = ["message", "calculation", "resistorChange", "attach-probe", "detach-probe",
+        "connect-lead", "disconnect-lead", "measurement", "move-DMM-dial", "submit-V", "submit-ER", "joined-group"
+    ];
     for (var k = 0; k < actionLabels.length; k++) {
         IDStr = 'id=action-' + actionLabels[k] + " name=action>";
         labelStr = actionLabels[k] + "<br>";
@@ -146,9 +147,9 @@ function setupForm(teams) {
     clearButton.setAttribute("onclick", "clearScreen(); return false;");
     checkForm.appendChild(clearButton);
 
-    var downLoadText = document.createTextNode("Download");
+    var downLoadText = document.createTextNode("File download");
     downLoadButton.appendChild(downLoadText);
-    downLoadButton.setAttribute("onclick", "download(teams); return false")
+    downLoadButton.setAttribute("onclick", "downloadCSV(); return false;");
     checkForm.appendChild(downLoadButton);
 
     console.log("form created");
