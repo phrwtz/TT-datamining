@@ -1,15 +1,15 @@
 function generateReport(teams) {
     //    document.getElementByID("data").innerHTML = ""; //Clear the screen
     reportResults(teams);
-    console.log("results reported");
+    console.log("report-tools: actions reported");
     reportSummary(teams);
-    console.log("summaries reported");
+    console.log("report-tools: resistor-change summaries reported");
     reportActions(teams);
-    console.log("action report generated");
+    console.log("report-tools: action report generated");
     teacherReport(teams);
-    console.log("teacher report generated");
+    console.log("report-tools: teacher report generated");
     reportVarRefs(teams);
-    console.log("variable references report generated");
+    console.log("report-tools: variable references report generated");
 }
 
 function reportResults(teams) {
@@ -526,14 +526,8 @@ function reportActions(teams, type) {
             var tableDiv = document.getElementById("tableDiv");
             while (tableDiv.firstChild) {
                 tableDiv.removeChild(tableDiv.firstChild);
-            }
-        } else {
-            //if it doesn't, create one.
-            var tableDiv = document.createElement("div");
-            tableDiv.id = "tableDiv";
-            //          tableDiv.setAttribute("style", "overflow-x:auto");
-            document.body.appendChild(tableDiv);
-        }
+            } 
+        } // end empty existing div
         for (var j = 0; j < teams.length; j++) {
             var team = teams[j];
             if (team.members.length == 3) {
@@ -545,6 +539,14 @@ function reportActions(teams, type) {
                 scoreTable = makeTeamTable(team, "Total message score", levelsArray, "Total");
                 numberTable = makeTeamTable(team, "Number of messages", levelsArray, "Number");
                 averageTable = makeTeamTable(team, "Average message score", levelsArray, "Average");
+	            
+				var tableDiv = document.createElement("div");
+    	        tableDiv.id = "tableDiv";
+				//tableDiv.style.margin = "10px 0 0 0";
+				//tableDiv.style.whiteSpace = "nowrap";
+				//tableDiv.style.borderColor = "silver";
+        	    document.body.appendChild(tableDiv);
+
                 tableDiv.appendChild(scoreTable);
                 tableDiv.appendChild(numberTable);
                 tableDiv.appendChild(averageTable);
@@ -580,6 +582,19 @@ function teacherReport(teams) {
                     //create a table for this teacher
                     var table = document.createElement("table");
                     tableDiv.appendChild(table);
+					
+					// jc  (under construction to narrow first column using colgroup)
+					// set colgroup to allow width control AND colspan
+					var colgroup = document.createElement("colgroup");					
+					table.appendChild(colgroup);
+					var col1 = document.createElement("col");
+					//col1.setAttribute("class","narrow");
+					//colgroup.appendChild("col1");
+					//col2 = document.createElement("col");
+					//col2.setAttribute("span","4");
+					//colgroup.appendChild("col2"); 
+					
+					
                     var titleRow = document.createElement("tr");
                     table.appendChild(titleRow);
                     var titleCell = document.createElement("th");
@@ -597,6 +612,7 @@ function teacherReport(teams) {
                     headerCells[2].innerHTML = "Level B";
                     headerCells[3].innerHTML = "Level C";
                     headerCells[4].innerHTML = "Level D";
+
 
                     var dataRows = []; //rows that will contain a team name and level data
                     var dataCells = []; //cells that contain the team name and level data

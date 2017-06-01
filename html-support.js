@@ -21,12 +21,16 @@ function setupForm(teams) {
         var checkDiv = document.createElement("div");
         checkDiv.id = "checkDiv";
     }
-    var checkForm = document.createElement("form");
+	var checkForm = document.createElement("form");	// coming soon: enter name
     checkForm.ID = "checkForm";
+	checkForm.style.margin = "5px";
     var checkTeacher = document.createElement("input");
     checkTeacher.ID = "checkTeacher";
+	checkTeacher.value = "...coming soon: enter teacher name here";	
+	checkTeacher.style.width = "250px";
     checkForm.appendChild(checkTeacher);
     var checkTable = document.createElement("table");
+	checkTable.style.margin = "5px";
     var headerRow = document.createElement("tr");
     var checkBoxRow = document.createElement("tr");
     var headerCell1 = document.createElement("th");
@@ -35,7 +39,7 @@ function setupForm(teams) {
     var headerCell4 = document.createElement("th");
     var headerCell5 = document.createElement("th");
     var headerCell6 = document.createElement("th");
-
+	
     headerCell1.innerHTML = "Teams";
     headerCell2.innerHTML = "Levels";
     headerCell3.innerHTML = "Actions";
@@ -57,7 +61,9 @@ function setupForm(teams) {
     var varRefData = document.createElement("td");
     var teacherData = document.createElement("td");
 
-    var typeStr = 'type="checkbox"  ';
+    var typeStr = 'type="checkbox"  '; 
+	
+	// Teams
     var IDStr = 'id="all-teams" name="team" ';
     var onChangeStr = "onchange = \"toggleSelectAll('team')\"";
     var labelStr = '<b>All teams</b><br>';
@@ -67,16 +73,7 @@ function setupForm(teams) {
         labelStr = teams[i].name + "<br>";
         teamData.innerHTML += "<input " + typeStr + IDStr + labelStr;
     }
-
-    IDStr = 'id="all-teachers" name="teachers" ';
-    onChangeStr = "onchange = \"toggleSelectAll('teachers')\"";
-    labelStr = '<b>All teachers</b><br>';
-    teacherData.innerHTML = "<input " + typeStr + IDStr + onChangeStr + ">" + labelStr;
-    for (j = 0; j < teachers.length; j++) {
-        IDStr = 'id=report-' + teachers[j] + ' name=teachers>';
-        teacherData.innerHTML += "<input " + typeStr + IDStr + teachers[j] + "<br>";
-    }
-
+	// Levels
     IDStr = 'id="all-levels" name="level" ';
     onChangeStr = "onchange = \"toggleSelectAll('level')\"";
     labelStr = '<b>All levels</b><br>';
@@ -87,7 +84,7 @@ function setupForm(teams) {
         labelStr = levelLabels[j] + "<br>";
         levelData.innerHTML += "<input " + typeStr + IDStr + labelStr;
     }
-
+	// Actions
     IDStr = 'id="all-actions" name="action" ';
     onChangeStr = "onchange = \"toggleSelectAll('action')\"";
     labelStr = '<b>All actions</b><br>';
@@ -99,7 +96,7 @@ function setupForm(teams) {
         labelStr = actionLabels[k] + "<br>";
         actionData.innerHTML += "<input " + typeStr + IDStr + labelStr;
     }
-
+	// Variable Refs
     IDStr = 'id="all-varRefs" name="varRef" ';
     onChangeStr = "onchange = \"toggleSelectAll('varRef')\"";
     labelStr = '<b>All refs</b><br>';
@@ -109,7 +106,7 @@ function setupForm(teams) {
         labelStr = vrLabelsArray[kk] + "<br>";
         varRefData.innerHTML += "<input + " + typeStr + IDStr + labelStr;
     }
-
+	// Summary Data
     var summaryNames = ["rChg", "iRep", "results"];
     var summaryIDs = ["resistor-change", "action-scores", "teacher-report"];
     var summaryLabels = ["Resistor changes", "Message scores"];
@@ -117,6 +114,15 @@ function setupForm(teams) {
         IDStr = 'id = summary-' + summaryIDs[l] + " name=summary>";
         labelStr = summaryLabels[l] + "<br>";
         summaryData.innerHTML += "<input " + typeStr + IDStr + labelStr;
+    }
+	//Teacher Reports
+    IDStr = 'id="all-teachers" name="teachers" ';
+    onChangeStr = "onchange = \"toggleSelectAll('teachers')\"";
+    labelStr = '<b>All teachers</b><br>';
+    teacherData.innerHTML = "<input " + typeStr + IDStr + onChangeStr + ">" + labelStr;
+    for (j = 0; j < teachers.length; j++) {
+        IDStr = 'id=report-' + teachers[j] + ' name=teachers>';
+        teacherData.innerHTML += "<input " + typeStr + IDStr + teachers[j] + "<br>";
     }
 
     document.body.appendChild(checkDiv);
@@ -144,7 +150,7 @@ function setupForm(teams) {
     clearButton.appendChild(txt);
     checkForm.appendChild(clearButton);
 
-    console.log("form created");
+    console.log("html-support setupForm: check-boxes form created");
     var p = document.createElement("p");
     p.id = "data";
     checkDiv.appendChild(p);

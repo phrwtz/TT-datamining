@@ -14,7 +14,7 @@ vrLabelsArray = ["E", "R0", "R1", "R2", "R3", "sumRs", "sumRsPlusR0", "V0", "V1"
 
 function parseCSV() {
     var filteredTeams = [];
-    console.log("starting parse");
+    console.log("parse-file: starting parse");
     teams = []; //Clear the teams array (which might be populated if we haven't
     //refreshed the page).
     var regex = /^([a-zA-Z0-9\s_\\.\-:])+(.csv)$/;
@@ -25,11 +25,11 @@ function parseCSV() {
                 console.log(err);
             }
             reader.onloadend = function(e) {
-                console.log("file loaded");
+                console.log("parse-file: file loaded");
                 var obj = Papa.parse(e.target.result);
-                console.log("data parsed");
+                console.log("parse-file: data parsed");
                 rowObjs = arrayToObjects(obj.data);
-                console.log("row objects created");
+                console.log("parse-file: row objects created");
                 teams = makeTeams(rowObjs);
                 for (var i = 0; i < teams.length; i++) {
                     if (teams[i].members.length == 3) {
@@ -37,11 +37,11 @@ function parseCSV() {
                     }
                 }
                 teams = filteredTeams;
-                console.log("teams generated");
+                console.log("parse-file: " + teams.length + " teams found");
                 changes = analyze(rowObjs);
-                console.log("analysis complete");
+                console.log("parse-file: analysis complete");
                 setupForm(teams);
-                console.log("form set up");
+                console.log("parse-file: form set up");
             }
             reader.readAsText(fileInput.files[0]);
         } else {
