@@ -113,10 +113,6 @@ function reportResults(teams) {
                         document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent: </span>" + messageCount[0] + " + " + messageCount[1] + " + " + messageCount[2] + " = " + messageTotal + "<br>";
                         document.getElementById("data").innerHTML += "<span style=\"color:#FF00FF;\">Calculations performed: </span>" + calculationCount[0] + " + " + calculationCount[1] + " + " + calculationCount[2] + " = " + calculationTotal + "<br>";
                         document.getElementById("data").innerHTML += "<span style=\"color:#0000FF;\">Resistor changes: </span>" + resistorChangeCount[0] + " + " + resistorChangeCount[1] + " + " + resistorChangeCount[2] + " = " + resistorChangeTotal + "<br><br>";
-
-//Set up file name for csv download
-csvFilename = myLevel.team.name + myLevel.label + ".csv";
-csvArray[0] = ["Time", "Action", "Actor", "Value"];
                         for (var i = 0; i < acts.length; i++) {
                             var act = acts[i],
                                 bd = act.board + 1,
@@ -233,8 +229,8 @@ csvArray[0] = ["Time", "Action", "Actor", "Value"];
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
-var newRow = [act.eTime,act.type,act.actor.name,act.msg];
-csvArray.push(newRow);
+                                        var newRow = [team.name, myLevel.label, act.eTime, act.type, act.actor.name, act.msg];
+                                        csvArray.push(newRow);
                                     }
                                     break;
 
@@ -252,6 +248,8 @@ csvArray.push(newRow);
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
+                                        var newRow = [team.name, myLevel.label, act.eTime, act.type, act.actor.name, "", act.cMsg, act.rMsg];
+                                        csvArray.push(newRow);
                                     }
                                     break;
 

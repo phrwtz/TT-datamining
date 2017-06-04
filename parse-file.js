@@ -10,7 +10,7 @@ var timeZone = -5; //offset for Eastern Standard Time
 var vrLabelsArray = ["E", "R0", "R1", "R2", "R3", "sumRs", "sumRsPlusR0", "V0", "V1", "V2", "V3", 
 "sumVs", "goalR1", "goalR2", "goalR3", "sumGoalRs", "goalV0", "goalV1", "goalV2", "goalV3", "sumGoalVs", 
 "Rtot", "goalRtot", "IA", "ImA", "goalIA", "goalImA", "??"] //Array of varRef labels (used to label
-var csvArray = [[]]; //Array of values to be downloaded as a .csv file
+var csvArray = [["Team", "Level","Time", "Action", "Actor", "Message", "Input", "Result"]]; //Array of values to be downloaded as a .csv file
 var csvFilename;
 
 function parseCSV() {
@@ -27,6 +27,9 @@ function parseCSV() {
             }
             reader.onloadend = function(e) {
                 console.log("file loaded");
+                var fileName = fileInput.files[0].name;
+                var truncatedFilename = fileName.slice(0, (fileName.length - 4));
+                csvFilename = truncatedFilename + ".LOGS.csv"
                 var obj = Papa.parse(e.target.result);
                 console.log("data parsed");
                 rowObjs = arrayToObjects(obj.data);
