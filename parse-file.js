@@ -26,14 +26,10 @@ function parseCSV() {
                 console.log(err);
             }
             reader.onloadend = function(e) {
-<<<<<<< HEAD
                 console.log("file loaded");
                 var fileName = fileInput.files[0].name;
                 var truncatedFilename = fileName.slice(0, (fileName.length - 4));
                 csvFilename = truncatedFilename + ".LOGS.csv"
-=======
-                console.log("parse-file: file loaded");
->>>>>>> gh-pages
                 var obj = Papa.parse(e.target.result);
                 console.log("parse-file: data parsed");
                 rowObjs = arrayToObjects(obj.data);
