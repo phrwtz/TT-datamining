@@ -562,7 +562,7 @@ function addMember(myTeam, ro) { //If the member doesn't already exist, construc
                 } else if (studentDataObjs[i] != myTeam) {
                     console.log("More than one team found for student id " + myMember.id +
                         ", first team = " + studentDataObjs[i]["team"].name +
-                        ", second team = " + myTeam.name + ", time = " + ro["time"]);
+                        ", second team = " + myTeam.name + ", time = " + unixTimeConversion(ro["time"]));
                 }
                 studentDataObjs[i]["team"] = myTeam;
                 myMember.studentName = studentDataObjs[i]["Student Name"];
@@ -695,7 +695,7 @@ function unixTimeConversion(uTime) {
     // multiplied by 1000 so that the argument is in milliseconds, not seconds.
     var date = new Date(uTime * 1000);
     var year = date.getFullYear();
-    var month = date.getMonth();
+    var month = date.getMonth()+1;
     var day = date.getDate();
     var hours = date.getHours();
     var minutes = date.getMinutes();

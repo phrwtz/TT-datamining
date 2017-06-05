@@ -1,12 +1,13 @@
 function parseStudentData() {
-    console.log("starting student data parse");
+    console.log("student data: start parse");
     var reader = new FileReader();
     reader.onloadend = function(e) {
-        console.log("student data loaded");
+        console.log("student data: file loaded");
         var obj = Papa.parse(e.target.result);
-        console.log("student data parsed");
+        console.log("student data: parsed");
         studentDataObjs = arrayToObjects(obj.data);
-        console.log("student data objects created");
+		studentCount = studentDataObjs.length;
+        console.log("student data: " + studentCount + " students created");
     }
     reader.readAsText(studentDataInput.files[0]);
 }
