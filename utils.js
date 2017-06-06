@@ -771,8 +771,11 @@ function testScore(varStr) {
     }
 }
 
-function downloadCSV () { //converts the array into a csv file and downloads it
-
+function downloadCSV() { //converts the array into a csv file and downloads it
+    if (csvArray.length < 2) {
+        alert("You must run a query before downloading a file!");
+        return;
+    }
     var csvContent = '';
     // Loop through the data array and build the csv file to be downloaded
     // Columna are seperated by "," and rows are separated by "\n"
@@ -782,35 +785,3 @@ function downloadCSV () { //converts the array into a csv file and downloads it
     })
     saveData()(csvContent,csvFilename);
 }
-
-
-// function download(content, fileName, mimeType) {
-//     var a = document.createElement('a');
-//     var blob = new Blob([content], {type: mimeType});
-//     var url = window.URL.createObjectURL(blob);
-//     a.href = url;
-//     a.download = fileName;
-//   //  a.type = mimeType;
-//     document.body.appendChild(a);
-//     a.click();
-//     document.body.removeChild(a);
-//     window.URL.revokeObjectURL(url);
-// }
-
-// function prepareDownload() { //converts an array to csv format, then calls download.
-//     var data = [
-//         ["Team", "Level"],
-//         ["Animals", "A"]
-//     ];
-//     var csvContent = '';
-//     var mimeType = "text/csv;encoding:utf-8";
-//     var csvContent = '';
-
-//     // Loop through the data array and build the csv file to be downloaded
-//     // Columna are seperated by "," and rows are separated by "\n"
-//     data.forEach(function(infoArray, index) {
-//         dataString = infoArray.join(",");
-//         csvContent += index < data.length ? dataString + '\n' : dataString;
-//     })
-//     download(csvContent, "test.csv", mimeType);
-// };
