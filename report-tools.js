@@ -1,15 +1,15 @@
 function generateReport(teams) {
     //    document.getElementByID("data").innerHTML = ""; //Clear the screen
     reportResults(teams);
-    console.log("results reported");
+    console.log("report-tools: actions reported");
     reportSummary(teams);
-    console.log("summaries reported");
+    console.log("report-tools: resistor-change summaries reported");
     reportActions(teams);
-    console.log("action report generated");
+    console.log("report-tools: action report generated");
     teacherReport(teams);
-    console.log("teacher report generated");
+    console.log("report-tools: teacher report generated");
     reportVarRefs(teams);
-    console.log("variable references report generated");
+    console.log("report-tools: variable references report generated");
 }
 
 function reportResults(teams) {
@@ -113,7 +113,6 @@ function reportResults(teams) {
                         document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent: </span>" + messageCount[0] + " + " + messageCount[1] + " + " + messageCount[2] + " = " + messageTotal + "<br>";
                         document.getElementById("data").innerHTML += "<span style=\"color:#FF00FF;\">Calculations performed: </span>" + calculationCount[0] + " + " + calculationCount[1] + " + " + calculationCount[2] + " = " + calculationTotal + "<br>";
                         document.getElementById("data").innerHTML += "<span style=\"color:#0000FF;\">Resistor changes: </span>" + resistorChangeCount[0] + " + " + resistorChangeCount[1] + " + " + resistorChangeCount[2] + " = " + resistorChangeTotal + "<br><br>";
-
                         for (var i = 0; i < acts.length; i++) {
                             var act = acts[i],
                                 bd = act.board + 1,
@@ -131,7 +130,7 @@ function reportResults(teams) {
                                             console.log("stop");
                                         }
                                         var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
-                                        var current = ((myLevel.E / Rtot) * 1000000) / 1000;
+                                        var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
                                         var V1 = myLevel.E * act.R[0] / Rtot;
                                         var V2 = myLevel.E * act.R[1] / Rtot;
@@ -211,6 +210,8 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.newR[0] + ", R2 = " + act.newR[1] + ", R3 = " + act.newR[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.newV[0] + ", V2 = " + act.newV[1] + ", V3 = " + act.newV[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
+                                        var newRow = [team.name, myLevel.label, act.eTime, act.type, act.actor.name, "", "", "", act.oldR[bd - 1], act.newR[bd - 1]];
+                                        csvArray.push(newRow);
 
                                     }
                                     break;
@@ -230,8 +231,8 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
-
-
+                                        var newRow = [team.name, myLevel.label, act.eTime, act.type, act.actor.name, act.msg];
+                                        csvArray.push(newRow);
                                     }
                                     break;
 
@@ -249,6 +250,8 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
+                                        var newRow = [team.name, myLevel.label, act.eTime, act.type, act.actor.name, "", act.cMsg, act.rMsg];
+                                        csvArray.push(newRow);
                                     }
                                     break;
 
@@ -526,14 +529,8 @@ function reportActions(teams, type) {
             var tableDiv = document.getElementById("tableDiv");
             while (tableDiv.firstChild) {
                 tableDiv.removeChild(tableDiv.firstChild);
-            }
-        } else {
-            //if it doesn't, create one.
-            var tableDiv = document.createElement("div");
-            tableDiv.id = "tableDiv";
-            //          tableDiv.setAttribute("style", "overflow-x:auto");
-            document.body.appendChild(tableDiv);
-        }
+            } 
+        } // end empty existing div
         for (var j = 0; j < teams.length; j++) {
             var team = teams[j];
             if (team.members.length == 3) {
@@ -545,6 +542,14 @@ function reportActions(teams, type) {
                 scoreTable = makeTeamTable(team, "Total message score", levelsArray, "Total");
                 numberTable = makeTeamTable(team, "Number of messages", levelsArray, "Number");
                 averageTable = makeTeamTable(team, "Average message score", levelsArray, "Average");
+	            
+				var tableDiv = document.createElement("div");
+    	        tableDiv.id = "tableDiv";
+				//tableDiv.style.margin = "10px 0 0 0";
+				//tableDiv.style.whiteSpace = "nowrap";
+				//tableDiv.style.borderColor = "silver";
+        	    document.body.appendChild(tableDiv);
+
                 tableDiv.appendChild(scoreTable);
                 tableDiv.appendChild(numberTable);
                 tableDiv.appendChild(averageTable);
@@ -580,6 +585,19 @@ function teacherReport(teams) {
                     //create a table for this teacher
                     var table = document.createElement("table");
                     tableDiv.appendChild(table);
+					
+					// jc  (under construction to narrow first column using colgroup)
+					// set colgroup to allow width control AND colspan
+					var colgroup = document.createElement("colgroup");					
+					table.appendChild(colgroup);
+					var col1 = document.createElement("col");
+					//col1.setAttribute("class","narrow");
+					//colgroup.appendChild("col1");
+					//col2 = document.createElement("col");
+					//col2.setAttribute("span","4");
+					//colgroup.appendChild("col2"); 
+					
+					
                     var titleRow = document.createElement("tr");
                     table.appendChild(titleRow);
                     var titleCell = document.createElement("th");
@@ -588,7 +606,7 @@ function teacherReport(teams) {
                     var headerRow = document.createElement("tr");
                     table.appendChild(headerRow);
                     var headerCells = [];
-                    for (var i = 0; i < 6; i++) {
+                    for (var i = 0; i < 5; i++) {
                         headerCells[i] = document.createElement("th");
                         headerRow.appendChild(headerCells[i]);
                     }
@@ -597,6 +615,7 @@ function teacherReport(teams) {
                     headerCells[2].innerHTML = "Level B";
                     headerCells[3].innerHTML = "Level C";
                     headerCells[4].innerHTML = "Level D";
+
 
                     var dataRows = []; //rows that will contain a team name and level data
                     var dataCells = []; //cells that contain the team name and level data
@@ -629,6 +648,7 @@ function teacherReport(teams) {
                                     var levelTime = Math.round(myLevel.endUTime - myLevel.startUTime);
                                     var levelMinutes = Math.round(levelTime / 60);
                                     var levelSeconds = levelTime % 60;
+<<<<<<< HEAD
 									
 							       var levelMsg = (myLevel.success ? 
 							              "<br><font color=green>Goal voltages attained.</font>" : 
@@ -639,32 +659,65 @@ function teacherReport(teams) {
 							       var levelRMsg = (myLevel.successR ? 
 							              "<br><font color=green>R0 correctly reported.</font>" : 
 							                     "<br><font color=red>R0 not reported correctly.</font>");
+=======
+							       var levelMsg = (myLevel.success ? 
+							              "<p class='attained'>Goal voltages attained." : 
+							                     "<p class='not'>Goal voltages not attained.");
+							       var levelEMsg = (myLevel.successE ? 
+							              "<p class='attained'>E correctly reported." : 
+							                     "<p class='not'>E not reported correctly.");
+							       var levelRMsg = (myLevel.successR ? 
+							              "<p class='attained'>R0 correctly reported." : 
+							                     "<p class='not'>R0 not reported correctly.");
+>>>>>>> gh-pages
 							       var successMsg;
 							       var cellContents = "Time: " + levelMinutes + ":" + levelSeconds;    
 							var sTime = new Date(myLevel.startUTime*1000);
 							       var eTime = new Date(myLevel.endUTime*1000);
+<<<<<<< HEAD
 							       cellContents += "<br><small>Start: " +  sTime.getHours() + ":" + (sTime.getMinutes()<10?'0':'') + sTime.getMinutes();
+=======
+							       cellContents += "<p><small>Start: " +  sTime.getHours() + ":" + (sTime.getMinutes()<10?'0':'') + sTime.getMinutes();
+>>>>>>> gh-pages
 							       cellContents += ",  End: " + eTime.getHours() + ":" + (eTime.getMinutes()<10?'0':'') + eTime.getMinutes() + "</small>";
 							       cellContents += levelMsg;
 							       if ((myLevel.label == "A") || myLevel.label == "B") {
 							            successMsg = (myLevel.success ? 
+<<<<<<< HEAD
 							              "<br><b><font color=green>Level successful.</font></b>" :
 							                     "<br><b><font color=red>Level unsuccessful.</font></b>");
+=======
+							              "<p class='attained'><b>Level successful.</b>" :
+							                     "<p class='not'><b>Level unsuccessful.</b>");
+>>>>>>> gh-pages
 							       }
 							       if (myLevel.label == "C") {
 							            cellContents += levelEMsg;
 							            successMsg = ((myLevel.success && myLevel.successE) ? 
+<<<<<<< HEAD
 							              "<br><b><font color=green>Level successful.</font></b>" :
 							                     "<br><b><font color=red>Level unsuccessful.</font></b>");
+=======
+							              "<p class='attained'><b>Level successful.</b>" :
+							                     "<p class='not'><b>Level unsuccessful.</b>");
+>>>>>>> gh-pages
 							       }
 							       if (myLevel.label == "D") {
 							            cellContents += levelEMsg + levelRMsg;
 							            successMsg = ((myLevel.success && myLevel.successE && myLevel.successR) ?
+<<<<<<< HEAD
 							              "<br><b><font color=green>Level successful.</font></b>" :
 							                     "<br><b><font color=red>Level unsuccessful.</font></b>");
 							       }
                                     cellContents += successMsg;
                                     dataCells[i][j + 1].innerHTML = cellContents;
+=======
+							              "<p class='attained'><b>Level successful.</b>" :
+							                     "<p class='not'><b>Level unsuccessful.</b>");
+							       }
+								   cellContents += successMsg;
+                                   dataCells[i][j + 1].innerHTML = cellContents;
+>>>>>>> gh-pages
                                 }
                             }
                         }

@@ -8,18 +8,19 @@
             color: aqua
         }
         table {
-            border-top: solid 1px black;
-            border-right: solid 1px black;
+            border-top: solid 1px #000000;
+            border-right: solid 1px #000000;
             border-collapse: collapse;
 				table-layout: fixed;
 				/*width: 800px;*/
         }
-<<<<<<< HEAD
-=======
 
->>>>>>> update-analysis-tools
-        td, th {
-            border: solid 1px black;
+        td,
+        th {
+            border-bottom: solid 1px silver;
+            border-left: solid 1px silver;
+            border-right: solid 1px silver;
+            border-top: solid 1px silver;
             vertical-align:top;
 				padding: 3px;
 				/* width:120px; */
@@ -27,28 +28,23 @@
 		  th:nth-child(1) {width:110px;}
 		  th:nth-child(2) {width:80px;}	
 		  
-  
+		  .narrow {width:120px;}
+		  
+		  
 		  p {margin:0;}
 		  p.time {color:black;}
 		  p.attained {color:green;}
 		  p.not {color:red;}
-
-        table.Total, table.Number, table.Average {	/* tables for message summaries */
+        .Average{
+          clear:left;
           display: inline-table;
-			 border-collapse: collapse;
-			 border-bottom: 5px solid #FFDDCC;
         }
-		  .Total td, .Total th, 
-		  .Number td, .Number th, 
-		  .Average td, .Average th {	/* cells for message summaries */
-			  	border: solid 1px silver;
-				font-size: small;
-				text-align: center;
+        .Total, .Number, .Average {
+          display: inline-table;
+        }
+		  table.Total, table.Number, table.Average {
+		  	width: 420px;
 			}
-			.Total th:nth-child(1), .Number th:nth-child(1), .Average th:nth-child(1) {width:70px;}
-			.Total th:nth-child(n+2):nth-child(-n+6) {width:50px;}
-			.Number th:nth-child(n+2):nth-child(-n+6) {width:50px;}
-			.Average th:nth-child(n+2):nth-child(-n+6) {width:50px;}
 			#tableDiv {
 				margin: 10px 0 0 0; /* add a little space between teams */
 				white-space: nowrap; /* always keep these three together */
@@ -62,7 +58,7 @@
 
 <body>
     Student data: <input type="file" id="studentDataInput" onchange= "parseStudentData()">
-    Log file: <input type="file" id="fileInput" name="file" onchange= "parseCSV()">
+    Log file: <input type="file" id="fileInput" onchange= "parseCSV()">
     <script src="parse-student-data.js"></script>
     <script src="html-support.js"></script>
     <script src="parse-file.js"></script>
