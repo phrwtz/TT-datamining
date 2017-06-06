@@ -772,7 +772,6 @@ function testScore(varStr) {
 }
 
 function downloadCSV () { //converts the array into a csv file and downloads it
-
     var csvContent = '';
     // Loop through the data array and build the csv file to be downloaded
     // Columna are seperated by "," and rows are separated by "\n"
