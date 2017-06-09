@@ -32,7 +32,19 @@ function parseCSV() {
                 csvFilename = truncatedFilename + ".LOGS.csv"
                 var obj = Papa.parse(e.target.result);
                 console.log("parse-file: data parsed");
-                rowObjs = arrayToObjects(obj.data);
+                
+//Sort obj by time
+                var headerArray = obj.data[0];               
+                var dataArray = obj.data.slice(1, obj.data.length) //omit the header row when sorting
+                dataArray.sort(sortByTime);
+                var dataPlusHeaderArray = new Array;
+                dataPlusHeaderArray[0] = headerArray;
+                for (var ii = 1; ii < dataArray.length + 1; ii++) {
+                    dataPlusHeaderArray[ii] = dataArray[ii - 1];
+                }
+                
+//Turn the rows into objects
+                rowObjs = arrayToObjects(dataPlusHeaderArray);
                 console.log("parse-file: row objects created");
                 teams = makeTeams(rowObjs);
                 for (var i = 0; i < teams.length; i++) {

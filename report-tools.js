@@ -367,8 +367,13 @@ function reportVarRefs(teams) {
                                             t = "<span style=\"color:#FF0000;\">message</span>";
                                             break;
                                         case "calculation":
-                                            t = "<span style=\"color:#FF00FF;\">calculation</span>";
-                                            break;
+                                            if (variableInVarRef(vrStr, act.cvarRefs)) {
+                                                t = "<span style=\"color:#FF00FF;\">calculation input</span>";
+                                                break;
+                                            } else if (variableInVarRef(vrStr, act.rvarRefs)) {
+                                                t = "<span style=\"color:#FF00FF;\">calculation result</span>";
+                                                break;
+                                            }
                                         case "measurement":
                                             t = "<span style=\"color:#0000FF;\">measurement</span>";
                                             break;
@@ -385,6 +390,15 @@ function reportVarRefs(teams) {
             }
         }
     }
+}
+
+function variableInVarRef(vrStr, vrArray) { //Looks for the vrStr in vrArray. Returns true if found. 
+    for (var i = 0; i < vrArray.length; i++) {
+        if (vrArray[i][0][1] == vrStr) {
+            return true;
+        }
+    }
+    return false;
 }
 
 //Reports on total number of resistor changes in each category for each team member, per level.
