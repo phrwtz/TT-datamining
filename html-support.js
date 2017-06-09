@@ -28,7 +28,7 @@ function setupForm(teams) {
     checkTeacher.ID = "checkTeacher";
 	checkTeacher.value = "...coming soon: enter teacher name here";	
 	checkTeacher.style.width = "250px";
-    checkForm.appendChild(checkTeacher);
+    //checkForm.appendChild(checkTeacher);
     var checkTable = document.createElement("table");
 	checkTable.style.margin = "5px";
     var headerRow = document.createElement("tr");

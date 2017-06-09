@@ -159,7 +159,8 @@ function highlightMessage(act, text) { //Highlights the variable names, if any, 
 
 function getVarRefs(action, text) {
     //returns an array (possibly empty) of variable references contained in text.
-    //(the message of a message action and/or the input or output of a calculation)
+    //(the message of a message action, the input or output of a calculation, or the
+    //result of a measurement.)
     //A variable reference is an array consisting of the action in which the
     //reference occurs, a string representing the variable that is matched, a string
     //representing the number that was matched, and a numerical score indicating whether
@@ -517,10 +518,10 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
         addLevelValues(myLevel, ro);
         myLevel.varRefs = function() {} //List of references to known variables
         //Each property is a variable label and is associated with an array of
-        //actions (messages and calculations) that contain a reference
+        //actions (messages, calculations, measurements) that contain a reference
         //to that variable, paired with a string that defines whether the
         //variable is globally known, known to the actor, known to some other
-        //team member, or unknown (e.g., E or R0 at higher levels)
+        //team member, or unknown.
         initializeVarRefs(myLevel); //Set all the arrays empty
         myLevel.actions = [];
     }
@@ -628,8 +629,6 @@ function getLevel(ro) { //assumes that groupName and levelName are properties of
             myLevel.team = myTeam;
             myLevel.actions = [];
             myLevel.success = false;
-            //    myLevel.varRefs = function() {}
-            //    initializeVarRefs(myLevel); //Set all the arrays empty
         }
     }
     return myLevel;
@@ -707,7 +706,7 @@ function unixTimeConversion(uTime) {
     return (formattedTime);
 }
 
-function arrayToObjects(rows) {
+function arrayToObjects(rows) { //takes and array with a header and some data and returns objects
     var headers = rows[0];
 
     function rowObj() {};
@@ -784,4 +783,13 @@ function downloadCSV() { //converts the array into a csv file and downloads it
         csvContent += index < csvArray.length ? dataString + "\n" : dataString;
     })
     saveData()(csvContent,csvFilename);
+}
+
+function sortByTime(a, b) {
+    if (a[5] === b[5]) {
+        return 0;
+    }
+    else {
+        return (a[5] < b[5]) ? -1 : 1;
+    }
 }
