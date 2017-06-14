@@ -524,13 +524,13 @@ function reportSummary(teams) {
 
 function reportActions(teams, type) {
     if ($("#summary-action-scores")[0].checked) {
-        //empty the div if it exists
-        if (document.getElementById("tableDiv")) {
-            var tableDiv = document.getElementById("tableDiv");
-            while (tableDiv.firstChild) {
-                tableDiv.removeChild(tableDiv.firstChild);
-            } 
-        } // end empty existing div
+//        //empty the div if it exists
+//        if (document.getElementByClassName("tableSummary")) {
+//            var tableSummary = document.getElementByClassName("tableSummary");
+//            while (tableSummary.firstChild) {  // keep removing the top one, until they are all gone
+//                tableSummary.removeChild(tableSummary.firstChild);
+//            } 
+//        } // end empty existing div
         for (var j = 0; j < teams.length; j++) {
             var team = teams[j];
             if (team.members.length == 3) {
@@ -543,16 +543,13 @@ function reportActions(teams, type) {
                 numberTable = makeTeamTable(team, "Number of messages", levelsArray, "Number");
                 averageTable = makeTeamTable(team, "Average message score", levelsArray, "Average");
 	            
-				var tableDiv = document.createElement("div");
-    	        tableDiv.id = "tableDiv";
-				//tableDiv.style.margin = "10px 0 0 0";
-				//tableDiv.style.whiteSpace = "nowrap";
-				//tableDiv.style.borderColor = "silver";
-        	    document.body.appendChild(tableDiv);
+				var tableSummary = document.createElement("div");
+				tableSummary.className = "tableSummary";
+        	    document.body.appendChild(tableSummary);
 
-                tableDiv.appendChild(scoreTable);
-                tableDiv.appendChild(numberTable);
-                tableDiv.appendChild(averageTable);
+                tableSummary.appendChild(scoreTable);
+                tableSummary.appendChild(numberTable);
+                tableSummary.appendChild(averageTable);
             }
         }
     }
@@ -648,17 +645,6 @@ function teacherReport(teams) {
                                     var levelTime = Math.round(myLevel.endUTime - myLevel.startUTime);
                                     var levelMinutes = Math.round(levelTime / 60);
                                     var levelSeconds = levelTime % 60;
-<<<<<<< HEAD
-							       var levelMsg = (myLevel.success ? 
-							              "<p class='attained'>Goal voltages attained." : 
-							                     "<p class='not'>Goal voltages not attained.");
-							       var levelEMsg = (myLevel.successE ? 
-							              "<p class='attained'>E correctly reported." : 
-							                     "<p class='not'>E not reported correctly.");
-							       var levelRMsg = (myLevel.successR ? 
-							              "<p class='attained'>R0 correctly reported." : 
-							                     "<p class='not'>R0 not reported correctly.");
-=======
 									
 							       var levelMsg = (myLevel.success ? 
 							              "<br><font color=green>Goal voltages attained.</font>" : 
@@ -669,55 +655,32 @@ function teacherReport(teams) {
 							       var levelRMsg = (myLevel.successR ? 
 							              "<br><font color=green>R0 correctly reported.</font>" : 
 							                     "<br><font color=red>R0 not reported correctly.</font>");
->>>>>>> master
 							       var successMsg;
 							       var cellContents = "Time: " + levelMinutes + ":" + levelSeconds;    
 							var sTime = new Date(myLevel.startUTime*1000);
 							       var eTime = new Date(myLevel.endUTime*1000);
-<<<<<<< HEAD
-							       cellContents += "<p><small>Start: " +  sTime.getHours() + ":" + (sTime.getMinutes()<10?'0':'') + sTime.getMinutes();
-=======
 							       cellContents += "<br><small>Start: " +  sTime.getHours() + ":" + (sTime.getMinutes()<10?'0':'') + sTime.getMinutes();
->>>>>>> master
 							       cellContents += ",  End: " + eTime.getHours() + ":" + (eTime.getMinutes()<10?'0':'') + eTime.getMinutes() + "</small>";
 							       cellContents += levelMsg;
 							       if ((myLevel.label == "A") || myLevel.label == "B") {
 							            successMsg = (myLevel.success ? 
-<<<<<<< HEAD
-							              "<p class='attained'><b>Level successful.</b>" :
-							                     "<p class='not'><b>Level unsuccessful.</b>");
-=======
 							              "<br><b><font color=green>Level successful.</font></b>" :
 							                     "<br><b><font color=red>Level unsuccessful.</font></b>");
->>>>>>> master
 							       }
 							       if (myLevel.label == "C") {
 							            cellContents += levelEMsg;
 							            successMsg = ((myLevel.success && myLevel.successE) ? 
-<<<<<<< HEAD
-							              "<p class='attained'><b>Level successful.</b>" :
-							                     "<p class='not'><b>Level unsuccessful.</b>");
-=======
 							              "<br><b><font color=green>Level successful.</font></b>" :
 							                     "<br><b><font color=red>Level unsuccessful.</font></b>");
->>>>>>> master
 							       }
 							       if (myLevel.label == "D") {
 							            cellContents += levelEMsg + levelRMsg;
 							            successMsg = ((myLevel.success && myLevel.successE && myLevel.successR) ?
-<<<<<<< HEAD
-							              "<p class='attained'><b>Level successful.</b>" :
-							                     "<p class='not'><b>Level unsuccessful.</b>");
-							       }
-								   cellContents += successMsg;
-                                   dataCells[i][j + 1].innerHTML = cellContents;
-=======
 							              "<br><b><font color=green>Level successful.</font></b>" :
 							                     "<br><b><font color=red>Level unsuccessful.</font></b>");
 							       }
                                     cellContents += successMsg;
                                     dataCells[i][j + 1].innerHTML = cellContents;
->>>>>>> master
                                 }
                             }
                         }
