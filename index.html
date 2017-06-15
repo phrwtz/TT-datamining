@@ -8,30 +8,52 @@
             color: aqua
         }
         table {
-            border-top: solid 1px #000000;
-            border-right: solid 1px #000000;
             border-collapse: collapse;
+				table-layout: fixed;
         }
 
-        td,
-        th {
-            border-bottom: solid 1px #000000;
-            border-left: solid 1px #000000;
-            border-right: solid 1px #000000;
-            border-top: solid 1px #000000;
+        td, th {
+            border: solid 1px black;
             vertical-align:top;
+				padding: 3px;
         }
-        .Average{
-          clear:left;
+		  th:nth-child(1) {width:110px;}
+		  th:nth-child(2) {width:80px;}	
+		  
+  
+		  p {margin:0;}
+		  p.time {color:black;}
+		  p.attained {color:green;}
+		  p.not {color:red;}
+
+        table.Total, table.Number, table.Average {	/* tables for message summaries */
           display: inline-table;
+			 border-collapse: collapse;
+			 border-bottom: 5px solid #FFDDCC;
         }
-        .Number, .Total {
-          display: inline-table;
-        }
+		  .Total td, .Total th, 
+		  .Number td, .Number th, 
+		  .Average td, .Average th {	/* cells for message summaries */
+			  	border: solid 1px silver;
+				font-size: small;
+				text-align: center;
+			}
+			.Total th:nth-child(1), .Number th:nth-child(1), .Average th:nth-child(1) {width:70px;}
+			.Total th:nth-child(n+2):nth-child(-n+6) {width:50px;}
+			.Number th:nth-child(n+2):nth-child(-n+6) {width:50px;}
+			.Average th:nth-child(n+2):nth-child(-n+6) {width:50px;}
+			#tableDiv {
+				margin: 10px 0 0 0; /* add a little space between teams */
+			}
+			.tableSummary { // class for summary tables
+				margin: 10px 0 0 0; /* add a little space between teams */
+				white-space: nowrap; /* always keep these three together */
+			}
+		  mark {background-color:#FFFF99;}
     </style>
 
 </head>
-<h1>Analyze Teaching Teamwork Data</h1
+<h1>Analyze Teaching Teamwork Data</h1>
 
 
 <body>
