@@ -8,21 +8,13 @@
             color: aqua
         }
         table {
-            border-top: solid 1px black;
-            border-right: solid 1px black;
             border-collapse: collapse;
 				table-layout: fixed;
-				/*width: 800px;*/
         }
-<<<<<<< HEAD
-=======
-
->>>>>>> update-analysis-tools
         td, th {
             border: solid 1px black;
             vertical-align:top;
-				padding: 3px;
-				/* width:120px; */
+    				padding: 3px;
         }
 		  th:nth-child(1) {width:110px;}
 		  th:nth-child(2) {width:80px;}	
@@ -50,6 +42,9 @@
 			.Number th:nth-child(n+2):nth-child(-n+6) {width:50px;}
 			.Average th:nth-child(n+2):nth-child(-n+6) {width:50px;}
 			#tableDiv {
+				margin: 10px 0 0 0; /* add a little space between teams */
+			}
+			.tableSummary { // class for summary tables
 				margin: 10px 0 0 0; /* add a little space between teams */
 				white-space: nowrap; /* always keep these three together */
 			}

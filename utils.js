@@ -1,12 +1,17 @@
 function clearScreen() { //clears data and summary tables
-    document.getElementById("data").innerHTML = "";
-    if (document.getElementById("tableDiv")) {
-        var tableDiv = document.getElementById("tableDiv");
-        while (tableDiv.firstChild) {
-            tableDiv.removeChild(tableDiv.firstChild);
+    document.getElementById("data").innerHTML = "";	// clear data paragraph
+	
+    if (document.getElementById("tableDiv")) {  // clear tableDiv division
+	   var tableDiv = document.getElementById("tableDiv");
+       while (tableDiv.firstChild) {
+           tableDiv.removeChild(tableDiv.firstChild);
         }
     }
-}
+
+	Array.from(document.getElementsByClassName("tableSummary")).forEach( // clear divisions of this classname
+        		function (e) {e.parentNode.removeChild(e);}
+			); 
+} // end clearScreen
 
 function initializeVarRefs(level) { //Initializes variable references for this level
     for (var i = 0; i < vrLabelsArray.length; i++) {

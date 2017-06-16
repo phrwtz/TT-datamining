@@ -26,14 +26,15 @@ function parseCSV() {
                 console.log(err);
             }
             reader.onloadend = function(e) {
-                console.log("file loaded");
+
+                console.log("parse-file: file loaded");
                 var fileName = fileInput.files[0].name;
                 var truncatedFilename = fileName.slice(0, (fileName.length - 4));
                 csvFilename = truncatedFilename + ".LOGS.csv"
                 var obj = Papa.parse(e.target.result);
                 console.log("parse-file: data parsed");
                 
-//Sort obj by time
+            //Sort obj by time
                 var headerArray = obj.data[0];               
                 var dataArray = obj.data.slice(1, obj.data.length) //omit the header row when sorting
                 dataArray.sort(sortByTime);
@@ -43,7 +44,7 @@ function parseCSV() {
                     dataPlusHeaderArray[ii] = dataArray[ii - 1];
                 }
                 
-//Turn the rows into objects
+            //Turn the rows into objects
                 rowObjs = arrayToObjects(dataPlusHeaderArray);
                 console.log("parse-file: row objects created");
                 teams = makeTeams(rowObjs);

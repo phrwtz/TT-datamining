@@ -28,8 +28,8 @@ function setupForm(teams) {
     checkTeacher.ID = "checkTeacher";
 	checkTeacher.value = "...coming soon: enter teacher name here";	
 	checkTeacher.style.width = "250px";
-    //checkForm.appendChild(checkTeacher);
-    var checkTable = document.createElement("table");
+  //checkForm.appendChild(checkTeacher);
+  var checkTable = document.createElement("table");
 	checkTable.style.margin = "5px";
     var headerRow = document.createElement("tr");
     var checkBoxRow = document.createElement("tr");
@@ -152,13 +152,14 @@ function setupForm(teams) {
     clearButton.appendChild(clearText);
     clearButton.setAttribute("onclick", "clearScreen(); return false;");
     checkForm.appendChild(clearButton);
-
+    console.log("html-support setupForm: check-boxes form created");
+  
     var downLoadText = document.createTextNode("File download");
     downLoadButton.appendChild(downLoadText);
     downLoadButton.setAttribute("onclick", "downloadCSV(); return false;");
     checkForm.appendChild(downLoadButton);
     console.log("form created");
-    
+  
     var p = document.createElement("p");
     p.id = "data";
     checkDiv.appendChild(p);
