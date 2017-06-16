@@ -113,10 +113,6 @@ function reportResults(teams) {
                         document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent: </span>" + messageCount[0] + " + " + messageCount[1] + " + " + messageCount[2] + " = " + messageTotal + "<br>";
                         document.getElementById("data").innerHTML += "<span style=\"color:#FF00FF;\">Calculations performed: </span>" + calculationCount[0] + " + " + calculationCount[1] + " + " + calculationCount[2] + " = " + calculationTotal + "<br>";
                         document.getElementById("data").innerHTML += "<span style=\"color:#0000FF;\">Resistor changes: </span>" + resistorChangeCount[0] + " + " + resistorChangeCount[1] + " + " + resistorChangeCount[2] + " = " + resistorChangeTotal + "<br><br>";
-
-//Set up file name for csv download
-csvFilename = myLevel.team.name + myLevel.label + ".csv";
-csvArray[0] = ["Time", "Action", "Actor", "Value"];
                         for (var i = 0; i < acts.length; i++) {
                             var act = acts[i],
                                 bd = act.board + 1,
@@ -214,6 +210,8 @@ csvArray[0] = ["Time", "Action", "Actor", "Value"];
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.newR[0] + ", R2 = " + act.newR[1] + ", R3 = " + act.newR[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.newV[0] + ", V2 = " + act.newV[1] + ", V3 = " + act.newV[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
+                                        var newRow = [team.name, myLevel.label, act.eTime, act.type, act.actor.name, "", "", "", act.oldR[bd - 1], act.newR[bd - 1]];
+                                        csvArray.push(newRow);
 
                                     }
                                     break;
@@ -233,8 +231,8 @@ csvArray[0] = ["Time", "Action", "Actor", "Value"];
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
-var newRow = [act.eTime,act.type,act.actor.name,act.msg];
-csvArray.push(newRow);
+                                        var newRow = [team.name, myLevel.label, act.eTime, act.type, act.actor.name, act.msg];
+                                        csvArray.push(newRow);
                                     }
                                     break;
 
@@ -252,6 +250,8 @@ csvArray.push(newRow);
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
+                                        var newRow = [team.name, myLevel.label, act.eTime, act.type, act.actor.name, "", act.cMsg, act.rMsg];
+                                        csvArray.push(newRow);
                                     }
                                     break;
 
@@ -367,8 +367,13 @@ function reportVarRefs(teams) {
                                             t = "<span style=\"color:#FF0000;\">message</span>";
                                             break;
                                         case "calculation":
-                                            t = "<span style=\"color:#FF00FF;\">calculation</span>";
-                                            break;
+                                            if (variableInVarRef(vrStr, act.cvarRefs)) {
+                                                t = "<span style=\"color:#FF00FF;\">calculation input</span>";
+                                                break;
+                                            } else if (variableInVarRef(vrStr, act.rvarRefs)) {
+                                                t = "<span style=\"color:#FF00FF;\">calculation result</span>";
+                                                break;
+                                            }
                                         case "measurement":
                                             t = "<span style=\"color:#0000FF;\">measurement</span>";
                                             break;
@@ -385,6 +390,15 @@ function reportVarRefs(teams) {
             }
         }
     }
+}
+
+function variableInVarRef(vrStr, vrArray) { //Looks for the vrStr in vrArray. Returns true if found. 
+    for (var i = 0; i < vrArray.length; i++) {
+        if (vrArray[i][0][1] == vrStr) {
+            return true;
+        }
+    }
+    return false;
 }
 
 //Reports on total number of resistor changes in each category for each team member, per level.
@@ -524,13 +538,6 @@ function reportSummary(teams) {
 
 function reportActions(teams, type) {
     if ($("#summary-action-scores")[0].checked) {
-//        //empty the div if it exists
-//        if (document.getElementByClassName("tableSummary")) {
-//            var tableSummary = document.getElementByClassName("tableSummary");
-//            while (tableSummary.firstChild) {  // keep removing the top one, until they are all gone
-//                tableSummary.removeChild(tableSummary.firstChild);
-//            } 
-//        } // end empty existing div
         for (var j = 0; j < teams.length; j++) {
             var team = teams[j];
             if (team.members.length == 3) {
@@ -583,16 +590,16 @@ function teacherReport(teams) {
                     var table = document.createElement("table");
                     tableDiv.appendChild(table);
 					
-					// jc  (under construction to narrow first column using colgroup)
-					// set colgroup to allow width control AND colspan
-					var colgroup = document.createElement("colgroup");					
-					table.appendChild(colgroup);
-					var col1 = document.createElement("col");
-					//col1.setAttribute("class","narrow");
-					//colgroup.appendChild("col1");
-					//col2 = document.createElement("col");
-					//col2.setAttribute("span","4");
-					//colgroup.appendChild("col2"); 
+                    // jc  (under construction to narrow first column using colgroup)
+                    // set colgroup to allow width control AND colspan
+                    var colgroup = document.createElement("colgroup");					
+                    table.appendChild(colgroup);
+                    var col1 = document.createElement("col");
+                    //col1.setAttribute("class","narrow");
+                    //colgroup.appendChild("col1");
+                    //col2 = document.createElement("col");
+                    //col2.setAttribute("span","4");
+                    //colgroup.appendChild("col2"); 
 					
 					
                     var titleRow = document.createElement("tr");
@@ -645,40 +652,40 @@ function teacherReport(teams) {
                                     var levelTime = Math.round(myLevel.endUTime - myLevel.startUTime);
                                     var levelMinutes = Math.round(levelTime / 60);
                                     var levelSeconds = levelTime % 60;
-									
-							       var levelMsg = (myLevel.success ? 
-							              "<br><font color=green>Goal voltages attained.</font>" : 
-							                     "<br><font color=red>Goal voltages not attained.</font>");
-							       var levelEMsg = (myLevel.successE ? 
-							              "<br><font color=green>E correctly reported.</font>" : 
-							                     "<br><font color=red>E not reported correctly.</font>");
-							       var levelRMsg = (myLevel.successR ? 
-							              "<br><font color=green>R0 correctly reported.</font>" : 
-							                     "<br><font color=red>R0 not reported correctly.</font>");
-							       var successMsg;
-							       var cellContents = "Time: " + levelMinutes + ":" + levelSeconds;    
-							var sTime = new Date(myLevel.startUTime*1000);
-							       var eTime = new Date(myLevel.endUTime*1000);
-							       cellContents += "<br><small>Start: " +  sTime.getHours() + ":" + (sTime.getMinutes()<10?'0':'') + sTime.getMinutes();
-							       cellContents += ",  End: " + eTime.getHours() + ":" + (eTime.getMinutes()<10?'0':'') + eTime.getMinutes() + "</small>";
-							       cellContents += levelMsg;
-							       if ((myLevel.label == "A") || myLevel.label == "B") {
-							            successMsg = (myLevel.success ? 
-							              "<br><b><font color=green>Level successful.</font></b>" :
-							                     "<br><b><font color=red>Level unsuccessful.</font></b>");
-							       }
-							       if (myLevel.label == "C") {
-							            cellContents += levelEMsg;
-							            successMsg = ((myLevel.success && myLevel.successE) ? 
-							              "<br><b><font color=green>Level successful.</font></b>" :
-							                     "<br><b><font color=red>Level unsuccessful.</font></b>");
-							       }
-							       if (myLevel.label == "D") {
-							            cellContents += levelEMsg + levelRMsg;
-							            successMsg = ((myLevel.success && myLevel.successE && myLevel.successR) ?
-							              "<br><b><font color=green>Level successful.</font></b>" :
-							                     "<br><b><font color=red>Level unsuccessful.</font></b>");
-							       }
+
+                                     var levelMsg = (myLevel.success ? 
+                                            "<br><font color=green>Goal voltages attained.</font>" : 
+                                                   "<br><font color=red>Goal voltages not attained.</font>");
+                                     var levelEMsg = (myLevel.successE ? 
+                                            "<br><font color=green>E correctly reported.</font>" : 
+                                                   "<br><font color=red>E not reported correctly.</font>");
+                                     var levelRMsg = (myLevel.successR ? 
+                                            "<br><font color=green>R0 correctly reported.</font>" : 
+                                                   "<br><font color=red>R0 not reported correctly.</font>");
+                                     var successMsg;
+                                     var cellContents = "Time: " + levelMinutes + ":" + levelSeconds;    
+                                     var sTime = new Date(myLevel.startUTime*1000);
+                                     var eTime = new Date(myLevel.endUTime*1000);
+                                     cellContents += "<br><small>Start: " +  sTime.getHours() + ":" + (sTime.getMinutes()<10?'0':'') + sTime.getMinutes();
+                                     cellContents += ",  End: " + eTime.getHours() + ":" + (eTime.getMinutes()<10?'0':'') + eTime.getMinutes() + "</small>";
+                                     cellContents += levelMsg;
+                                     if ((myLevel.label == "A") || myLevel.label == "B") {
+                                          successMsg = (myLevel.success ? 
+                                          "<br><b><font color=green>Level successful.</font></b>" :
+                                                 "<br><b><font color=red>Level unsuccessful.</font></b>");
+                                     }
+                                     if (myLevel.label == "C") {
+                                          cellContents += levelEMsg;
+                                          successMsg = ((myLevel.success && myLevel.successE) ? 
+                                            "<br><b><font color=green>Level successful.</font></b>" :
+                                                   "<br><b><font color=red>Level unsuccessful.</font></b>");
+                                     }
+                                     if (myLevel.label == "D") {
+                                          cellContents += levelEMsg + levelRMsg;
+                                          successMsg = ((myLevel.success && myLevel.successE && myLevel.successR) ?
+                                            "<br><b><font color=green>Level successful.</font></b>" :
+                                                   "<br><b><font color=red>Level unsuccessful.</font></b>");
+                                     }
                                     cellContents += successMsg;
                                     dataCells[i][j + 1].innerHTML = cellContents;
                                 }
