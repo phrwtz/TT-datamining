@@ -10,7 +10,7 @@ var timeZone = -5; //offset for Eastern Standard Time
 var vrLabelsArray = ["E", "R0", "R1", "R2", "R3", "sumRs", "sumRsPlusR0", "V0", "V1", "V2", "V3", 
 "sumVs", "goalR1", "goalR2", "goalR3", "sumGoalRs", "goalV0", "goalV1", "goalV2", "goalV3", "sumGoalVs", 
 "Rtot", "goalRtot", "IA", "ImA", "goalIA", "goalImA", "??"] //Array of varRef labels (used to label
-var csvArray = [[]]; //Array of values to be downloaded as a .csv file
+var csvArray = [["Team", "Level","Time", "Action", "Actor", "Message", "Input", "Result", "Old Resistancde", "New Resistance"]]; //Array of values to be downloaded as a .csv file
 var csvFilename;
 
 function parseCSV() {
@@ -26,10 +26,26 @@ function parseCSV() {
                 console.log(err);
             }
             reader.onloadend = function(e) {
+
                 console.log("parse-file: file loaded");
+                var fileName = fileInput.files[0].name;
+                var truncatedFilename = fileName.slice(0, (fileName.length - 4));
+                csvFilename = truncatedFilename + ".LOGS.csv"
                 var obj = Papa.parse(e.target.result);
                 console.log("parse-file: data parsed");
-                rowObjs = arrayToObjects(obj.data);
+                
+            //Sort obj by time
+                var headerArray = obj.data[0];               
+                var dataArray = obj.data.slice(1, obj.data.length) //omit the header row when sorting
+                dataArray.sort(sortByTime);
+                var dataPlusHeaderArray = new Array;
+                dataPlusHeaderArray[0] = headerArray;
+                for (var ii = 1; ii < dataArray.length + 1; ii++) {
+                    dataPlusHeaderArray[ii] = dataArray[ii - 1];
+                }
+                
+            //Turn the rows into objects
+                rowObjs = arrayToObjects(dataPlusHeaderArray);
                 console.log("parse-file: row objects created");
                 teams = makeTeams(rowObjs);
                 for (var i = 0; i < teams.length; i++) {

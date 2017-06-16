@@ -11,11 +11,10 @@
             border-collapse: collapse;
 				table-layout: fixed;
         }
-
         td, th {
             border: solid 1px black;
             vertical-align:top;
-				padding: 3px;
+    				padding: 3px;
         }
 		  th:nth-child(1) {width:110px;}
 		  th:nth-child(2) {width:80px;}	
@@ -58,7 +57,7 @@
 
 <body>
     Student data: <input type="file" id="studentDataInput" onchange= "parseStudentData()">
-    Log file: <input type="file" id="fileInput" onchange= "parseCSV()">
+    Log file: <input type="file" id="fileInput" name="file" onchange= "parseCSV()">
     <script src="parse-student-data.js"></script>
     <script src="html-support.js"></script>
     <script src="parse-file.js"></script>
