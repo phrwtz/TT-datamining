@@ -367,8 +367,13 @@ function reportVarRefs(teams) {
                                             t = "<span style=\"color:#FF0000;\">message</span>";
                                             break;
                                         case "calculation":
-                                            t = "<span style=\"color:#FF00FF;\">calculation</span>";
-                                            break;
+                                            if (variableInVarRef(vrStr, act.cvarRefs)) {
+                                                t = "<span style=\"color:#FF00FF;\">calculation input</span>";
+                                                break;
+                                            } else if (variableInVarRef(vrStr, act.rvarRefs)) {
+                                                t = "<span style=\"color:#FF00FF;\">calculation result</span>";
+                                                break;
+                                            }
                                         case "measurement":
                                             t = "<span style=\"color:#0000FF;\">measurement</span>";
                                             break;
@@ -385,6 +390,15 @@ function reportVarRefs(teams) {
             }
         }
     }
+}
+
+function variableInVarRef(vrStr, vrArray) { //Looks for the vrStr in vrArray. Returns true if found. 
+    for (var i = 0; i < vrArray.length; i++) {
+        if (vrArray[i][0][1] == vrStr) {
+            return true;
+        }
+    }
+    return false;
 }
 
 //Reports on total number of resistor changes in each category for each team member, per level.
@@ -524,13 +538,6 @@ function reportSummary(teams) {
 
 function reportActions(teams, type) {
     if ($("#summary-action-scores")[0].checked) {
-        //empty the div if it exists
-        if (document.getElementById("tableDiv")) {
-            var tableDiv = document.getElementById("tableDiv");
-            while (tableDiv.firstChild) {
-                tableDiv.removeChild(tableDiv.firstChild);
-            } 
-        } // end empty existing div
         for (var j = 0; j < teams.length; j++) {
             var team = teams[j];
             if (team.members.length == 3) {
@@ -543,16 +550,13 @@ function reportActions(teams, type) {
                 numberTable = makeTeamTable(team, "Number of messages", levelsArray, "Number");
                 averageTable = makeTeamTable(team, "Average message score", levelsArray, "Average");
 	            
-				var tableDiv = document.createElement("div");
-    	        tableDiv.id = "tableDiv";
-				//tableDiv.style.margin = "10px 0 0 0";
-				//tableDiv.style.whiteSpace = "nowrap";
-				//tableDiv.style.borderColor = "silver";
-        	    document.body.appendChild(tableDiv);
+				var tableSummary = document.createElement("div");
+				tableSummary.className = "tableSummary";
+        	    document.body.appendChild(tableSummary);
 
-                tableDiv.appendChild(scoreTable);
-                tableDiv.appendChild(numberTable);
-                tableDiv.appendChild(averageTable);
+                tableSummary.appendChild(scoreTable);
+                tableSummary.appendChild(numberTable);
+                tableSummary.appendChild(averageTable);
             }
         }
     }
@@ -586,16 +590,16 @@ function teacherReport(teams) {
                     var table = document.createElement("table");
                     tableDiv.appendChild(table);
 					
-					// jc  (under construction to narrow first column using colgroup)
-					// set colgroup to allow width control AND colspan
-					var colgroup = document.createElement("colgroup");					
-					table.appendChild(colgroup);
-					var col1 = document.createElement("col");
-					//col1.setAttribute("class","narrow");
-					//colgroup.appendChild("col1");
-					//col2 = document.createElement("col");
-					//col2.setAttribute("span","4");
-					//colgroup.appendChild("col2"); 
+                    // jc  (under construction to narrow first column using colgroup)
+                    // set colgroup to allow width control AND colspan
+                    var colgroup = document.createElement("colgroup");					
+                    table.appendChild(colgroup);
+                    var col1 = document.createElement("col");
+                    //col1.setAttribute("class","narrow");
+                    //colgroup.appendChild("col1");
+                    //col2 = document.createElement("col");
+                    //col2.setAttribute("span","4");
+                    //colgroup.appendChild("col2"); 
 					
 					
                     var titleRow = document.createElement("tr");
@@ -649,6 +653,7 @@ function teacherReport(teams) {
                                     var levelMinutes = Math.round(levelTime / 60);
                                     var levelSeconds = levelTime % 60;
 
+<<<<<<< HEAD
 							       var levelMsg = (myLevel.success ? 
 							              "<p class='attained'>Goal voltages attained." : 
 							                     "<p class='not'>Goal voltages not attained.");
@@ -691,6 +696,43 @@ function teacherReport(teams) {
 							       }
 								   cellContents += successMsg;
                                    dataCells[i][j + 1].innerHTML = cellContents;
+=======
+                                     var levelMsg = (myLevel.success ? 
+                                            "<br><font color=green>Goal voltages attained.</font>" : 
+                                                   "<br><font color=red>Goal voltages not attained.</font>");
+                                     var levelEMsg = (myLevel.successE ? 
+                                            "<br><font color=green>E correctly reported.</font>" : 
+                                                   "<br><font color=red>E not reported correctly.</font>");
+                                     var levelRMsg = (myLevel.successR ? 
+                                            "<br><font color=green>R0 correctly reported.</font>" : 
+                                                   "<br><font color=red>R0 not reported correctly.</font>");
+                                     var successMsg;
+                                     var cellContents = "Time: " + levelMinutes + ":" + levelSeconds;    
+                                     var sTime = new Date(myLevel.startUTime*1000);
+                                     var eTime = new Date(myLevel.endUTime*1000);
+                                     cellContents += "<br><small>Start: " +  sTime.getHours() + ":" + (sTime.getMinutes()<10?'0':'') + sTime.getMinutes();
+                                     cellContents += ",  End: " + eTime.getHours() + ":" + (eTime.getMinutes()<10?'0':'') + eTime.getMinutes() + "</small>";
+                                     cellContents += levelMsg;
+                                     if ((myLevel.label == "A") || myLevel.label == "B") {
+                                          successMsg = (myLevel.success ? 
+                                          "<br><b><font color=green>Level successful.</font></b>" :
+                                                 "<br><b><font color=red>Level unsuccessful.</font></b>");
+                                     }
+                                     if (myLevel.label == "C") {
+                                          cellContents += levelEMsg;
+                                          successMsg = ((myLevel.success && myLevel.successE) ? 
+                                            "<br><b><font color=green>Level successful.</font></b>" :
+                                                   "<br><b><font color=red>Level unsuccessful.</font></b>");
+                                     }
+                                     if (myLevel.label == "D") {
+                                          cellContents += levelEMsg + levelRMsg;
+                                          successMsg = ((myLevel.success && myLevel.successE && myLevel.successR) ?
+                                            "<br><b><font color=green>Level successful.</font></b>" :
+                                                   "<br><b><font color=red>Level unsuccessful.</font></b>");
+                                     }
+                                    cellContents += successMsg;
+                                    dataCells[i][j + 1].innerHTML = cellContents;
+>>>>>>> 7564f8f28506879045180036103bd3c8cdf2ab23
                                 }
                             }
                         }

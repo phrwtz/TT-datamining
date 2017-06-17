@@ -293,7 +293,7 @@ function addCalculation(ro) {
     myAction.cvarRefs = getVarRefs(myAction, myAction.cMsg);
     myAction.rvarRefs = getVarRefs(myAction, myAction.rMsg);
     myAction.varRefs = myAction.cvarRefs.concat(myAction.rvarRefs);
-    myAction.score = scoreAction(myAction);
+    myAction.score = scoreAction(myAction); 
     
     myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
     
