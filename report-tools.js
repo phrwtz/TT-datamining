@@ -653,50 +653,6 @@ function teacherReport(teams) {
                                     var levelMinutes = Math.round(levelTime / 60);
                                     var levelSeconds = levelTime % 60;
 
-<<<<<<< HEAD
-							       var levelMsg = (myLevel.success ? 
-							              "<p class='attained'>Goal voltages attained." : 
-							                     "<p class='not'>Goal voltages not attained.");
-							       var levelEMsg = (myLevel.successE ? 
-							              "<p class='attained'>E correctly reported." : 
-							                     "<p class='not'>E not reported correctly.");
-							       var levelRMsg = (myLevel.successR ? 
-							              "<p class='attained'>R0 correctly reported." : 
-							                     "<p class='not'>R0 not reported correctly.");
-
-							       var successMsg;
-							       var cellContents = "Time: " + levelMinutes + ":" + levelSeconds;    
-							var sTime = new Date(myLevel.startUTime*1000);
-							       var eTime = new Date(myLevel.endUTime*1000);
-
-							       cellContents += "<p><small>Start: " +  sTime.getHours() + ":" + (sTime.getMinutes()<10?'0':'') + sTime.getMinutes();
-							       cellContents += ",  End: " + eTime.getHours() + ":" + (eTime.getMinutes()<10?'0':'') + eTime.getMinutes() + "</small>";
-							       cellContents += levelMsg;
-							       if ((myLevel.label == "A") || myLevel.label == "B") {
-							            successMsg = (myLevel.success ? 
-
-							              "<p class='attained'><b>Level successful.</b>" :
-							                     "<p class='not'><b>Level unsuccessful.</b>");
-
-							       }
-							       if (myLevel.label == "C") {
-							            cellContents += levelEMsg;
-							            successMsg = ((myLevel.success && myLevel.successE) ? 
-
-							              "<p class='attained'><b>Level successful.</b>" :
-							                     "<p class='not'><b>Level unsuccessful.</b>");
-
-							       }
-							       if (myLevel.label == "D") {
-							            cellContents += levelEMsg + levelRMsg;
-							            successMsg = ((myLevel.success && myLevel.successE && myLevel.successR) ?
-
-							              "<p class='attained'><b>Level successful.</b>" :
-							                     "<p class='not'><b>Level unsuccessful.</b>");
-							       }
-								   cellContents += successMsg;
-                                   dataCells[i][j + 1].innerHTML = cellContents;
-=======
                                      var levelMsg = (myLevel.success ? 
                                             "<br><font color=green>Goal voltages attained.</font>" : 
                                                    "<br><font color=red>Goal voltages not attained.</font>");
@@ -732,7 +688,6 @@ function teacherReport(teams) {
                                      }
                                     cellContents += successMsg;
                                     dataCells[i][j + 1].innerHTML = cellContents;
->>>>>>> 7564f8f28506879045180036103bd3c8cdf2ab23
                                 }
                             }
                         }
