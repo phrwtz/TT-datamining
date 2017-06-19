@@ -309,9 +309,10 @@ function reportResults(teams) {
 
                                 case "measurement":
                                     if ($("#action-measurement")[0].checked) {
+                                        var currentMsg = (act.currentFlowing ? ", current is flowing" : ", current is not flowing")
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd + ", measured " + act.measurementType + ". Dial is set to " +
-                                            act.dial_position + ", reading is " + act.highlightedMsg + ".<br>");
+                                            act.dial_position + currentMsg + ", reading is " + act.highlightedMsg + ".<br>");
                                     }
                                     break;
 

@@ -311,6 +311,8 @@ function addMeasurement(ro, i) {
         myAction.measurementType = ro["measurement"];
         myAction.black_probe = ro["black_probe"];
         myAction.red_probe = ro["red_probe"];
+        myAction.currentFlow = (ro["currentFlowing"] == "True" ? true : false);
+        myAction.board = ro["board"];
         myAction.msg = ro["result"].replace(/\s/g, '');
         myAction.varRefs = getVarRefs(myAction, myAction.msg);
         myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
