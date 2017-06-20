@@ -1,11 +1,13 @@
 /* simple styles for TT-datamining */
-
+body {
+	margin: 10px;
+	}
 message {
 	color: aqua
 	}
 table {
 	border-collapse: collapse;
-	table-layout: fixed;
+	/* table-layout: fixed; */
 	}
 
 td, th {
@@ -13,8 +15,8 @@ td, th {
 	vertical-align:top;
 	padding: 3px;
 	}
-.checkDiv th:nth-child(1) {width:150px;}
-.checkDiv th:nth-child(2) {width:100px;}
+table.checkDiv th:nth-child(1) {width:150px;}
+table.checkDiv th:nth-child(2) {width:100px;}
 
 
 p {margin:0;}
@@ -34,24 +36,22 @@ table.Total, table.Number, table.Average {	/* tables for message summaries */
 	font-size: small;
 	text-align: center;
 	}
-.Total th:nth-child(1), .Number th:nth-child(1), .Average th:nth-child(1) {width:70px;}
-.Total th:nth-child(n+2):nth-child(-n+6) {width:50px;}
-.Number th:nth-child(n+2):nth-child(-n+6) {width:50px;}
-.Average th:nth-child(n+2):nth-child(-n+6) {width:50px;}
+/* set col widths for all, but wider col 1 */
+.Total th, .Number th .Average th {width:50px;}
+.Total th:first-child, .Number th:first-child, .Average th:first-child {width:70px;}
+
 #tableDiv, .tableDiv {
-	margin: 10px 0px 0px 0px; /* add a little space between teams */
+	margin-top: 10px; /* add a little space between teams */
 	}
-.tableSummary, .tableTeacher { // class for report tables
-	margin: 50px 0px 0px 50px; /* add a little space between teams */
+.tableSummary, .tableTeacher { /* class for report tables */
+	margin: 10px 0px 0px 10px; /* add a little space between teams */
 	white-space: nowrap; /* always keep these three together */
 	}
-.tableTeacher {
-	width: 820px;
-	}
-td.tableTeacher { // defaults for teacher tables
+
+table.tableTeacher td { /* defaults for teacher tables */
 	width: 180px;
 	}
-.tableTeacher td:first-child { // narrow column1 width for teacher tables
+table.tableTeacher td:first-child { /* narrow column1 */
 	width: 100px;
 	}
 
