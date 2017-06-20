@@ -579,7 +579,6 @@ function teacherReport(teams) {
             } else { //if it doesn't, create one.
                 var tableDiv = document.createElement("div");
                 tableDiv.id = "tableDiv";
-                //          tableDiv.setAttribute("style", "overflow-x:auto");
                 document.body.appendChild(tableDiv);
             }
             //run through the array again, reporting on each teacher
@@ -588,26 +587,14 @@ function teacherReport(teams) {
                 if ($("#report-" + teacher)[0].checked) {
                     //create a table for this teacher
                     var table = document.createElement("table");
+					table.className = "tableTeacher";
                     tableDiv.appendChild(table);
-					
-                    // jc  (under construction to narrow first column using colgroup)
-                    // set colgroup to allow width control AND colspan
-                    var colgroup = document.createElement("colgroup");					
-                    table.appendChild(colgroup);
-                    var col1 = document.createElement("col");
-                    //col1.setAttribute("class","narrow");
-                    //colgroup.appendChild("col1");
-                    //col2 = document.createElement("col");
-                    //col2.setAttribute("span","4");
-                    //colgroup.appendChild("col2"); 
-					
-					
-                    var titleRow = document.createElement("tr");
+                    var titleRow = document.createElement("tr"); // row 1: table title
                     table.appendChild(titleRow);
                     var titleCell = document.createElement("th");
                     titleCell.setAttribute("colspan", 5);
                     titleRow.appendChild(titleCell);
-                    var headerRow = document.createElement("tr");
+                    var headerRow = document.createElement("tr"); // row 2: column headings
                     table.appendChild(headerRow);
                     var headerCells = [];
                     for (var i = 0; i < 5; i++) {
@@ -627,8 +614,8 @@ function teacherReport(teams) {
                         myTeam = teams[i];
                         if (myTeam.teacherName == teacher) {
                             titleCell.innerHTML = myTeam.teacherName + ", " + myTeam.class + ": Results by team and level";
-                            if (myTeam.members.length == 3) { //Don't report on teams that don't have three members
-                                dataRows[i] = document.createElement("tr");
+                            if (myTeam.members.length == 3) { // Only report teams having three members
+                                dataRows[i] = document.createElement("tr");	 // row i+2: team, levels a, b, c, d
                                 table.appendChild(dataRows[i]);
                                 dataCells[i] = [];
                                 dataCells[i][0] = document.createElement("td");
