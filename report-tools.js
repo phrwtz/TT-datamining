@@ -204,7 +204,7 @@ function reportResults(teams) {
                                         // }
                                         preTime = act.uTime;
                                         document.getElementById("data").innerHTML += ("<span style=\"color:#0000FF;\">Resistor change:</span> At " + eTime + " seconds " +
-                                            ": " + styledName + " changed R" + (bd) + " from " + act.oldR[bd - 1] +
+                                            "(" + uTime + ") " + styledName + " changed R" + (bd) + " from " + act.oldR[bd - 1] +
                                             " to " + act.newR[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
                                             " to " + act.newV[bd - 1] + ". (Goal is " + myLevel.goalV[bd - 1] + ")" + act.goalMsg + "<br>");
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.newR[0] + ", R2 = " + act.newR[1] + ", R3 = " + act.newR[2] + ";  ");
@@ -227,7 +227,7 @@ function reportResults(teams) {
                                         preTime = act.uTime;
 
                                         document.getElementById("data").innerHTML += ("<span style=\"color:#FF0000;\">Message:</span> At " +
-                                            eTime + " seconds " + act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + "<br>");
+                                            eTime + " seconds " + "(" + uTime + ") " + act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + "<br>");
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
@@ -245,7 +245,7 @@ function reportResults(teams) {
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("<span style=\"color:#FF00FF;\">Calculation:</span> At " + eTime + " seconds " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("<span style=\"color:#FF00FF;\">Calculation:</span> At " + eTime + " seconds " + + "(" + uTime + ") " + act.actor.styledName +
                                             ", board " + bd + ", performed the calculation  " + act.highlightedMsg + ".<br>");
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
@@ -261,9 +261,9 @@ function reportResults(teams) {
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + "(" + uTime + ") " + act.actor.styledName +
                                             ", board " + bd +
-                                            ", attached a probe to " + act.location + currentMsg + "<br>");
+                                            ", attached the " + act.probeColor + " probe to " + act.location + currentMsg + "<br>");
                                     }
                                     break;
                                 case "detach-probe":
@@ -272,9 +272,9 @@ function reportResults(teams) {
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("At " + eTime +  " seconds " + "(" + uTime + ") " + act.actor.styledName +
                                             ", board " + bd +
-                                            ", detached a probe from " + act.location + currentMsg + "<br>");
+                                            ", detached the " + act.probeColor + " probe from " + act.location + currentMsg + "<br>");
                                     }
                                     break;
                                 case "connect-lead":
@@ -283,7 +283,7 @@ function reportResults(teams) {
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + "(" + uTime + ") " + act.actor.styledName +
                                             ", board " + bd +
                                             ", connected a lead to " + act.location + currentMsg + "<br>");
                                     }
@@ -295,14 +295,14 @@ function reportResults(teams) {
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + "(" + uTime + ") " + act.actor.styledName +
                                             ", board " + bd +
                                             ", disconnected a lead from " + act.location + currentMsg + "<br>");
                                     }
                                     break;
                                 case "joined-group":
                                     if ($("#action-joined-group")[0].checked) {
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + + "(" + uTime + ") " + act.actor.styledName +
                                             ", board " + bd + ", joined team " + team.name + "<br>");
                                     }
                                     break;
@@ -310,15 +310,14 @@ function reportResults(teams) {
                                 case "measurement":
                                     if ($("#action-measurement")[0].checked) {
                                         var currentMsg = (act.currentFlowing ? ", current is flowing" : ", current is not flowing")
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
-                                            ", board " + bd + ", measured " + act.measurementType + ". Dial is set to " +
-                                            act.dial_position + currentMsg + ", reading is " + act.highlightedMsg + ".<br>");
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds (" + uTime + ") " + act.actor.styledName +
+                                            ", board " + act.board + ", measured " + act.measurementType + ". Dial is set to " + act.dial_position + ", probes are set to " + act.redPosition + " and " + act.blackPosition + currentMsg + ", reading is " + act.highlightedMsg + ".<br>");
                                     }
                                     break;
 
                                 case "move-dial":
                                     if ($("#action-move-DMM-dial")[0].checked) {
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + "(" + uTime + ") " + act.actor.styledName +
                                             ", board " + bd + ", changed the DMM dial to " + act.dialPosition + ".<br>");
                                     }
                                     break;

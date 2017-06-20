@@ -170,9 +170,9 @@ function duplicate(action) {
         checkTime,
         checkType,
         checkTeam,
-        checkbackLength = Math.min(actions.length, 3);
-    for (var i = 1; i < checkbackLength; i++) { //check three actions back
-        //or fewer if there aren't many actions on the stack
+        checkbackLength = Math.min(actions.length, 5);
+    for (var i = 1; i < checkbackLength; i++) { //check five actions back
+        //or fewer if there aren't that many actions on the stack
         checkAct = actions[thisAct.index - i];
         if (checkAct.id && checkAct.uTime && checkAct.type) {
             checkID = checkAct.actor.id
@@ -309,8 +309,8 @@ function addMeasurement(ro, i) {
     if (!(duplicate(myAction))) {
         myAction.dial_position = ro["dial_position"];
         myAction.measurementType = ro["measurement"];
-        myAction.black_probe = ro["black_probe"];
-        myAction.red_probe = ro["red_probe"];
+        myAction.blackPosition = ro["black_probe"];
+        myAction.redPosition = ro["red_probe"];
         myAction.currentFlow = (ro["currentFlowing"] == "True" ? true : false);
         myAction.board = ro["board"];
         myAction.msg = ro["result"].replace(/\s/g, '');
@@ -360,8 +360,12 @@ function addSubmitER(ro) {
 function addAttachProbe(ro) {
     var myAction = addAction(ro, "attach-probe");
     //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+    if (ro["time"] == 1488326309) {
+        console.log("Check");
+    }
     if (!(duplicate(myAction))) {
         myAction.location = ro["location"];
+        myAction.probeColor = ro["color"];
         myAction.level.actions.push(myAction);
     } else {
         //        console.log("Passed over an attach probe action at . " + myAction.time);
@@ -373,6 +377,7 @@ function addDetachProbe(ro, i) {
     //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
     if (!(duplicate(myAction))) {
         myAction.location = ro["location"];
+        myAction.probeColor = ro["color"];
         myAction.level.actions.push(myAction);
     } else {
         //        console.log("Passed over a detach probe action at . " + myAction.time);
