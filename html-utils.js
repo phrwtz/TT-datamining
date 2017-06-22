@@ -5,7 +5,7 @@
 //down the left-hand column, the level labels across the top, and the array
 //values with summary values (either totals, sums, or averages) in the 5th column and 4th row.
 
-function makeTeamTable(team, title, levelData, type) {
+function makeTeamTable(team, title, levelData, type, arrMssgScores) {
     var table = document.createElement("table"); //the table to be returned
     table.setAttribute("class", type);
     var titleRow = document.createElement("tr"); //contains team name and title
@@ -82,15 +82,19 @@ function makeTeamTable(team, title, levelData, type) {
     }
 
     //The last cells in each row contain either the average or the total
+	var endRowValue = [0, 0, 0];
     for (var i = 0; i < 3; i++) {
         if (type == "Average") {
             if (!(totalRowMsgs[i] == 0)) {
-                dataCells[i][5].innerHTML = "<b>" + (Math.round(100 * totalRowScores[i] / totalRowMsgs[i]) / 100) + "</b>";
+				endRowValue[i] = (Math.round(100 * totalRowScores[i] / totalRowMsgs[i]) / 100);
+                dataCells[i][5].innerHTML = "<b>" + endRowValue[i] + "</b>";
             }
         } else if (type == "Number") {
-            dataCells[i][5].innerHTML = "<b>" + totalRowMsgs[i] + "</b>";
+            	endRowValue[i] = totalRowMsgs[i];
+                dataCells[i][5].innerHTML = "<b>" + endRowValue[i] + "</b>";
         } else if (type == "Total") {
-            dataCells[i][5].innerHTML = "<b>" + totalRowScores[i] + "</b>";
+            	endRowValue[i] = totalRowScores[i];
+                dataCells[i][5].innerHTML = "<b>" + endRowValue[i] + "</b>";
         }
     }
 
@@ -123,6 +127,12 @@ function makeTeamTable(team, title, levelData, type) {
     } else if (type == "Total") {
         dataCells[3][5].innerHTML = "<b>" + totalScores + "</b>";
     }
+	
+	// save array of player's message scores for csv file download of this team
+ 	for (var i = 0; i < 3; i++) { 
+		arrMssgScores[i] = endRowValue[i];
+		}
+	
     return table;
 }
 
