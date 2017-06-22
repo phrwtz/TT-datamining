@@ -28,6 +28,8 @@ function reportResults(teams) {
                         if (levelSeconds < 10) {
                             levelSeconds = "0" + levelSeconds;
                         }
+						var myDate = myLevel.startPTime;
+						var levelDate = (myDate.getMonth()+1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();						
 
                         var messageCount = [0, 0, 0],
                             messageTotal = 0,
@@ -210,7 +212,7 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.newR[0] + ", R2 = " + act.newR[1] + ", R3 = " + act.newR[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.newV[0] + ", V2 = " + act.newV[1] + ", V3 = " + act.newV[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
-                                        var newRow = [team.name, myLevel.label, act.eTime, act.type, act.actor.name, "", "", "", act.oldR[bd - 1], act.newR[bd - 1]];
+                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, act.type, act.actor.name, "", "", "", act.oldR[bd - 1], act.newR[bd - 1]];
                                         csvArray.push(newRow);
 
                                     }
@@ -231,7 +233,7 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
-                                        var newRow = [team.name, myLevel.label, act.eTime, act.type, act.actor.name, act.msg];
+                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, act.type, act.actor.name, act.msg];
                                         csvArray.push(newRow);
                                     }
                                     break;
@@ -250,7 +252,7 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
-                                        var newRow = [team.name, myLevel.label, act.eTime, act.type, act.actor.name, "", act.cMsg, act.rMsg];
+                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, act.type, act.actor.name, "", act.cMsg, act.rMsg];
                                         csvArray.push(newRow);
                                     }
                                     break;
@@ -538,6 +540,10 @@ function reportSummary(teams) {
 
 function reportActions(teams, type) {
     if ($("#summary-action-scores")[0].checked) {
+		myDate = teams[0].levels[0].startPTime;
+		levelDate = (myDate.getMonth()+1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
+		//levelDate = "3/7/2017";
+
         for (var j = 0; j < teams.length; j++) {
             var team = teams[j];
             if (team.members.length == 3) {
@@ -546,9 +552,18 @@ function reportActions(teams, type) {
                     level = team.levels[i];
                     levelsArray[i] = scoreActions(level);
                 }
-                scoreTable = makeTeamTable(team, "Total message score", levelsArray, "Total");
-                numberTable = makeTeamTable(team, "Number of messages", levelsArray, "Number");
-                averageTable = makeTeamTable(team, "Average message score", levelsArray, "Average");
+				var arrTotal = [];
+				var arrNumber = [];
+				var arrAvg = [];
+                scoreTable = makeTeamTable(team, "Total message score", levelsArray, "Total", arrTotal);
+                numberTable = makeTeamTable(team, "Number of messages", levelsArray, "Number", arrNumber);
+                averageTable = makeTeamTable(team, "Average message score", levelsArray, "Average", arrAvg);
+                
+				for (var i = 0; i < 3; i++) { // push csv data for each player on this team	
+					newRow = [team.teacherName, levelDate, team.name, "", "", "MssgScores", team.members[i].name, 
+								"", "", "", "", "", arrTotal[i], arrNumber[i], arrAvg[i]];
+				    csvArray.push(newRow);
+				}
 	            
 				var tableSummary = document.createElement("div");
 				tableSummary.className = "tableSummary";
@@ -634,12 +649,13 @@ function teacherReport(teams) {
                                     dataCells[i][j].innerHTML = "Not attempted";
                                     dataRows[i].appendChild(dataCells[i][j]);
                                 }
+								var myTeamTotalTime = 0;
                                 for (var j = 0; j < myTeam.levels.length; j++) {
                                     myLevel = myTeam.levels[j];
                                     var levelTime = Math.round(myLevel.endUTime - myLevel.startUTime);
                                     var levelMinutes = Math.round(levelTime / 60);
                                     var levelSeconds = levelTime % 60;
-
+									myTeamTotalTime += levelTime;
                                      var levelMsg = (myLevel.success ? 
                                             "<br><font color=green>Goal voltages attained.</font>" : 
                                                    "<br><font color=red>Goal voltages not attained.</font>");
@@ -676,6 +692,19 @@ function teacherReport(teams) {
                                     cellContents += successMsg;
                                     dataCells[i][j + 1].innerHTML = cellContents;
                                 }
+								maxLevel = "None";
+								for (var j = 0; j < myTeam.levels.length; j++) {
+                                     myLevel = myTeam.levels[j];
+                                	 if (myLevel.label == "A" && myLevel.success) {maxLevel = "A"; }
+                                	 if (myLevel.label == "B" && myLevel.success) {maxLevel = "B"; }
+                                	 if (myLevel.label == "C" && myLevel.success && myLevel.successE) {maxLevel = "C"; }
+                                	 if (myLevel.label == "D" && myLevel.success && myLevel.successE && myLevel.successR) {maxLevel = "D"; }
+                                     }
+								myDate = myLevel.startPTime
+								levelDate = (myDate.getMonth()+1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
+                                newRow = [myTeam.teacherName, levelDate, myTeam.name, maxLevel, Math.round(myTeamTotalTime / 6)/10, "MaxLevel"];
+                                csvArray.push(newRow);
+								
                             }
                         }
                     }
