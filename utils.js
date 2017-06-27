@@ -775,35 +775,37 @@ function testScore(varStr) {
     }
 }
 
-function downloadCSV() { 
+function downloadCSV(csvDataArray) { 
     var truncatedFilename = fileName.slice(0, (fileName.length - 4));
-    csvDataFilename = truncatedFilename + ".LOGS.csv"
+    csvDataFilename = truncatedFilename + ".LOGS.csv";
     if (csvDataArray.length < 2) {
         alert("You must run a query before downloading a file!");
         return;
     }
-    var csvContent = '';
+   var csvContent = '';
     // Loop through the data array and build the csv file to be downloaded
-    // Columna are seperated by "," and rows are separated by "\n"
+    // Columns are separated by "," and rows are separated by "\n"
     csvDataArray.forEach(function(infoArray, index) {
         dataString = infoArray.join(",");
         csvContent += index < csvDataArray.length ? dataString + "\n" : dataString;
     })
     saveData()(csvContent,csvDataFilename);
+	console.log("util.js: csv of log data (" + csvDataArray.length + " records) created and saved.");
 }
 
 function downloadSummaryCSV(summaryArray) {
     var truncatedFilename = fileName.slice(0, (fileName.length - 4));
     var csvSummaryFilename = truncatedFilename + ".SUMMARY.csv";
     var csvContent = '';
-var csvSummaryFilename;
     // Loop through the data array and build the csv file to be downloaded
-    // Columna are seperated by "," and rows are separated by "\n"
+    // Columns are separated by "," and rows are separated by "\n"
     summaryArray.forEach(function(infoArray, index) {
         dataString = infoArray.join(",");
         csvContent += index < summaryArray.length ? dataString + "\n" : dataString;
-    })
+    	})
     saveData()(csvContent,csvSummaryFilename);
+	console.log("util.js: csv of summary data (" + summaryArray.length + " created and saved.");
+
 }
 
 function sortByTime(a, b) {

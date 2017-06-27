@@ -157,7 +157,7 @@ function setupForm(teams) {
   
     var downLoadText = document.createTextNode("File download");
     downLoadButton.appendChild(downLoadText);
-    downLoadButton.setAttribute("onclick", "downloadCSV(); return false;");
+    downLoadButton.setAttribute("onclick", "downloadCSV(csvArray); return false;");
     checkForm.appendChild(downLoadButton);
 
     var summaryText = document.createTextNode("Summary file");

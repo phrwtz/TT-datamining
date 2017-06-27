@@ -1,15 +1,10 @@
 function generateReport(teams) {
     //    document.getElementByID("data").innerHTML = ""; //Clear the screen
     reportResults(teams);
-    console.log("report-tools: actions reported");
     reportSummary(teams);
-    console.log("report-tools: resistor-change summaries reported");
     reportActions(teams);
-    console.log("report-tools: action report generated");
     teacherReport(teams);
-    console.log("report-tools: teacher report generated");
     reportVarRefs(teams);
-    console.log("report-tools: variable references report generated");
 }
 
 function reportResults(teams) {
@@ -140,6 +135,9 @@ function reportResults(teams) {
                                         var V3 = myLevel.E * act.R[2] / Rtot;
                                         var success = ((Math.abs(V1 - myLevel.goalV[0]) + Math.abs(V2 - myLevel.goalV[1]) + Math.abs(V3 - myLevel.goalV[2])) < .1)
                                         var successMsg = (success ? " submitted correct voltages." : " submitted incorrect voltages.");
+										var successMsg2 = (success ? "correct V" : "incorrect V");
+	                                    var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submitV", act.actor.name, successMsg2];
+                                        csvArray.push(newRow);
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
                                             act.actor.styledName + ", board " + bd + successMsg + "<br>");
                                         document.getElementById("data").innerHTML += ("goalV1 = " + myLevel.goalV[0] + ", goalV2 = " + myLevel.goalV[1] +
@@ -152,6 +150,8 @@ function reportResults(teams) {
                                         var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
                                         var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
+	                                    var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submitV", act.actor.name, "correctVs"];
+                                        csvArray.push(newRow);
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd + ", submitted correct answers.<br>");
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
@@ -182,10 +182,17 @@ function reportResults(teams) {
                                         }
                                         if (myLevel.label == "C") {
                                             msg = ", submitted " + Elabel + " value for E (" + act.ESubmitValue + " " + act.ESubmitUnit + ")<br>";
+	                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submitE", act.actor.name, 
+												act.ESubmitValue, act.ESubmitUnit];
+                                        	csvArray.push(newRow);
+
                                         }
                                         if (myLevel.label == "D") {
                                             msg += ", submitted " + Elabel + " value for E (" + act.ESubmitValue + " " + act.ESubmitUnit + ")" +
                                                 " and submitted " + Rlabel + " value for R0 (" + act.RSubmitValue + " " + act.RSubmitUnit + ").<br>";
+	                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submitE-R0", act.actor.name, 
+												act.ESubmitValue, act.ESubmitUnit, act.RSubmitValue, act.RSubmitUnit];
+                                        	csvArray.push(newRow);
                                         }
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd + msg);
@@ -313,7 +320,12 @@ function reportResults(teams) {
                                     if ($("#action-measurement")[0].checked) {
                                         var currentMsg = (act.currentFlowing ? ", current is flowing" : ", current is not flowing")
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds (" + uTime + ") " + act.actor.styledName +
-                                            ", board " + act.board + ", measured " + act.measurementType + ". Dial is set to " + act.dial_position + ", probes are set to " + act.redPosition + " and " + act.blackPosition + currentMsg + ", reading is " + act.highlightedMsg + ".<br>");
+                                            ", board " + act.board + ", measured " + act.measurementType + ". Dial is set to " + act.dial_position + 
+											", probes are set to " + act.redPosition + " and " + act.blackPosition + currentMsg + ", reading is " + act.highlightedMsg + ".<br>");	
+										measurement = act.highlightedMsg.substr(0,act.highlightedMsg.indexOf(' '));	// get value from highlightedMsg
+                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, act.measurementType, act.actor.name, 
+											act.dial_position, act.redPosition + "-" + act.blackPosition, measurement];
+                                        csvArray.push(newRow);
                                     }
                                     break;
 
@@ -328,6 +340,9 @@ function reportResults(teams) {
                         }
                     }
                 }
+				mssg = "report-tools: actions reported for " + team.name;
+			    console.log(mssg);
+
             }
         }
     }
@@ -351,7 +366,8 @@ function reportVarRefs(teams) {
                 myLevel = team.levels[j];
                 if ($("#level-" + myLevel.label)[0].checked) {
                     document.getElementById("data").innerHTML += ("<br><mark>Variable references for team " + team.name + ", level " + myLevel.label + ":</mark><br>");
-                    varRefs = myLevel.varRefs;
+                    varRefs = myLevel.varRefs; 
+					varRefCount = 0;
                     for (var i = 0; i < vrLabelsArray.length; i++) {
                         vrStr = vrLabelsArray[i];
                         try {
@@ -381,13 +397,15 @@ function reportVarRefs(teams) {
                                             break;
                                     }
                                     document.getElementById("data").innerHTML += ("Variable " + vrStr + " found at " + act.eTime +
-                                        " seconds in a " + t + " by " + act.actor.styledName + ", board " + (act.board + 1) + ".<br>");
+                                        " seconds in a " + t + " by " + act.actor.styledName + ", board " + (act.board + 1) + ".<br>");	
+									varRefCount++;
                                 }
                             }
                         } catch (err) {
-                            console.log(err + "In report VarRefs, vrStr = " + vrStr)
+                            console.log(err + " in variable references report, vrStr = " + vrStr)
                         }
                     }
+					console.log("report-tools: variable references report generated with " + varRefCount + " lines");
                 }
             }
         }
@@ -485,6 +503,8 @@ function reportSummary(teams) {
                         }
                     }
                 }
+				mssg = "report-tools: resistor-change summaries for " + team.name;
+		    	console.log(mssg);
             }
         }
     }
@@ -542,8 +562,7 @@ function reportActions(teams, type) {
     if ($("#summary-action-scores")[0].checked) {
 		myDate = teams[0].levels[0].startPTime;
 		levelDate = (myDate.getMonth()+1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
-		//levelDate = "3/7/2017";
-
+		var count = 0;
         for (var j = 0; j < teams.length; j++) {
             var team = teams[j];
             if (team.members.length == 3) {
@@ -558,22 +577,22 @@ function reportActions(teams, type) {
                 scoreTable = makeTeamTable(team, "Total message score", levelsArray, "Total", arrTotal);
                 numberTable = makeTeamTable(team, "Number of messages", levelsArray, "Number", arrNumber);
                 averageTable = makeTeamTable(team, "Average message score", levelsArray, "Average", arrAvg);
-                
 				for (var i = 0; i < 3; i++) { // push csv data for each player on this team	
+					count += arrNumber[i];
 					newRow = [team.teacherName, levelDate, team.name, "", "", "MssgScores", team.members[i].name, 
 								"", "", "", "", "", arrTotal[i], arrNumber[i], arrAvg[i]];
 				    csvArray.push(newRow);
 				}
-	            
 				var tableSummary = document.createElement("div");
 				tableSummary.className = "tableSummary";
         	    document.body.appendChild(tableSummary);
-
                 tableSummary.appendChild(scoreTable);
                 tableSummary.appendChild(numberTable);
                 tableSummary.appendChild(averageTable);
             }
         }
+	    mssg = "report-tools: " + count + " messages scored";
+		console.log(mssg);
     }
 }
 
@@ -584,9 +603,9 @@ function teacherReport(teams) {
         var teacher = teachers[k];
         if ($("#report-" + teacher)[0].checked) {
             reportRequested = true;
-        } //if so, empty the tableDiv (if it exists)
-        if (reportRequested) {
-            if (document.getElementById("tableDiv")) {
+        } 
+        if (reportRequested) { // generate a report
+            if (document.getElementById("tableDiv")) { // empty the tableDiv (if it exists)
                 var tableDiv = document.getElementById("tableDiv");
                 while (tableDiv.firstChild) {
                     tableDiv.removeChild(tableDiv.firstChild);
@@ -710,6 +729,8 @@ function teacherReport(teams) {
                     }
                 }
             }
+			mssg = "report-tools: teacher report for " + teacher;
+			console.log(mssg);
         }
     }
 }
@@ -736,4 +757,6 @@ function makeSummaryArray(teams) {
         summaryArray.push(summaryRow);
     }
     downloadSummaryCSV(summaryArray);
+	mssg = "report-tools: makeSummaryArray for " + i + " teams";
+	console.log(mssg);
 }
