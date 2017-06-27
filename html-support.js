@@ -141,6 +141,7 @@ function setupForm(teams) {
     var submitButton = document.createElement("button");
     var clearButton = document.createElement("button");
     var downLoadButton = document.createElement("button");
+    var summaryButton = document.createElement("button");
 
     var submitText = document.createTextNode("Submit query");
     submitButton.appendChild(submitText);
@@ -158,6 +159,12 @@ function setupForm(teams) {
     downLoadButton.appendChild(downLoadText);
     downLoadButton.setAttribute("onclick", "downloadCSV(); return false;");
     checkForm.appendChild(downLoadButton);
+
+    var summaryText = document.createTextNode("Summary file");
+    summaryButton.appendChild(summaryText);
+    summaryButton.setAttribute("onclick", "makeSummaryArray(teams); return false;");
+    checkForm.appendChild(summaryButton);
+
     console.log("form created");
   
     var p = document.createElement("p");

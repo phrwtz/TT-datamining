@@ -113,6 +113,7 @@ function reportResults(teams) {
                         document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent: </span>" + messageCount[0] + " + " + messageCount[1] + " + " + messageCount[2] + " = " + messageTotal + "<br>";
                         document.getElementById("data").innerHTML += "<span style=\"color:#FF00FF;\">Calculations performed: </span>" + calculationCount[0] + " + " + calculationCount[1] + " + " + calculationCount[2] + " = " + calculationTotal + "<br>";
                         document.getElementById("data").innerHTML += "<span style=\"color:#0000FF;\">Resistor changes: </span>" + resistorChangeCount[0] + " + " + resistorChangeCount[1] + " + " + resistorChangeCount[2] + " = " + resistorChangeTotal + "<br><br>";
+
                         for (var i = 0; i < acts.length; i++) {
                             var act = acts[i],
                                 bd = act.board + 1,
@@ -211,7 +212,7 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.newV[0] + ", V2 = " + act.newV[1] + ", V3 = " + act.newV[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
                                         var newRow = [team.name, myLevel.label, act.eTime, act.type, act.actor.name, "", "", "", act.oldR[bd - 1], act.newR[bd - 1]];
-                                        csvArray.push(newRow);
+                                        csvDataArray.push(newRow);
 
                                     }
                                     break;
@@ -232,7 +233,7 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
                                         var newRow = [team.name, myLevel.label, act.eTime, act.type, act.actor.name, act.msg];
-                                        csvArray.push(newRow);
+                                        csvDataArray.push(newRow);
                                     }
                                     break;
 
@@ -251,7 +252,7 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
                                         var newRow = [team.name, myLevel.label, act.eTime, act.type, act.actor.name, "", act.cMsg, act.rMsg];
-                                        csvArray.push(newRow);
+                                        csvDataArray.push(newRow);
                                     }
                                     break;
 
@@ -696,4 +697,28 @@ function teacherReport(teams) {
             }
         }
     }
+}
+
+function makeSummaryArray(teams) {
+    var summaryArray = ["Team", "Teacher", "Level A", "Level B", "Level C", "Level D"]
+        
+    for (var i = 0; i < teams.length; i++) {
+        myTeam = teams[i]
+        myTeacher = myTeam.teacher;
+        var summaryRow = [myTeam.name, myTeacher];
+        myLevel = myTeam.levels[0];
+        for (var j = 0; j < 4; j++) {
+            if (!myTeam.levels[j]) {
+                summaryRow.push("not attempted");
+            }
+            else if (!myTeam.levels[j].success) {
+                summaryRow.push("unsuccessful");
+            } else {
+                summaryRow.push("successful");
+            }
+        }
+        summaryRow.push("/n");
+        summaryArray.push(summaryRow);
+    }
+    downloadSummaryCSV(summaryArray);
 }
