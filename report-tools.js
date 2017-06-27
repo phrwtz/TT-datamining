@@ -113,6 +113,7 @@ function reportResults(teams) {
                         document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent: </span>" + messageCount[0] + " + " + messageCount[1] + " + " + messageCount[2] + " = " + messageTotal + "<br>";
                         document.getElementById("data").innerHTML += "<span style=\"color:#FF00FF;\">Calculations performed: </span>" + calculationCount[0] + " + " + calculationCount[1] + " + " + calculationCount[2] + " = " + calculationTotal + "<br>";
                         document.getElementById("data").innerHTML += "<span style=\"color:#0000FF;\">Resistor changes: </span>" + resistorChangeCount[0] + " + " + resistorChangeCount[1] + " + " + resistorChangeCount[2] + " = " + resistorChangeTotal + "<br><br>";
+
                         for (var i = 0; i < acts.length; i++) {
                             var act = acts[i],
                                 bd = act.board + 1,
@@ -311,7 +312,9 @@ function reportResults(teams) {
                                     if ($("#action-measurement")[0].checked) {
                                         var currentMsg = (act.currentFlowing ? ", current is flowing" : ", current is not flowing")
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds (" + uTime + ") " + act.actor.styledName +
-                                            ", board " + act.board + ", measured " + act.measurementType + ". Dial is set to " + act.dial_position + ", probes are set to " + act.redPosition + " and " + act.blackPosition + currentMsg + ", reading is " + act.highlightedMsg + ".<br>");
+                                            ", board " + act.board + ", measured " + act.measurementType + ". Dial is set to " + act.dialPosition + ", probes are set to " + act.redPosition + " and " + act.blackPosition + currentMsg + ", reading is " + act.highlightedMsg + ".<br>");
+                                        var newRow = [team.name, myLevel.label, act.eTime, act.type, act.actor.name, "", "", "", "", "",  act.dialPosition, act.blackPosition, act.redPosition, act.measurementType, act.msg];
+                                        csvArray.push(newRow);
                                     }
                                     break;
 

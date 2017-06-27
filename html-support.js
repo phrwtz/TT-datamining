@@ -141,6 +141,7 @@ function setupForm(teams) {
     var submitButton = document.createElement("button");
     var clearButton = document.createElement("button");
     var downLoadButton = document.createElement("button");
+    var strategyButton = document.createElement("button");
 
     var submitText = document.createTextNode("Submit query");
     submitButton.appendChild(submitText);
@@ -159,6 +160,12 @@ function setupForm(teams) {
     downLoadButton.setAttribute("onclick", "downloadCSV(); return false;");
     checkForm.appendChild(downLoadButton);
     console.log("form created");
+  
+    var strategyText = document.createTextNode("Find guess and check");
+    strategyButton.appendChild(strategyText);
+    strategyButton.setAttribute("onclick", "findGuessAndCheck(teams); return false;");
+    checkForm.appendChild(strategyButton);
+    console.log("guess and check search completed");
   
     var p = document.createElement("p");
     p.id = "data";

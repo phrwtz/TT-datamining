@@ -10,7 +10,7 @@ var timeZone = -5; //offset for Eastern Standard Time
 var vrLabelsArray = ["E", "R0", "R1", "R2", "R3", "sumRs", "sumRsPlusR0", "V0", "V1", "V2", "V3", 
 "sumVs", "goalR1", "goalR2", "goalR3", "sumGoalRs", "goalV0", "goalV1", "goalV2", "goalV3", "sumGoalVs", 
 "Rtot", "goalRtot", "IA", "ImA", "goalIA", "goalImA", "??"] //Array of varRef labels (used to label
-var csvArray = [["Team", "Level","Time", "Action", "Actor", "Message", "Input", "Result", "Old Resistancde", "New Resistance"]]; //Array of values to be downloaded as a .csv file
+var csvArray = [["Team", "Level","Time", "Action", "Actor", "Message", "Input", "Result", "Old Resistance", "New Resistance", "Dial Position", "Black Probe", "Red Probe", "Measurement type", "Measurement Result" ]]; //Array of values to be downloaded as a .csv file
 var csvFilename;
 
 function parseCSV() {
