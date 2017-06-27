@@ -29,9 +29,7 @@ function parseCSV() {
             reader.onloadend = function(e) {
 
                 console.log("parse-file: file loaded");
-                var fileName = fileInput.files[0].name;
-                var truncatedFilename = fileName.slice(0, (fileName.length - 4));
-                csvFilename = truncatedFilename + ".LOGS.csv"
+                fileName = fileInput.files[0].name;
                 var obj = Papa.parse(e.target.result);
                 console.log("parse-file: data parsed");
                 

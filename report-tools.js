@@ -115,6 +115,7 @@ function reportResults(teams) {
                         document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent: </span>" + messageCount[0] + " + " + messageCount[1] + " + " + messageCount[2] + " = " + messageTotal + "<br>";
                         document.getElementById("data").innerHTML += "<span style=\"color:#FF00FF;\">Calculations performed: </span>" + calculationCount[0] + " + " + calculationCount[1] + " + " + calculationCount[2] + " = " + calculationTotal + "<br>";
                         document.getElementById("data").innerHTML += "<span style=\"color:#0000FF;\">Resistor changes: </span>" + resistorChangeCount[0] + " + " + resistorChangeCount[1] + " + " + resistorChangeCount[2] + " = " + resistorChangeTotal + "<br><br>";
+
                         for (var i = 0; i < acts.length; i++) {
                             var act = acts[i],
                                 bd = act.board + 1,
@@ -206,7 +207,7 @@ function reportResults(teams) {
                                         // }
                                         preTime = act.uTime;
                                         document.getElementById("data").innerHTML += ("<span style=\"color:#0000FF;\">Resistor change:</span> At " + eTime + " seconds " +
-                                            ": " + styledName + " changed R" + (bd) + " from " + act.oldR[bd - 1] +
+                                            "(" + uTime + ") " + styledName + " changed R" + (bd) + " from " + act.oldR[bd - 1] +
                                             " to " + act.newR[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
                                             " to " + act.newV[bd - 1] + ". (Goal is " + myLevel.goalV[bd - 1] + ")" + act.goalMsg + "<br>");
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.newR[0] + ", R2 = " + act.newR[1] + ", R3 = " + act.newR[2] + ";  ");
@@ -214,7 +215,6 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
                                         var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, act.type, act.actor.name, "", "", "", act.oldR[bd - 1], act.newR[bd - 1]];
                                         csvArray.push(newRow);
-
                                     }
                                     break;
 
@@ -229,7 +229,7 @@ function reportResults(teams) {
                                         preTime = act.uTime;
 
                                         document.getElementById("data").innerHTML += ("<span style=\"color:#FF0000;\">Message:</span> At " +
-                                            eTime + " seconds " + act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + "<br>");
+                                            eTime + " seconds " + "(" + uTime + ") " + act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + "<br>");
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
@@ -247,7 +247,7 @@ function reportResults(teams) {
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("<span style=\"color:#FF00FF;\">Calculation:</span> At " + eTime + " seconds " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("<span style=\"color:#FF00FF;\">Calculation:</span> At " + eTime + " seconds " + + "(" + uTime + ") " + act.actor.styledName +
                                             ", board " + bd + ", performed the calculation  " + act.highlightedMsg + ".<br>");
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
@@ -263,9 +263,9 @@ function reportResults(teams) {
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + "(" + uTime + ") " + act.actor.styledName +
                                             ", board " + bd +
-                                            ", attached a probe to " + act.location + currentMsg + "<br>");
+                                            ", attached the " + act.probeColor + " probe to " + act.location + currentMsg + "<br>");
                                     }
                                     break;
                                 case "detach-probe":
@@ -274,9 +274,9 @@ function reportResults(teams) {
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("At " + eTime +  " seconds " + "(" + uTime + ") " + act.actor.styledName +
                                             ", board " + bd +
-                                            ", detached a probe from " + act.location + currentMsg + "<br>");
+                                            ", detached the " + act.probeColor + " probe from " + act.location + currentMsg + "<br>");
                                     }
                                     break;
                                 case "connect-lead":
@@ -285,7 +285,7 @@ function reportResults(teams) {
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + "(" + uTime + ") " + act.actor.styledName +
                                             ", board " + bd +
                                             ", connected a lead to " + act.location + currentMsg + "<br>");
                                     }
@@ -297,29 +297,29 @@ function reportResults(teams) {
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + "(" + uTime + ") " + act.actor.styledName +
                                             ", board " + bd +
                                             ", disconnected a lead from " + act.location + currentMsg + "<br>");
                                     }
                                     break;
                                 case "joined-group":
                                     if ($("#action-joined-group")[0].checked) {
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + + "(" + uTime + ") " + act.actor.styledName +
                                             ", board " + bd + ", joined team " + team.name + "<br>");
                                     }
                                     break;
 
                                 case "measurement":
                                     if ($("#action-measurement")[0].checked) {
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
-                                            ", board " + bd + ", measured " + act.measurementType + ". Dial is set to " +
-                                            act.dial_position + ", reading is " + act.highlightedMsg + ".<br>");
+                                        var currentMsg = (act.currentFlowing ? ", current is flowing" : ", current is not flowing")
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds (" + uTime + ") " + act.actor.styledName +
+                                            ", board " + act.board + ", measured " + act.measurementType + ". Dial is set to " + act.dial_position + ", probes are set to " + act.redPosition + " and " + act.blackPosition + currentMsg + ", reading is " + act.highlightedMsg + ".<br>");
                                     }
                                     break;
 
                                 case "move-dial":
                                     if ($("#action-move-DMM-dial")[0].checked) {
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + "(" + uTime + ") " + act.actor.styledName +
                                             ", board " + bd + ", changed the DMM dial to " + act.dialPosition + ".<br>");
                                     }
                                     break;
@@ -712,4 +712,28 @@ function teacherReport(teams) {
             }
         }
     }
+}
+
+function makeSummaryArray(teams) {
+    var summaryArray = ["Team", "Teacher", "Level A", "Level B", "Level C", "Level D"]
+        
+    for (var i = 0; i < teams.length; i++) {
+        myTeam = teams[i]
+        myTeacher = myTeam.teacher;
+        var summaryRow = [myTeam.name, myTeacher];
+        myLevel = myTeam.levels[0];
+        for (var j = 0; j < 4; j++) {
+            if (!myTeam.levels[j]) {
+                summaryRow.push("not attempted");
+            }
+            else if (!myTeam.levels[j].success) {
+                summaryRow.push("unsuccessful");
+            } else {
+                summaryRow.push("successful");
+            }
+        }
+        summaryRow.push("/n");
+        summaryArray.push(summaryRow);
+    }
+    downloadSummaryCSV(summaryArray);
 }
