@@ -320,11 +320,11 @@ function reportResults(teams) {
                                     if ($("#action-measurement")[0].checked) {
                                         var currentMsg = (act.currentFlowing ? ", current is flowing" : ", current is not flowing")
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds (" + uTime + ") " + act.actor.styledName +
-                                            ", board " + act.board + ", measured " + act.measurementType + ". Dial is set to " + act.dial_position + 
+                                            ", board " + act.board + ", measured " + act.measurementType + ". Dial is set to " + act.dialPosition + 
 											", probes are set to " + act.redPosition + " and " + act.blackPosition + currentMsg + ", reading is " + act.highlightedMsg + ".<br>");	
 										measurement = act.highlightedMsg.substr(0,act.highlightedMsg.indexOf(' '));	// get value from highlightedMsg
-                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, act.measurementType, act.actor.name, 
-											act.dial_position, act.redPosition + "-" + act.blackPosition, measurement];
+                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "measurement", act.actor.name,
+                                            , , , , , act.dialPosition, act.redPosition + "-" + act.blackPosition, act.measurementType, act.msg];
                                         csvArray.push(newRow);
                                     }
                                     break;

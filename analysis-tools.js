@@ -307,7 +307,7 @@ function addMeasurement(ro, i) {
     var myAction = addAction(ro, "measurement");
     //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
     if (!(duplicate(myAction))) {
-        myAction.dial_position = ro["dial_position"];
+        myAction.dialPosition = ro["dial_position"];
         myAction.measurementType = ro["measurement"];
         myAction.blackPosition = ro["black_probe"];
         myAction.redPosition = ro["red_probe"];
@@ -344,15 +344,14 @@ function addSubmitER(ro) {
     if (!duplicate(myAction)) {
         myTeam = myAction.team;
         myLevel = myAction.level;
-        if ((myTeam.name == "Fruit") && (myLevel.label == "D")) {
-            console.log(myAction.uTime - myLevel.startUTime);
-        }
         (ro["E: Value"] ? myAction.ESubmitValue = ro["E: Value"] : myAction.ESubmitValue = "<No value submitted>");
         (ro["E: Unit"] ? myAction.ESubmitUnit = ro["E: Unit"] : myAction.ESubmitUnit = "");
         (ro["R: Value"] ? myAction.RSubmitValue = ro["R: Value"] : myAction.RSubmitValue = "<No value submitted>");
         (ro["R: Unit"] ? myAction.RSubmitUnit = ro["R: Unit"] : myAction.RSubmitUnit = "");
         (ro["E: Value"] == myLevel.E ? myLevel.successE = true : myLevel.successE = false);
         (ro["R: Value"] == myLevel.R0 ? myLevel.successR = true : myLevel.successR = false);
+        (ro["E: Value"] == myLevel.E ? myAction.successE = true : myAction.successE = false);
+        (ro["R: Value"] == myLevel.R0 ? myAction.successR = true : myAction.successR = false);
         myAction.level.actions.push(myAction);
     }
 }
