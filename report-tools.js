@@ -12,7 +12,9 @@ function reportResults(teams) {	 // extract and list actions checked by user
     for (var k = 0; k < teams.length; k++) { // for each team
         var team = teams[k];
         if ((team.members.length == 3)) {
-            if ($("#team-" + team.name + team.classID)[0].checked) { 
+            if ($("#team-" + team.name + team.classID)[0].checked) {
+				mssg = "report-tools: analyzing actions for " + team.name + "...";
+			    console.log(mssg);
                 for (var j = 0; j < team.levels.length; j++) {
                     var myLevel = team.levels[j];
                     if ($("#level-" + myLevel.label)[0].checked) {	// create summary for each level
@@ -351,14 +353,10 @@ function reportResults(teams) {	 // extract and list actions checked by user
                                             ", board " + bd + ", changed the DMM dial to " + act.dialPosition + ".<br>");
                                     }
                                     break;
-
                             }
                         }
                     }
                 }
-				mssg = "report-tools: actions reported for " + team.name;
-			    console.log(mssg);
-
             }
         }
     }
