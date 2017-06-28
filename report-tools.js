@@ -7,15 +7,15 @@ function generateReport(teams) {
     reportVarRefs(teams);
 }
 
-function reportResults(teams) {
+function reportResults(teams) {	 // extract and list actions checked by user
     document.getElementById("data").innerHTML = ""; //Clear data
-    for (var k = 0; k < teams.length; k++) {
+    for (var k = 0; k < teams.length; k++) { // for each team
         var team = teams[k];
         if ((team.members.length == 3)) {
-            if ($("#team-" + team.name + team.classID)[0].checked) {
+            if ($("#team-" + team.name + team.classID)[0].checked) { 
                 for (var j = 0; j < team.levels.length; j++) {
                     var myLevel = team.levels[j];
-                    if ($("#level-" + myLevel.label)[0].checked) {
+                    if ($("#level-" + myLevel.label)[0].checked) {	// create summary for each level
                         var acts = myLevel.actions;
                         var levelTime = Math.round(myLevel.endUTime - myLevel.startUTime);
                         var levelMinutes = Math.round(levelTime / 60);
@@ -111,7 +111,7 @@ function reportResults(teams) {
                         document.getElementById("data").innerHTML += "<span style=\"color:#FF00FF;\">Calculations performed: </span>" + calculationCount[0] + " + " + calculationCount[1] + " + " + calculationCount[2] + " = " + calculationTotal + "<br>";
                         document.getElementById("data").innerHTML += "<span style=\"color:#0000FF;\">Resistor changes: </span>" + resistorChangeCount[0] + " + " + resistorChangeCount[1] + " + " + resistorChangeCount[2] + " = " + resistorChangeTotal + "<br><br>";
 
-                        for (var i = 0; i < acts.length; i++) {
+                        for (var i = 0; i < acts.length; i++) {	// interpret actions for each level
                             var act = acts[i],
                                 bd = act.board + 1,
                                 actor = act.actor,
@@ -135,9 +135,11 @@ function reportResults(teams) {
                                         var V3 = myLevel.E * act.R[2] / Rtot;
                                         var success = ((Math.abs(V1 - myLevel.goalV[0]) + Math.abs(V2 - myLevel.goalV[1]) + Math.abs(V3 - myLevel.goalV[2])) < .1)
                                         var successMsg = (success ? " submitted correct voltages." : " submitted incorrect voltages.");
-										var successMsg2 = (success ? "correct V" : "incorrect V");
-	                                    var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submitV", act.actor.name, successMsg2];
-                                        csvArray.push(newRow);
+										var successMsg2 = (success ? "correct-V" : "incorrect-V");
+										// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
+										// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
+	                                    var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submit-V", act.actor.name, successMsg2];
+                                        csvActionsArray.push(newRow);
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
                                             act.actor.styledName + ", board " + bd + successMsg + "<br>");
                                         document.getElementById("data").innerHTML += ("goalV1 = " + myLevel.goalV[0] + ", goalV2 = " + myLevel.goalV[1] +
@@ -150,8 +152,10 @@ function reportResults(teams) {
                                         var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
                                         var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
-	                                    var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submitV", act.actor.name, "correctVs"];
-                                        csvArray.push(newRow);
+										// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
+										// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
+										var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submit-V", act.actor.name, "correct-Vs"];
+                                        csvActionsArray.push(newRow);
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd + ", submitted correct answers.<br>");
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
@@ -182,17 +186,21 @@ function reportResults(teams) {
                                         }
                                         if (myLevel.label == "C") {
                                             msg = ", submitted " + Elabel + " value for E (" + act.ESubmitValue + " " + act.ESubmitUnit + ")<br>";
-	                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submitE", act.actor.name, 
+											// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
+											// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
+	                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submit-E", act.actor.name,	, , , , , , , , , 
 												act.ESubmitValue, act.ESubmitUnit];
-                                        	csvArray.push(newRow);
+                                        	csvActionsArray.push(newRow);
 
                                         }
                                         if (myLevel.label == "D") {
                                             msg += ", submitted " + Elabel + " value for E (" + act.ESubmitValue + " " + act.ESubmitUnit + ")" +
                                                 " and submitted " + Rlabel + " value for R0 (" + act.RSubmitValue + " " + act.RSubmitUnit + ").<br>";
-	                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submitE-R0", act.actor.name, 
+											// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
+											// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
+	                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submitE-R0", act.actor.name, 	, , , , , , , , ,
 												act.ESubmitValue, act.ESubmitUnit, act.RSubmitValue, act.RSubmitUnit];
-                                        	csvArray.push(newRow);
+                                        	csvActionsArray.push(newRow);
                                         }
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
                                             ", board " + bd + msg);
@@ -220,8 +228,10 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.newR[0] + ", R2 = " + act.newR[1] + ", R3 = " + act.newR[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.newV[0] + ", V2 = " + act.newV[1] + ", V3 = " + act.newV[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
-                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, act.type, act.actor.name, "", "", "", act.oldR[bd - 1], act.newR[bd - 1]];
-                                        csvArray.push(newRow);
+										// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
+										// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
+                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, act.type, act.actor.name, , , , act.oldR[bd - 1], act.newR[bd - 1]];
+                                        csvActionsArray.push(newRow);
                                     }
                                     break;
 
@@ -240,8 +250,10 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
+										// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
+										// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
                                         var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, act.type, act.actor.name, act.msg];
-                                        csvArray.push(newRow);
+                                        csvActionsArray.push(newRow);
                                     }
                                     break;
 
@@ -259,8 +271,10 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
-                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, act.type, act.actor.name, "", act.cMsg, act.rMsg];
-                                        csvArray.push(newRow);
+										// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
+										// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
+                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, act.type, act.actor.name, , act.cMsg, act.rMsg];
+                                        csvActionsArray.push(newRow);
                                     }
                                     break;
 
@@ -322,10 +336,12 @@ function reportResults(teams) {
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds (" + uTime + ") " + act.actor.styledName +
                                             ", board " + act.board + ", measured " + act.measurementType + ". Dial is set to " + act.dialPosition + 
 											", probes are set to " + act.redPosition + " and " + act.blackPosition + currentMsg + ", reading is " + act.highlightedMsg + ".<br>");	
-										measurement = act.highlightedMsg.substr(0,act.highlightedMsg.indexOf(' '));	// get value from highlightedMsg
+										// measurement = act.highlightedMsg.substr(0,act.highlightedMsg.indexOf(' '));	// get value from highlightedMsg 
+										// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
+										// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
                                         var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "measurement", act.actor.name,
                                             , , , , , act.dialPosition, act.redPosition + "-" + act.blackPosition, act.measurementType, act.msg];
-                                        csvArray.push(newRow);
+                                        csvActionsArray.push(newRow);
                                     }
                                     break;
 
@@ -371,7 +387,7 @@ function reportVarRefs(teams) {
                     for (var i = 0; i < vrLabelsArray.length; i++) {
                         vrStr = vrLabelsArray[i];
                         try {
-                            if ($("#varRef-" + vrStr)[0].checked) {
+                            if ($("#varRef-" + vrStr)[0].checked && (vrStr != "??")) {
                                 document.getElementById("data").innerHTML += ("<br>");
                                 vrArray = varRefs[vrStr]; //contains all the varRefs of type vrStr;
                                 for (var ii = 0; ii < vrArray.length; ii++) {
@@ -579,9 +595,10 @@ function reportActions(teams, type) {
                 averageTable = makeTeamTable(team, "Average message score", levelsArray, "Average", arrAvg);
 				for (var i = 0; i < 3; i++) { // push csv data for each player on this team	
 					count += arrNumber[i];
-					newRow = [team.teacherName, levelDate, team.name, "", "", "MssgScores", team.members[i].name, 
-								"", "", "", "", "", arrTotal[i], arrNumber[i], arrAvg[i]];
-				    csvArray.push(newRow);
+					// Teacher / Date / Team / Level / Time / Action / Actor / Total Mssg Score / Number Mssgs / Avg Mssg Score
+					newRow = [team.teacherName, levelDate, team.name, ,  , "MssgScores", team.members[i].name,
+								arrTotal[i], arrNumber[i], arrAvg[i]];
+				    csvSummaryArray.push(newRow);
 				}
 				var tableSummary = document.createElement("div");
 				tableSummary.className = "tableSummary";
@@ -721,8 +738,9 @@ function teacherReport(teams) {
                                      }
 								myDate = myLevel.startPTime
 								levelDate = (myDate.getMonth()+1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
+								// Teacher / Date / Team / Level / Time / Action / Actor / Total Mssg Score / Number Mssgs / Avg Mssg Score
                                 newRow = [myTeam.teacherName, levelDate, myTeam.name, maxLevel, Math.round(myTeamTotalTime / 6)/10, "MaxLevel"];
-                                csvArray.push(newRow);
+                                csvSummaryArray.push(newRow);
 								
                             }
                         }
