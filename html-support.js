@@ -141,6 +141,8 @@ function setupForm(teams) {
     var submitButton = document.createElement("button");
     var clearButton = document.createElement("button");
     var downLoadButton = document.createElement("button");
+    var strategyButton = document.createElement("button");
+    var summaryButton = document.createElement("button");
 
     var submitText = document.createTextNode("Submit query");
     submitButton.appendChild(submitText);
@@ -150,17 +152,29 @@ function setupForm(teams) {
 
     var clearText = document.createTextNode("Clear screen");
     clearButton.appendChild(clearText);
-    clearButton.setAttribute("onclick", "clearScreen(); return false;");
+    clearButton.setAttribute("onclick", "clearScreen(csvActionsArray, csvSummaryArray); return false;");
     checkForm.appendChild(clearButton);
     console.log("html-support setupForm: check-boxes form created");
   
-    var downLoadText = document.createTextNode("File download");
+    var downLoadText = document.createTextNode("Actions File download");
     downLoadButton.appendChild(downLoadText);
-    downLoadButton.setAttribute("onclick", "downloadCSV(); return false;");
+    downLoadButton.setAttribute("onclick", "downloadLogCSV(csvActionsArray); return false;");
     checkForm.appendChild(downLoadButton);
-    console.log("form created");
+
+    var summaryText = document.createTextNode("Summary File download");
+    summaryButton.appendChild(summaryText);
+    summaryButton.setAttribute("onclick", "downloadSummaryCSV(csvSummaryArray); return false;");
+    checkForm.appendChild(summaryButton);
+
+    var strategyText = document.createTextNode("Find guess and check");
+    strategyButton.appendChild(strategyText);
+    strategyButton.setAttribute("onclick", "findGuessAndCheck(teams); return false;");
+    checkForm.appendChild(strategyButton);
+    console.log("guess and check search completed");
   
     var p = document.createElement("p");
     p.id = "data";
     checkDiv.appendChild(p);
+
+    console.log("html-support: user selection form and action buttons created");
 }

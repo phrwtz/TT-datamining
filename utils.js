@@ -1,16 +1,17 @@
-function clearScreen() { //clears data and summary tables
+function clearScreen(csvActionsArray, csvSummaryArray) { //clears data and summary tables
     document.getElementById("data").innerHTML = "";	// clear data paragraph
-	
     if (document.getElementById("tableDiv")) {  // clear tableDiv division
 	   var tableDiv = document.getElementById("tableDiv");
        while (tableDiv.firstChild) {
            tableDiv.removeChild(tableDiv.firstChild);
         }
     }
-
 	Array.from(document.getElementsByClassName("tableSummary")).forEach( // clear divisions of this classname
         		function (e) {e.parentNode.removeChild(e);}
 			); 
+	csvActionsArray.length = 1;
+	csvSummaryArray.length = 1; // re-initialize the csv download files	
+	console.log("utils.js:clearScreen: csvActionsArray.length = " + csvActionsArray.length + "; csvSummaryArray.length = " + csvSummaryArray.length); 
 } // end clearScreen
 
 function initializeVarRefs(level) { //Initializes variable references for this level
@@ -775,19 +776,41 @@ function testScore(varStr) {
     }
 }
 
-function downloadCSV() { //converts the array into a csv file and downloads it
-    if (csvArray.length < 2) {
-        alert("You must run a query before downloading a file!");
+function downloadLogCSV(csvDataArray) { 
+    var truncatedFilename = fileName.slice(0, (fileName.length - 4));
+    csvDataFilename = truncatedFilename + ".LOGS.csv";
+    if (csvDataArray.length < 2) {
+        alert("Run a query of team(s), level(s), and action(s) BEFORE downloading a LOG report file");
+        return;
+    }
+   var csvContent = '';
+    // Loop through the data array and build the csv file to be downloaded
+    // Columns are separated by "," and rows are separated by "\n"
+    csvDataArray.forEach(function(infoArray, index) {
+        dataString = infoArray.join(",");
+        csvContent += index < csvDataArray.length ? dataString + "\n" : dataString;
+    })
+    saveData()(csvContent,csvDataFilename);
+	console.log("util.js: csv of log data (" + csvDataArray.length + " records) created and saved.");
+}
+
+function downloadSummaryCSV(csvSummaryArray) {
+    var truncatedFilename = fileName.slice(0, (fileName.length - 4));
+    var csvSummaryFilename = truncatedFilename + ".SUMMARY.csv";
+    if (csvSummaryArray.length < 2) {
+        alert("Produce a Message or Teacher report BEFORE downloading a SUMMARY report file.");
         return;
     }
     var csvContent = '';
     // Loop through the data array and build the csv file to be downloaded
-    // Columna are seperated by "," and rows are separated by "\n"
-    csvArray.forEach(function(infoArray, index) {
+    // Columns are separated by "," and rows are separated by "\n"
+    csvSummaryArray.forEach(function(infoArray, index) {
         dataString = infoArray.join(",");
-        csvContent += index < csvArray.length ? dataString + "\n" : dataString;
-    })
-    saveData()(csvContent,csvFilename);
+        csvContent += index < csvSummaryArray.length ? dataString + "\n" : dataString;
+    	})
+    saveData()(csvContent,csvSummaryFilename);
+	console.log("util.js: csv of summary data (" + csvSummaryArray.length + " created and saved.");
+
 }
 
 function sortByTime(a, b) {

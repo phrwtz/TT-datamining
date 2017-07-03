@@ -170,9 +170,9 @@ function duplicate(action) {
         checkTime,
         checkType,
         checkTeam,
-        checkbackLength = Math.min(actions.length, 3);
-    for (var i = 1; i < checkbackLength; i++) { //check three actions back
-        //or fewer if there aren't many actions on the stack
+        checkbackLength = Math.min(actions.length, 5);
+    for (var i = 1; i < checkbackLength; i++) { //check five actions back
+        //or fewer if there aren't that many actions on the stack
         checkAct = actions[thisAct.index - i];
         if (checkAct.id && checkAct.uTime && checkAct.type) {
             checkID = checkAct.actor.id
@@ -307,10 +307,12 @@ function addMeasurement(ro, i) {
     var myAction = addAction(ro, "measurement");
     //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
     if (!(duplicate(myAction))) {
-        myAction.dial_position = ro["dial_position"];
+        myAction.dialPosition = ro["dial_position"];
         myAction.measurementType = ro["measurement"];
-        myAction.black_probe = ro["black_probe"];
-        myAction.red_probe = ro["red_probe"];
+        myAction.blackPosition = ro["black_probe"];
+        myAction.redPosition = ro["red_probe"];
+        myAction.currentFlow = (ro["currentFlowing"] == "True" ? true : false);
+        myAction.board = ro["board"];
         myAction.msg = ro["result"].replace(/\s/g, '');
         myAction.varRefs = getVarRefs(myAction, myAction.msg);
         myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
@@ -342,15 +344,14 @@ function addSubmitER(ro) {
     if (!duplicate(myAction)) {
         myTeam = myAction.team;
         myLevel = myAction.level;
-        if ((myTeam.name == "Fruit") && (myLevel.label == "D")) {
-            console.log(myAction.uTime - myLevel.startUTime);
-        }
         (ro["E: Value"] ? myAction.ESubmitValue = ro["E: Value"] : myAction.ESubmitValue = "<No value submitted>");
         (ro["E: Unit"] ? myAction.ESubmitUnit = ro["E: Unit"] : myAction.ESubmitUnit = "");
         (ro["R: Value"] ? myAction.RSubmitValue = ro["R: Value"] : myAction.RSubmitValue = "<No value submitted>");
         (ro["R: Unit"] ? myAction.RSubmitUnit = ro["R: Unit"] : myAction.RSubmitUnit = "");
         (ro["E: Value"] == myLevel.E ? myLevel.successE = true : myLevel.successE = false);
         (ro["R: Value"] == myLevel.R0 ? myLevel.successR = true : myLevel.successR = false);
+        (ro["E: Value"] == myLevel.E ? myAction.successE = true : myAction.successE = false);
+        (ro["R: Value"] == myLevel.R0 ? myAction.successR = true : myAction.successR = false);
         myAction.level.actions.push(myAction);
     }
 }
@@ -358,8 +359,12 @@ function addSubmitER(ro) {
 function addAttachProbe(ro) {
     var myAction = addAction(ro, "attach-probe");
     //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+    if (ro["time"] == 1488326309) {
+        console.log("Check");
+    }
     if (!(duplicate(myAction))) {
         myAction.location = ro["location"];
+        myAction.probeColor = ro["color"];
         myAction.level.actions.push(myAction);
     } else {
         //        console.log("Passed over an attach probe action at . " + myAction.time);
@@ -371,6 +376,7 @@ function addDetachProbe(ro, i) {
     //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
     if (!(duplicate(myAction))) {
         myAction.location = ro["location"];
+        myAction.probeColor = ro["color"];
         myAction.level.actions.push(myAction);
     } else {
         //        console.log("Passed over a detach probe action at . " + myAction.time);
