@@ -189,7 +189,7 @@ function duplicate(action) {
 
 function addJoinedGroup(ro) {
     var myAction = addAction(ro, "joined-group");
-    if (!(duplicate(myAction))) {
+    if (!(duplicate(myAction)) && (ro["event_value"] === ro["groupname"])) { //There's at least one examnple in the data where this condition is not satisfied: a joined group action is reported for two different teams by groupname and event_value. We're going to ignore such events for the time being.
         myAction.level.actions.push(myAction);
     }
 }
