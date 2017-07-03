@@ -268,7 +268,7 @@ function reportResults(teams) {	 // extract and list actions checked by user
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("<span style=\"color:#FF00FF;\">Calculation:</span> At " + eTime + " seconds " + + "(" + uTime + ") " + act.actor.styledName +
+                                        document.getElementById("data").innerHTML += ("<span style=\"color:#FF00FF;\">Calculation:</span> At " + eTime + " seconds " + "(" + uTime + ") " + act.actor.styledName +
                                             ", board " + bd + ", performed the calculation  " + act.highlightedMsg + ".<br>");
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
                                         document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
@@ -527,15 +527,16 @@ function reportSummary(teams) {
 
 
 
-// //Identifies instances of "voltage regulator behavior" by looking for pairs of resistor changes where
-// //(a) the actor for the second is not the same as the actor for the first
-// //(b) the first moved the voltage of the second actor away from the goal
-// //(c) the second moves the voltage closer to the goal or overshoots, and
-// //(d) the second follows the first by no more than <timeInterval> seconds
-// //if additional resistor changes occur within the same <timeInterval> by the second player
-// //and are goal seeking, they are to be added to the voltage regulator transaction.
-// //Returns the array of resistorChange actions that belong to the transaction.
+//Identifies instances of "voltage regulator behavior" by looking for pairs of resistor changes where
+//(a) the actor for the second is not the same as the actor for the first
+//(b) the first moved the voltage of the second actor away from the goal
+//(c) the second moves the voltage closer to the goal or overshoots, and
+//(d) the second follows the first by no more than <timeInterval> seconds
+//if additional resistor changes occur within the same <timeInterval> by the second player
+//and are goal seeking, they are to be added to the voltage regulator transaction.
+//Returns the array of resistorChange actions that belong to the transaction.
 // function reportVoltageRegulator(teams) {
+//     var previousActions = [];
 //     if ($("#voltage-regulator")[0].checked) {
 //         for (var k = 0; k < teams.length; k++) {
 //             var team = teams[k];
@@ -546,7 +547,6 @@ function reportSummary(teams) {
 //                         for (i = 0; i < myLevel.actions.length; i++) {
 //                             act = myLevel.actions[i];
 //                             if (act.type = "resistorChange") {
-//                                 var previousActions = [];
 //                                 for (var j = 0; j < previousActions.length; j++) {
 //                                     preAct = previousActions[j];
 //                                     if (act.uTime - preAct.uTime < interval) {
