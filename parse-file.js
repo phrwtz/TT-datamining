@@ -13,7 +13,7 @@ var vrLabelsArray = ["E", "R0", "R1", "R2", "R3", "sumRs", "sumRsPlusR0", "V0", 
 var csvActionsArray = [["Teacher", "Date", "Team", "Level", "Time", "Action", "Actor", "Message", "Input", "Result",
 	    "Old Resistance", "New Resistance", "Dial Position", "Probe Positions", "Measurement type",
 	    "Measurement Result", "Submit E-Value", "Submit E-Unit", "Submit R0-Value", "Submit R0-Unit"]]; //col headings for Actions File Download as csv file
-var csvSummaryArray = [["Teacher", "Date", "Team", "Level", "Time", "Summary Type", "Actor", "Total Mssg Score", "Number Mssgs", "Avg Mssg Score"]] // col headings for Summary File Downloads as csv file
+var csvSummaryArray = [["Teacher", "Date", "Team", "Level", "Time", "Summary Type", "Actor", "Total Msg Score", "Number Msgs", "Avg Msg Score"]] // col headings for Summary File Downloads as csv files
 var csvFilename;
 
 function parseCSV() {
@@ -26,7 +26,7 @@ function parseCSV() {
         if (typeof(FileReader) != "undefined") {
             var reader = new FileReader();
             reader.onerror = function(err) {
-                console.log(err);
+                console.log("Error loading file " + err);
             }
             reader.onloadend = function(e) {
 

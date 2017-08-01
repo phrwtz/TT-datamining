@@ -224,7 +224,7 @@ function reportResults(teams) {	 // extract and list actions checked by user
                                         // }
                                         preTime = act.uTime;
                                         document.getElementById("data").innerHTML += ("<span style=\"color:#0000FF;\">Resistor change:</span> At " + eTime + " seconds " +
-                                            "(" + uTime + ") " + styledName + " changed R" + (bd) + " from " + act.oldR[bd - 1] +
+                                            "(" + uTime + ") " + styledName + " changed R" + bd + " from " + act.oldR[bd - 1] +
                                             " to " + act.newR[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
                                             " to " + act.newV[bd - 1] + ". (Goal is " + myLevel.goalV[bd - 1] + ")" + act.goalMsg + "<br>");
                                         document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.newR[0] + ", R2 = " + act.newR[1] + ", R3 = " + act.newR[2] + ";  ");
@@ -335,9 +335,11 @@ function reportResults(teams) {	 // extract and list actions checked by user
                                 case "measurement":
                                     if ($("#action-measurement")[0].checked) {
                                         var currentMsg = (act.currentFlowing ? ", current is flowing" : ", current is not flowing")
+                                        var gapMsg = (act.gapMeasurement ? " (measurement across gap)" : " (measurement across resistor)")
                                         document.getElementById("data").innerHTML += ("At " + eTime + " seconds (" + uTime + ") " + act.actor.styledName +
-                                            ", board " + act.board + ", measured " + act.measurementType + ". Dial is set to " + act.dialPosition + 
-											", probes are set to " + act.redPosition + " and " + act.blackPosition + currentMsg + ", reading is " + act.highlightedMsg + ".<br>");	
+                                            ", board " + bd + ", measured " + act.measurementType + ". Dial is set to " + act.dialPosition +
+                                            ", probes are set to " + act.redPosition + " and " + act.blackPosition + 
+                                            gapMsg + currentMsg + ", reading is " + act.highlightedMsg + ".<br>");
 										// measurement = act.highlightedMsg.substr(0,act.highlightedMsg.indexOf(' '));	// get value from highlightedMsg 
 										// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
 										// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
@@ -394,6 +396,7 @@ function reportVarRefs(teams) {
                                     vrNum = vr[2];
                                     vrScore = vr[3];
                                     var t = act.type;
+                                    var bd = parseInt(act.board) + 1;
                                     switch (t) {
                                         case "message":
                                             t = "<span style=\"color:#FF0000;\">message</span>";
@@ -411,7 +414,7 @@ function reportVarRefs(teams) {
                                             break;
                                     }
                                     document.getElementById("data").innerHTML += ("Variable " + vrStr + " found at " + act.eTime +
-                                        " seconds in a " + t + " by " + act.actor.styledName + ", board " + (act.board + 1) + ".<br>");	
+                                        " seconds in a " + t + " by " + act.actor.styledName + ", board " + bd + ".<br>");	
 									varRefCount++;
                                 }
                             }
