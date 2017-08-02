@@ -288,8 +288,10 @@ function addCalculation(ro) {
     if (!(duplicate(myAction))) {
     myAction.cMsg = ro["calculation"];
     myAction.rMsg = ro["result"];
-    myAction.msg = myAction.cMsg +  " = " + myAction.rMsg     
-    myAction.varRefs = getVarRefs(myAction, myAction.msg);
+    myAction.msg = myAction.cMsg +  " = " + myAction.rMsg    
+    myAction.cvarRefs = getVarRefs(myAction, myAction.cMsg);   
+    myAction.rvarRefs = getVarRefs(myAction, myAction.rMsg);
+    myAction.varRefs = myAction.cvarRefs.concat(myAction.rvarRefs);
     myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
     myAction.score = scoreAction(myAction);
     myAction.R = myAction.level.R;

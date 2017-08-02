@@ -165,8 +165,8 @@ function highlightMessage(act, text) { //Highlights the variable names, if any, 
 
 function getVarRefs(action, text) {
     //returns an array (possibly empty) of variable references contained in text.
-    //(the message of a message action, the input or output of a calculation, or the
-    //result of a measurement.)
+    //(the message of a message action, the input or output of a calculation, the
+    //result of a measurement, or the E and/or R value submitted at levels C and D.)
     //A variable reference is an array consisting of the action in which the
     //reference occurs, a string representing the variable that is matched, a string
     //representing the number that was matched, and a numerical score indicating whether
@@ -184,7 +184,7 @@ function getVarRefs(action, text) {
         //nums is an array of strings representing all the numbers in text
         for (var i = 0; i < nums.length; i++) {
             vrs[i] = findVars(action, nums[i]); //matches the numbers to the variables.
-            //returns an array of varRefs;
+            //puts an array of varRefs into level.varRefs
         }
     }
     //If we're looking at the result of a calculation and it doesn't correspond to any
@@ -236,7 +236,7 @@ function findVars(act, numStr) {
         goalImA = 1000 * goalIA;
     //tol is how close two numbers have to be to considered "about equal"
     //Note: we compare tol to |x - y| / (x + y) so it's a relative value
-    var tol = .01,
+    var tol = .001,
         thisStr = "";
     var variableFound = false;
     if (about(num, E, tol)) {

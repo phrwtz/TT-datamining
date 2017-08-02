@@ -401,7 +401,7 @@ function reportVarRefs(teams) {
                                         case "message":
                                             t = "<span style=\"color:#FF0000;\">message</span>";
                                             break;
-                                        case "calculation":
+                                        case "calculation":    
                                             if (variableInVarRef(vrStr, act.cvarRefs)) {
                                                 t = "<span style=\"color:#FF00FF;\">calculation input</span>";
                                                 break;
