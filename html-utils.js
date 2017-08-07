@@ -111,7 +111,7 @@ function makeTeamTable(team, title, levelData, type, arrMssgScores) {
         }
     }
 
-    //And the sixth cell of the fifth row contain the total of totals or the average
+    //And the sixth cell of the fifth row contains the total of totals or the average
     //of averages
     dataCells[3][5].setAttribute("style", "color:red");
     for (var i = 0; i < totalRowScores.length; i++) {

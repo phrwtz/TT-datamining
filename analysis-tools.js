@@ -114,7 +114,7 @@ function addAction(ro, type) {
     myAction.actor = myMember;
     myAction.uTime = ro["time"];
     myAction.eTime = Math.round(myAction.uTime - myLevel.startUTime);
-     //    myAction.pTime = unixTimeConversion(myAction.uTime);
+    myAction.pTime = unixTimeConversion(myAction.uTime);
     myAction.board = parseInt(ro["board"]);
     myAction.index = myLevel.actions.length; //The length of the array before the action is pushed. (The index of the action
     //if it is pushed will equal this.)
@@ -189,7 +189,7 @@ function duplicate(action) {
 
 function addJoinedGroup(ro) {
     var myAction = addAction(ro, "joined-group");
-    if (!(duplicate(myAction))) {
+    if (!(duplicate(myAction)) && (ro["event_value"] === ro["groupname"])) { //There's at least one examnple in the data where this condition is not satisfied: a joined group action is reported for two different teams by groupname and event_value. We're going to ignore such events for the time being.
         myAction.level.actions.push(myAction);
     }
 }
@@ -288,15 +288,12 @@ function addCalculation(ro) {
     if (!(duplicate(myAction))) {
     myAction.cMsg = ro["calculation"];
     myAction.rMsg = ro["result"];
-    myAction.msg = myAction.cMsg +  " = " + myAction.rMsg
-
-    myAction.cvarRefs = getVarRefs(myAction, myAction.cMsg);
+    myAction.msg = myAction.cMsg +  " = " + myAction.rMsg    
+    myAction.cvarRefs = getVarRefs(myAction, myAction.cMsg);   
     myAction.rvarRefs = getVarRefs(myAction, myAction.rMsg);
     myAction.varRefs = myAction.cvarRefs.concat(myAction.rvarRefs);
-    myAction.score = scoreAction(myAction); 
-    
     myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
-    
+    myAction.score = scoreAction(myAction);
     myAction.R = myAction.level.R;
     myAction.V = myAction.level.V;
     myAction.level.actions.push(myAction);
@@ -311,6 +308,12 @@ function addMeasurement(ro, i) {
         myAction.measurementType = ro["measurement"];
         myAction.blackPosition = ro["black_probe"];
         myAction.redPosition = ro["red_probe"];
+        if (myAction.blackPosition.slice(1) === myAction.redPosition.slice(1) &&
+            (myAction.blackPosition[0] !== myAction.redPosition[0])) {
+            myAction.gapMeasurement = true;
+        } else {
+            myAction.gapMeasurement = false;
+        }
         myAction.currentFlow = (ro["currentFlowing"] == "True" ? true : false);
         myAction.board = ro["board"];
         myAction.msg = ro["result"].replace(/\s/g, '');
@@ -352,6 +355,9 @@ function addSubmitER(ro) {
         (ro["R: Value"] == myLevel.R0 ? myLevel.successR = true : myLevel.successR = false);
         (ro["E: Value"] == myLevel.E ? myAction.successE = true : myAction.successE = false);
         (ro["R: Value"] == myLevel.R0 ? myAction.successR = true : myAction.successR = false);
+        myAction.varRefs = [];
+        myAction.varRefs.push(getVarRefs(myAction, myAction.ESubmitValue));
+        myAction.varRefs.push(getVarRefs(myAction, myAction.RSubmitValue));
         myAction.level.actions.push(myAction);
     }
 }
