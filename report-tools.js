@@ -332,6 +332,20 @@ function reportResults(teams) {	 // extract and list actions checked by user
                                     }
                                     break;
 
+                                case "opened-zoom":
+                                    if ($("#action-opened-zoom")[0].checked) {
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +  "(" + uTime + ") " + act.actor.styledName +
+                                            ", board " + bd + ", opened zoom view " + "<br>");
+                                    }
+                                    break;
+                                    
+                                case "closed-zoom":
+                                    if ($("#action-closed-zoom")[0].checked) {
+                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +  "(" + uTime + ") " + act.actor.styledName +
+                                            ", board " + bd + ", closed zoom view " + "<br>");
+                                    }
+                                    break;
+
                                 case "measurement":
                                     if ($("#action-measurement")[0].checked) {
                                         var currentMsg = (act.currentFlowing ? ", current is flowing" : ", current is not flowing")
