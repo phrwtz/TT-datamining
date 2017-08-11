@@ -445,9 +445,9 @@ function reportVarRefs(teams) {
 
 function variableInVarRef(vrStr, vrArray) { //Looks for the vrStr in vrArray. Returns true if found. 
     for (var i = 0; i < vrArray.length; i++) {
-        if (vrArray[i][0][1] == vrStr) {
-            return true;
-        }
+            if (vrArray[i][1][1] == vrStr) {
+                return true;
+            }    
     }
     return false;
 }
