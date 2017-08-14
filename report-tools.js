@@ -348,12 +348,19 @@ function reportResults(teams) {	 // extract and list actions checked by user
 
                                 case "measurement":
                                     if ($("#action-measurement")[0].checked) {
-                                        var currentMsg = (act.currentFlowing ? ", current is flowing" : ", current is not flowing")
-                                        var gapMsg = (act.gapMeasurement ? " (measurement across gap)" : " (measurement across resistor)")
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds (" + uTime + ") " + act.actor.styledName +
-                                            ", board " + bd + ", measured " + act.measurementType + ". Dial is set to " + act.dialPosition +
-                                            ", probes are set to " + act.redPosition + " and " + act.blackPosition + 
+                                        var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
+                                        var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
+                                        var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
+                                        var currentMsg = (act.currentFlowing ? ", current flowing" : ", current is not flowing")
+                                        var gapMsg = (act.gapMeasurement ? " (across gap)" : " (across resistor)")
+                                        document.getElementById("data").innerHTML += ("<span style=\"color:#CC2288;\">Measurement:</span> At " + eTime + " seconds (" + uTime + ") " + act.actor.styledName +
+                                            ", board " + bd + ", measured " + act.measurementType + ". Dial set to " + act.dialPosition +
+                                            ", probes at " + act.redPosition + " and " + act.blackPosition + 
                                             gapMsg + currentMsg + ", reading is " + act.highlightedMsg + ".<br>");
+
+                                        document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
+                                        document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
+                                        document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
 										// measurement = act.highlightedMsg.substr(0,act.highlightedMsg.indexOf(' '));	// get value from highlightedMsg 
 										// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
 										// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
@@ -387,6 +394,7 @@ function reportVarRefs(teams) {
         act,
         vrStr,
         vrNum,
+        oMsg,
         vrScore;
 
     for (var k = 0; k < teams.length; k++) {
@@ -411,9 +419,11 @@ function reportVarRefs(teams) {
                                     vrScore = vr[3];
                                     var t = act.type;
                                     var bd = parseInt(act.board) + 1;
+                                    oMsg = ""
                                     switch (t) {
                                         case "message":
                                             t = "<span style=\"color:#FF0000;\">message</span>";
+                                            o = findOtherVariables(vr);
                                             break;
                                         case "calculation":
                                             if (variableInVarRef(vrStr, act.cvarRefs)) {
@@ -422,13 +432,26 @@ function reportVarRefs(teams) {
                                             } else if (variableInVarRef(vrStr, act.rvarRefs)) {
                                                 t = "<span style=\"color:#FF00FF;\">calculation result</span>";
                                                 break;
-                                            } break;
+                                            }
+                                            o = findOtherVariables(vr);
+                                            break;
                                         case "measurement":
                                             t = "<span style=\"color:#0000FF;\">measurement</span>";
+                                            o = findOtherVariables(vr);
                                             break;
                                     }
+                                    if (o.length == 0) {
+                                        oMsg = ". No other references.";
+                                    } else if (o.length == 1) {
+                                            oMsg = ". One other reference: " + o[0];
+                                        } else {
+                                            oMsg += ". Other references: " + o[0];
+                                            for (var jj = 1; jj < o.length; jj++) {
+                                                oMsg += ", " + o[jj];
+                                            }
+                                        }
                                     document.getElementById("data").innerHTML += ("Variable " + vrStr + " found at " + act.eTime +
-                                        " seconds in a " + t + " by " + act.actor.styledName + ", board " + bd + ".<br>");	
+                                        " seconds in a " + t + " by " + act.actor.styledName + ", board " + bd + oMsg + "<br>" );	
 									varRefCount++;
                                 }
                             }
@@ -445,11 +468,38 @@ function reportVarRefs(teams) {
 
 function variableInVarRef(vrStr, vrArray) { //Looks for the vrStr in vrArray. Returns true if found. 
     for (var i = 0; i < vrArray.length; i++) {
-            if (vrArray[i][1][1] == vrStr) {
-                return true;
-            }    
+        if (vrArray[i][1][1] == vrStr) {
+            return true;
+        }
     }
     return false;
+}
+
+function findOtherVariables(vr) { // Returns a string containing all the variable names that could have applied to the varRef vr (in other words, other variables that also matched the value field of vr)
+    var otherStrs = [], //Array to be filled with the ambiguous variable names, if any
+        theseVarRefs = [],
+        thisAction = {},
+        thisStr = "",
+        thisVal = "",
+        compareStr = "",
+        compareVal = "";
+    thisAction = vr[0]; //The action that is associated with the varRef we are examining
+    theseVarRefs = thisAction.varRefs //Array of all the varRefs associated with thisAction.
+    thisStr = vr[1]; //Variable name of the varRef we are examining
+    thisVal = vr[2]; //Value of the varRef we are examining
+    //We are interested in variables associated with this action that have the same values as the variable of the varRef we are examining. These are the ambiguous variables
+    for (var i = 0; i < theseVarRefs.length; i++) {
+        thisVarRef = theseVarRefs[i]; //An array of references, one for each variable that matched the value
+        for (var j = 0; j < thisVarRef.length; j++) {
+            thisReference = thisVarRef[j]; //each reference is a four-dimensional array consisting of the action that generated gthe match, a string represeting the variable that was matched, the number that was matched, and a score corresponding to that variable. All the references in thisVarRef will have the same action and number,but different strings and scores.
+            compareStr = thisReference[1];
+            compareVal = thisReference[2];
+            if ((compareStr !== thisStr) && (compareVal === thisVal)) {
+                otherStrs.push(compareStr);
+            }
+        }
+    }
+    return otherStrs;
 }
 
 //Reports on total number of resistor changes in each category for each team member, per level.
