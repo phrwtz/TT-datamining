@@ -255,16 +255,19 @@ function addRChange(ro) {
             ((myAction.newR[0] != myAction.oldR[0]) || (myAction.newR[1] != myAction.oldR[1]) || (myAction.newR[2] != myAction.oldR[2]))) {
             oldGoalDifference = myAction.oldV[bd] - myLevel.goalV[bd];
             newGoalDifference = myAction.newV[bd] - myLevel.goalV[bd];
-            if ((myLevel.attainedVs) && (!myLevel.movedAwayFromVs))  {
+            totalGoalDifference = Math.abs(myAction.newV[0] - myLevel.goalV[0]) + Math.abs(myAction.newV[1] - myLevel.goalV[1]) + Math.abs(myAction.newV[2] - myLevel.goalV[2]);
+            myAction.attainedVsMsg = (totalGoalDifference < .01 ?   ", goal voltages attained, " : ", goal voltages not attained, ");
+            if (Math.abs(totalGoalDifference) < .01) {
+                if (!myLevel.attainedVs) { //only record time the first time
+                    myLevel.attainedVsTime = myAction.eTime;
+                }
+                myLevel.attainedVs = true;
+            } else if ((myLevel.attainedVs) && (!myLevel.movedAwayFromVs))  {
                 myLevel.movedAwayFromVs = true;
                 myLevel.movedAwayFromVsTime = myAction.eTime;
             }
             if (Math.abs(newGoalDifference) < .01) {
                 myAction.goalMsg = ". Local goal met";
-                if (!myLevel.attainedVs) { //only record time the first time
-                    myLevel.attainedVs = true;
-                    myLevel.attainedVsTime = myAction.eTime;
-                }
             } else if (Math.sign(oldGoalDifference) != Math.sign(newGoalDifference) &&
                 (newGoalDifference > 0)) {
                 myAction.goalMsg = ". Goal overshot";

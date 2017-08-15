@@ -264,6 +264,7 @@ function findVars(act, numStr) {
         variableFound = true;
         thisStr = "R2";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, R3, tol)) {
