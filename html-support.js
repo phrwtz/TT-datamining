@@ -208,10 +208,11 @@ function addActionRow(act, content) {
     var actionCell1 = document.createElement("th");
     var actionCell2 = document.createElement("th");
     var actionCell3 = document.createElement("th");
+    var bd = parseInt(act.board);
     actionTable.appendChild(actionRow);
     actionCell0.innerHTML = act.eTime;
     actionRow.appendChild(actionCell0);
-    switch (act.board) {
+    switch (bd) {
         case 0:
             actionCell1.innerHTML = content;
             actionCell2.innerHTML = "";

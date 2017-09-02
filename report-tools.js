@@ -319,7 +319,7 @@ function reportResults(teams) {	 // extract and list actions checked by user
                                         content = act.actor.styledName + ", measured " + act.measurementType + ". Dial set to " + act.dialPosition +
                                             ", probes at " + act.redPosition + " and " + act.blackPosition + 
                                             gapMsg + currentMsg + ", reading is " + act.highlightedMsg;
-                                            addActionRow(act, content);
+                                        addActionRow(act, content);
                                         var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "measurement", act.actor.name,
                                             , , , , , act.dialPosition, act.redPosition + "-" + act.blackPosition, act.measurementType, act.msg];
                                         csvActionsArray.push(newRow);
