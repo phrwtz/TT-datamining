@@ -9,6 +9,7 @@ function generateReport(teams) {
 
 function reportResults(teams) {	 // extract and list actions checked by user
     document.getElementById("data").innerHTML = ""; //Clear data
+    setUpActionsReport();
     for (var k = 0; k < teams.length; k++) { // for each team
         var team = teams[k];
         if ((team.members.length == 3)) {
@@ -112,9 +113,10 @@ function reportResults(teams) {	 // extract and list actions checked by user
                         document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent: </span>" + messageCount[0] + " + " + messageCount[1] + " + " + messageCount[2] + " = " + messageTotal + "<br>";
                         document.getElementById("data").innerHTML += "<span style=\"color:#FF00FF;\">Calculations performed: </span>" + calculationCount[0] + " + " + calculationCount[1] + " + " + calculationCount[2] + " = " + calculationTotal + "<br>";
                         document.getElementById("data").innerHTML += "<span style=\"color:#0000FF;\">Resistor changes: </span>" + resistorChangeCount[0] + " + " + resistorChangeCount[1] + " + " + resistorChangeCount[2] + " = " + resistorChangeTotal + "<br><br>";
-
+                        addLevelRow(team,myLevel);
                         for (var i = 0; i < acts.length; i++) {	// interpret actions for each level
                             var act = acts[i],
+                                content = "",    
                                 bd = act.board + 1,
                                 actor = act.actor,
                                 styledName = actor.styledName,
@@ -126,9 +128,6 @@ function reportResults(teams) {	 // extract and list actions checked by user
                             switch (act.type) {
                                 case "submitClicked":
                                     if ($("#action-submit-V")[0].checked) {
-                                        if (myLevel.label == "B") {
-                                            console.log("stop");
-                                        }
                                         var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
                                         var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
@@ -142,10 +141,8 @@ function reportResults(teams) {	 // extract and list actions checked by user
 										// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
 	                                    var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submit-V", act.actor.name, successMsg2];
                                         csvActionsArray.push(newRow);
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +
-                                            act.actor.styledName + ", board " + bd + successMsg + "<br>");
-                                        document.getElementById("data").innerHTML += ("goalV1 = " + myLevel.goalV[0] + ", goalV2 = " + myLevel.goalV[1] +
-                                            ", goalV3 = " + myLevel.goalV[2] + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + "<br>");
+                                        content = act.actor.styledName + successMsg;
+                                        addActionRow(act, content);
                                     }
                                     break;
 
@@ -158,11 +155,8 @@ function reportResults(teams) {	 // extract and list actions checked by user
 										// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
 										var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submit-V", act.actor.name, "correct-Vs"];
                                         csvActionsArray.push(newRow);
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
-                                            ", board " + bd + ", submitted correct answers.<br>");
-                                        document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", q = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
-                                        document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
-                                        document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
+                                        content = act.actor.styledName + " submitted correct answers.";
+                                        addActionRow(act, content);
                                     }
                                     break;
 
@@ -171,10 +165,6 @@ function reportResults(teams) {	 // extract and list actions checked by user
                                         var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
                                         var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
-
-                                        // if ((act.uTime - preTime) > interval) {
-                                        //     document.getElementById("data").innerHTML += "<hr>"
-                                        // }
                                         preTime = act.uTime;
 
                                         var msg = "";
@@ -197,19 +187,15 @@ function reportResults(teams) {	 // extract and list actions checked by user
                                         }
                                         if (myLevel.label == "D") {
                                             msg += ", submitted " + Elabel + " value for E (" + act.ESubmitValue + " " + act.ESubmitUnit + ")" +
-                                                " and submitted " + Rlabel + " value for R0 (" + act.RSubmitValue + " " + act.RSubmitUnit + ").<br>";
+                                                " and " + Rlabel + " value for R0 (" + act.RSubmitValue + " " + act.RSubmitUnit + ").<br>";
 											// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
 											// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
 	                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submitE-R0", act.actor.name, 	, , , , , , , , ,
 												act.ESubmitValue, act.ESubmitUnit, act.RSubmitValue, act.RSubmitUnit];
                                         	csvActionsArray.push(newRow);
                                         }
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + act.actor.styledName +
-                                            ", board " + bd + msg);
-
-                                        document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
-                                        document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
-                                        document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
+                                        content = act.actor.styledName + msg;
+                                        addActionRow(act, content);
                                     }
                                     break;
 
@@ -223,13 +209,10 @@ function reportResults(teams) {	 // extract and list actions checked by user
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("<span style=\"color:#0000FF;\">Resistor change:</span> At " + eTime + " seconds " +
-                                            "(" + uTime + ") " + styledName + " changed R" + bd + " from " + act.oldR[bd - 1] +
+                                        content = styledName + " changed R" + bd + " from " + act.oldR[bd - 1] +
                                             " to " + act.newR[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
-                                            " to " + act.newV[bd - 1] + ". (Goal is " + myLevel.goalV[bd - 1] + ")" + act.goalMsg + "<br>");
-                                        document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.newR[0] + ", R2 = " + act.newR[1] + ", R3 = " + act.newR[2] + ";  ");
-                                        document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.newV[0] + ", V2 = " + act.newV[1] + ", V3 = " + act.newV[2] + ";  ");
-                                        document.getElementById("data").innerHTML += ("I = " + current + " mA" + act.attainedVsMsg + currentMsg + "<br><br>");
+                                            " to " + act.newV[bd - 1] + ". (Goal is " + myLevel.goalV[bd - 1] + ")" + act.goalMsg;
+                                            addActionRow(act, content);
 										// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
 										// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
                                         var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, act.type, act.actor.name, , , , act.oldR[bd - 1], act.newR[bd - 1]];
@@ -247,13 +230,8 @@ function reportResults(teams) {	 // extract and list actions checked by user
                                         // }
                                         preTime = act.uTime;
 
-                                        document.getElementById("data").innerHTML += ("<span style=\"color:#FF0000;\">Message:</span> At " +
-                                            eTime + " seconds " + "(" + uTime + ") " + act.actor.styledName + ", board " + bd + ", said: " + act.highlightedMsg + "<br>");
-                                        document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
-                                        document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
-                                        document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
-										// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
-										// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
+                                        content = act.actor.styledName + ", said: " + act.highlightedMsg;
+                                        addActionRow(act, content);
                                         var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, act.type, act.actor.name, act.msg];
                                         csvActionsArray.push(newRow);
                                     }
@@ -268,13 +246,8 @@ function reportResults(teams) {	 // extract and list actions checked by user
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("<span style=\"color:#FF00FF;\">Calculation:</span> At " + eTime + " seconds " + "(" + uTime + ") " + act.actor.styledName +
-                                            ", board " + bd + ", performed the calculation  " + act.highlightedMsg + ".<br>");
-                                        document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
-                                        document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
-                                        document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
-										// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
-										// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
+                                        content = act.actor.styledName + ", performed the calculation  " + act.highlightedMsg;
+                                        addActionRow(act, content);
                                         var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, act.type, act.actor.name, , act.cMsg, act.rMsg];
                                         csvActionsArray.push(newRow);
                                     }
@@ -286,9 +259,8 @@ function reportResults(teams) {	 // extract and list actions checked by user
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + "(" + uTime + ") " + act.actor.styledName +
-                                            ", board " + bd +
-                                            ", attached the " + act.probeColor + " probe to " + act.location + currentMsg + "<br>");
+                                        content = act.actor.styledName + ", attached the " + act.probeColor + " probe to " + act.location + currentMsg;
+                                        addActionRow(act, content);
                                     }
                                     break;
                                 case "detach-probe":
@@ -297,52 +269,43 @@ function reportResults(teams) {	 // extract and list actions checked by user
                                         //     document.getElementById("data").innerHTML += "<hr>"
                                         // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + eTime +  " seconds " + "(" + uTime + ") " + act.actor.styledName +
-                                            ", board " + bd +
-                                            ", detached the " + act.probeColor + " probe from " + act.location + currentMsg + "<br>");
+                                        content = act.actor.styledName + ", detached the " + act.probeColor + " probe from " + act.location + currentMsg;
+                                        addActionRow(act, content);
                                     }
                                     break;
                                 case "connect-lead":
                                     if ($("#action-connect-lead")[0].checked) {
-                                        // if ((act.uTime - preTime) > interval) {
-                                        //     document.getElementById("data").innerHTML += "<hr>"
-                                        // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + "(" + uTime + ") " + act.actor.styledName +
-                                            ", board " + bd +
-                                            ", connected a lead to " + act.location + currentMsg + "<br>");
+                                        content = act.actor.styledName + ", connected a lead to " + act.location + currentMsg;
+                                        addActionRow(act, content);
                                     }
                                     break;
 
                                 case "disconnect-lead":
                                     if ($("#action-disconnect-lead")[0].checked) {
-                                        // if ((act.uTime - preTime) > interval) {
-                                        //     document.getElementById("data").innerHTML += "<hr>"
-                                        // }
                                         preTime = act.uTime;
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + "(" + uTime + ") " + act.actor.styledName +
-                                            ", board " + bd +
-                                            ", disconnected a lead from " + act.location + currentMsg + "<br>");
+                                       content = act.actor.styledName + ", disconnected a lead from " + act.location + currentMsg;
+                                       addActionRow(act, content);
                                     }
                                     break;
                                 case "joined-group":
                                     if ($("#action-joined-group")[0].checked) {
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +  "(" + uTime + ") " + act.actor.styledName +
-                                            ", board " + bd + ", joined team " + team.name + "<br>");
+                                        content = act.actor.styledName + ", joined team " + team.name;
+                                        addActionRow(act, content);
                                     }
                                     break;
 
                                 case "opened-zoom":
                                     if ($("#action-opened-zoom")[0].checked) {
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +  "(" + uTime + ") " + act.actor.styledName +
-                                            ", board " + bd + ", opened zoom view " + "<br>");
+                                        content += act.actor.styledName + ", opened zoom view ";
+                                        addActionRow(act, content);
                                     }
                                     break;
                                     
                                 case "closed-zoom":
                                     if ($("#action-closed-zoom")[0].checked) {
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " +  "(" + uTime + ") " + act.actor.styledName +
-                                            ", board " + bd + ", closed zoom view " + "<br>");
+                                        content = act.actor.styledName + ", closed zoom view ";
+                                        addActionRow(act, content);
                                     }
                                     break;
 
@@ -353,17 +316,10 @@ function reportResults(teams) {	 // extract and list actions checked by user
                                         var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
                                         var currentMsg = (act.currentFlowing ? ", current flowing" : ", current is not flowing")
                                         var gapMsg = (act.gapMeasurement ? " (across gap)" : " (across resistor)")
-                                        document.getElementById("data").innerHTML += ("<span style=\"color:#CC2288;\">Measurement:</span> At " + eTime + " seconds (" + uTime + ") " + act.actor.styledName +
-                                            ", board " + bd + ", measured " + act.measurementType + ". Dial set to " + act.dialPosition +
+                                        content = act.actor.styledName + ", measured " + act.measurementType + ". Dial set to " + act.dialPosition +
                                             ", probes at " + act.redPosition + " and " + act.blackPosition + 
-                                            gapMsg + currentMsg + ", reading is " + act.highlightedMsg + ".<br>");
-
-                                        document.getElementById("data").innerHTML += ("R0 = " + myLevel.R0 + ", R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + ";  ");
-                                        document.getElementById("data").innerHTML += ("V0 = " + V0 + ", V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + ";  ");
-                                        document.getElementById("data").innerHTML += ("I = " + current + " mA" + currentMsg + "<br><br>");
-										// measurement = act.highlightedMsg.substr(0,act.highlightedMsg.indexOf(' '));	// get value from highlightedMsg 
-										// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
-										// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
+                                            gapMsg + currentMsg + ", reading is " + act.highlightedMsg;
+                                            addActionRow(act, content);
                                         var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "measurement", act.actor.name,
                                             , , , , , act.dialPosition, act.redPosition + "-" + act.blackPosition, act.measurementType, act.msg];
                                         csvActionsArray.push(newRow);
@@ -372,8 +328,8 @@ function reportResults(teams) {	 // extract and list actions checked by user
 
                                 case "move-dial":
                                     if ($("#action-move-DMM-dial")[0].checked) {
-                                        document.getElementById("data").innerHTML += ("At " + eTime + " seconds " + "(" + uTime + ") " + act.actor.styledName +
-                                            ", board " + bd + ", changed the DMM dial to " + act.dialPosition + ".<br>");
+                                        content = act.actor.styledName + ", changed the DMM dial to " + act.dialPosition;
+                                        addActionRow(act, content);
                                     }
                                     break;
                             }

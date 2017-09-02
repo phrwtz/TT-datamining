@@ -169,7 +169,7 @@ function setupForm(teams) {
     var strategyText = document.createTextNode("Find guess and check");
     strategyButton.appendChild(strategyText);
     strategyButton.setAttribute("onclick", "findGuessAndCheck(teams); return false;");
-    checkForm.appendChild(strategyButton);
+  //  checkForm.appendChild(strategyButton);
     console.log("guess and check search completed");
   
     var p = document.createElement("p");
@@ -177,4 +177,64 @@ function setupForm(teams) {
     checkDiv.appendChild(p);
 
     console.log("html-support: user selection form and action buttons created");
+}
+
+function setUpActionsReport(teams) { //Sets up a matrix with three columns into which the actions can be inserted with a different column for each actor
+    if (document.getElementById("reportDiv")) { //If reportDiv exists
+        var reportDiv = document.getElementById("reportDiv"); //clear it
+        while (reportDiv.firstChild) {
+            reportDiv.removeChild(reportDiv.firstChild);
+        }
+    } else { //otherwise create one
+        var reportDiv = document.createElement("div");
+        reportDiv.id = "reportDiv";
+        document.body.appendChild(reportDiv);
+    }
+  var actionTable = document.createElement("table"); 
+  reportDiv.appendChild(actionTable);  
+}
+function addLevelRow(team, level) {
+    var headerRow = document.createElement("tr");
+    var headerCell = document.createElement("th");
+    headerCell.innerHTML = team.name + ", Level " + level.label;
+    headerCell.setAttribute("colspan", 4);
+    headerRow.appendChild(headerCell);
+    actionTable = reportDiv.firstChild;
+    actionTable.appendChild(headerRow); 
+}
+function addActionRow(act, content) {
+    var actionRow = document.createElement("tr");
+    var actionCell0 = document.createElement("th");
+    var actionCell1 = document.createElement("th");
+    var actionCell2 = document.createElement("th");
+    var actionCell3 = document.createElement("th");
+    actionTable.appendChild(actionRow);
+    actionCell0.innerHTML = act.eTime;
+    actionRow.appendChild(actionCell0);
+    switch (act.board) {
+        case 0:
+            actionCell1.innerHTML = content;
+            actionCell2.innerHTML = "";
+            actionCell3.innerHTML = "";
+            actionRow.appendChild(actionCell1);
+            actionRow.appendChild(actionCell2);
+            actionRow.appendChild(actionCell3);
+            break;
+        case 1:
+            actionCell1.innerHTML = "";
+            actionCell2.innerHTML = content;
+            actionCell3.innerHTML = "";
+            actionRow.appendChild(actionCell1);
+            actionRow.appendChild(actionCell2);
+            actionRow.appendChild(actionCell3);
+            break;
+        case 2:
+            actionCell1.innerHTML = "";
+            actionCell2.innerHTML = "";
+            actionCell3.innerHTML = content;
+            actionRow.appendChild(actionCell1);
+            actionRow.appendChild(actionCell2);
+            actionRow.appendChild(actionCell3);
+            break;
+    }
 }
