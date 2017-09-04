@@ -198,6 +198,7 @@ function addLevelRow(team, level) {
     headerRow.style.backgroundColor = "#DDFFDD";
     var timeCell = document.createElement("th");
     var teamCell = document.createElement("th");
+    teamCell.style.alignItems = "flex-start";
     timeCell.innerHTML = "Time";
     teamCell.innerHTML = "Team " + team.name + ", Level " + level.label;
     teamCell.setAttribute("colspan", 3);
