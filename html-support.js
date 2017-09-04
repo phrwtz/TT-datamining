@@ -191,23 +191,27 @@ function setUpActionsReport(teams) { //Sets up a matrix with three columns into 
         document.body.appendChild(reportDiv);
     }
   var actionTable = document.createElement("table"); 
-  reportDiv.appendChild(actionTable);  
+  reportDiv.appendChild(actionTable); 
 }
 function addLevelRow(team, level) {
     var headerRow = document.createElement("tr");
-    var headerCell = document.createElement("th");
-    headerCell.innerHTML = team.name + ", Level " + level.label;
-    headerCell.setAttribute("colspan", 4);
-    headerRow.appendChild(headerCell);
+    headerRow.style.backgroundColor = "#DDFFDD";
+    var timeCell = document.createElement("th");
+    var teamCell = document.createElement("th");
+    timeCell.innerHTML = "Time";
+    teamCell.innerHTML = "Team " + team.name + ", Level " + level.label;
+    teamCell.setAttribute("colspan", 3);
+    headerRow.appendChild(timeCell);
+    headerRow.appendChild(teamCell);
     actionTable = reportDiv.firstChild;
     actionTable.appendChild(headerRow); 
 }
 function addActionRow(act, content) {
     var actionRow = document.createElement("tr");
-    var actionCell0 = document.createElement("th");
-    var actionCell1 = document.createElement("th");
-    var actionCell2 = document.createElement("th");
-    var actionCell3 = document.createElement("th");
+    var actionCell0 = document.createElement("td");
+    var actionCell1 = document.createElement("td");
+    var actionCell2 = document.createElement("td");
+    var actionCell3 = document.createElement("td");
     var bd = parseInt(act.board);
     actionTable.appendChild(actionRow);
     actionCell0.innerHTML = act.eTime;
