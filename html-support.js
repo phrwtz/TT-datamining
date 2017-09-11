@@ -279,6 +279,12 @@ function addActionRow(act, content) {
             case "move-dial":
                 actionCell0.style.backgroundColor = "#FADEFA";
                 break;
+                case "opened-zoom":
+                    actionCell0.style.backgroundColor = "#D9D6FF";
+                    break;
+                    case "closed-zoom":
+                        actionCell0.style.backgroundColor = "#D9D6FF";
+                        break;
     }
     actionRow.appendChild(actionCell0);
 

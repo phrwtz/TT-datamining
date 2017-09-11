@@ -95,12 +95,12 @@ function reportJoinedGroup(act) {
 }
 
 function reportOpenedZoom(act) {
-    content += act.actor.styledName + " opened zoom view ";
+    content = act.actor.styledName + " opened zoom view ";
     addActionRow(act, content);
 }
 
 function reportClosedZoom(act) {
-    content += act.actor.styledName + " closed zoom view ";
+    content = act.actor.styledName + " closed zoom view ";
     addActionRow(act, content);
 }
 
