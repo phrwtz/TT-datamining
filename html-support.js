@@ -21,16 +21,16 @@ function setupForm(teams) {
         var checkDiv = document.createElement("div");
         checkDiv.id = "checkDiv";
     }
-	var checkForm = document.createElement("form");	// coming soon: enter name
+    var checkForm = document.createElement("form"); // coming soon: enter name
     checkForm.ID = "checkForm";
-	checkForm.style.margin = "5px";
+    checkForm.style.margin = "5px";
     var checkTeacher = document.createElement("input");
     checkTeacher.ID = "checkTeacher";
-	checkTeacher.value = "...coming soon: enter teacher name here";	
-	checkTeacher.style.width = "250px";
-  //checkForm.appendChild(checkTeacher);
-  var checkTable = document.createElement("table");
-	checkTable.style.margin = "5px";
+    checkTeacher.value = "...coming soon: enter teacher name here";
+    checkTeacher.style.width = "250px";
+    //checkForm.appendChild(checkTeacher);
+    var checkTable = document.createElement("table");
+    checkTable.style.margin = "5px";
     var headerRow = document.createElement("tr");
     var checkBoxRow = document.createElement("tr");
     var headerCell1 = document.createElement("th");
@@ -39,7 +39,7 @@ function setupForm(teams) {
     var headerCell4 = document.createElement("th");
     var headerCell5 = document.createElement("th");
     var headerCell6 = document.createElement("th");
-	
+
     headerCell1.innerHTML = "Teams";
     headerCell2.innerHTML = "Levels";
     headerCell3.innerHTML = "Actions";
@@ -61,9 +61,9 @@ function setupForm(teams) {
     var varRefData = document.createElement("td");
     var teacherData = document.createElement("td");
 
-    var typeStr = 'type="checkbox"  '; 
-	
-	// Teams
+    var typeStr = 'type="checkbox"  ';
+
+    // Teams
     var IDStr = 'id="all-teams" name="team" ';
     var onChangeStr = "onchange = \"toggleSelectAll('team')\"";
     var labelStr = '<b>All teams</b><br>';
@@ -73,7 +73,7 @@ function setupForm(teams) {
         labelStr = teams[i].name + "<br>";
         teamData.innerHTML += "<input " + typeStr + IDStr + labelStr;
     }
-	// Levels
+    // Levels
     IDStr = 'id="all-levels" name="level" ';
     onChangeStr = "onchange = \"toggleSelectAll('level')\"";
     labelStr = '<b>All levels</b><br>';
@@ -84,20 +84,21 @@ function setupForm(teams) {
         labelStr = levelLabels[j] + "<br>";
         levelData.innerHTML += "<input " + typeStr + IDStr + labelStr;
     }
-	// Actions
+    // Actions
     IDStr = 'id="all-actions" name="action" ';
     onChangeStr = "onchange = \"toggleSelectAll('action')\"";
     labelStr = '<b>All actions</b><br>';
     actionData.innerHTML = "<input + " + typeStr + IDStr + onChangeStr + ">" + labelStr;
     var actionLabels = ["message", "calculation", "resistorChange", "attach-probe", "detach-probe",
-        "connect-lead", "disconnect-lead", "measurement", "move-DMM-dial", "submit-V", "submit-ER", "joined-group", 
-    "opened-zoom", "closed-zoom"];
+        "connect-lead", "disconnect-lead", "measurement", "move-DMM-dial", "submit-V", "submit-ER", "joined-group",
+        "opened-zoom", "closed-zoom"
+    ];
     for (var k = 0; k < actionLabels.length; k++) {
         IDStr = 'id=action-' + actionLabels[k] + " name=action>";
         labelStr = actionLabels[k] + "<br>";
         actionData.innerHTML += "<input " + typeStr + IDStr + labelStr;
     }
-	// Variable Refs
+    // Variable Refs
     IDStr = 'id="all-varRefs" name="varRef" ';
     onChangeStr = "onchange = \"toggleSelectAll('varRef')\"";
     labelStr = '<b>All refs</b><br>';
@@ -107,7 +108,7 @@ function setupForm(teams) {
         labelStr = vrLabelsArray[kk] + "<br>";
         varRefData.innerHTML += "<input + " + typeStr + IDStr + labelStr;
     }
-	// Summary Data
+    // Summary Data
     var summaryNames = ["rChg", "iRep", "results"];
     var summaryIDs = ["resistor-change", "action-scores", "teacher-report"];
     var summaryLabels = ["Resistor changes", "Message scores"];
@@ -116,7 +117,7 @@ function setupForm(teams) {
         labelStr = summaryLabels[l] + "<br>";
         summaryData.innerHTML += "<input " + typeStr + IDStr + labelStr;
     }
-	//Teacher Reports
+    //Teacher Reports
     IDStr = 'id="all-teachers" name="teachers" ';
     onChangeStr = "onchange = \"toggleSelectAll('teachers')\"";
     labelStr = '<b>All teachers</b><br>';
@@ -152,10 +153,10 @@ function setupForm(teams) {
 
     var clearText = document.createTextNode("Clear screen");
     clearButton.appendChild(clearText);
-    clearButton.setAttribute("onclick", "clearScreen(csvActionsArray, csvSummaryArray); return false;");
+    clearButton.setAttribute("onclick", "clearScreen(csvActionsArray, csvSummaryArray); clearReport(); return false;");
     checkForm.appendChild(clearButton);
     console.log("html-support setupForm: check-boxes form created");
-  
+
     var downLoadText = document.createTextNode("Actions File download");
     downLoadButton.appendChild(downLoadText);
     downLoadButton.setAttribute("onclick", "downloadLogCSV(csvActionsArray); return false;");
@@ -169,14 +170,23 @@ function setupForm(teams) {
     var strategyText = document.createTextNode("Find guess and check");
     strategyButton.appendChild(strategyText);
     strategyButton.setAttribute("onclick", "findGuessAndCheck(teams); return false;");
-  //  checkForm.appendChild(strategyButton);
+    //  checkForm.appendChild(strategyButton);
     console.log("guess and check search completed");
-  
+
     var p = document.createElement("p");
     p.id = "data";
     checkDiv.appendChild(p);
 
     console.log("html-support: user selection form and action buttons created");
+}
+
+function clearReport() {
+    if (document.getElementById("reportDiv")) {
+        var reptDiv = document.getElementById("reportDiv")
+        while (reptDiv.firstChild) {
+            reptDiv.removeChild(reptDiv.firstChild);
+        }
+    }
 }
 
 function setUpActionsReport(teams) { //Sets up a matrix with three columns into which the actions can be inserted with a different column for each actor
@@ -190,9 +200,14 @@ function setUpActionsReport(teams) { //Sets up a matrix with three columns into 
         reportDiv.id = "reportDiv";
         document.body.appendChild(reportDiv);
     }
-  var actionTable = document.createElement("table"); 
-  reportDiv.appendChild(actionTable); 
+    var actionTable = document.createElement("table");
+    actionTable.id = "actionTable";
+    reportDiv.appendChild(actionTable);
 }
+
+
+var rowIndex = counter();
+
 function addLevelRow(team, level) {
     var headerRow = document.createElement("tr");
     headerRow.style.backgroundColor = "#DDFFDD";
@@ -205,10 +220,35 @@ function addLevelRow(team, level) {
     headerRow.appendChild(timeCell);
     headerRow.appendChild(teamCell);
     actionTable = reportDiv.firstChild;
-    actionTable.appendChild(headerRow); 
+    actionTable.appendChild(headerRow);
+    rowIndex.reset();
 }
+
+function counter(checkboxName) {
+    n = 0;
+    return {
+        count: function () {
+            return n++;
+        },
+        reset: function () {
+            return n = 1
+        }
+    };
+}
+var dataWindow;
+
+function showData() {
+    dataWindow = window.open("", "myWindow", "width=200, height=100");
+    dataWindow.document.write = "<p>This the window you're looking for.</p>";
+}
+
+function hideData() {
+    dataWindow.close();
+}
+
 function addActionRow(act, content) {
     var actionRow = document.createElement("tr");
+    actionRow.id = 'row-' + rowIndex.count();
     var actionCell0 = document.createElement("td");
     var actionCell1 = document.createElement("td");
     var actionCell2 = document.createElement("td");
@@ -216,7 +256,32 @@ function addActionRow(act, content) {
     var bd = parseInt(act.board);
     actionTable.appendChild(actionRow);
     actionCell0.innerHTML = act.eTime;
+    // actionCell0.addEventListener("mouseover", function () {
+    //     showData();
+    // })
+    // actionCell0.addEventListener("mouseout", function () {
+    //     hideData();
+    // })
+
+    switch (act.type) {
+        case "message":
+            actionCell0.style.backgroundColor = "#F9D593";
+            break;
+        case "resistorChange":
+            actionCell0.style.backgroundColor = "#B5F3A9";
+            break;
+        case "calculation":
+            actionCell0.style.backgroundColor = "#B3F3F6";
+            break;
+        case "measurement":
+            actionCell0.style.backgroundColor = "#FACBFA";
+            break;
+            case "move-dial":
+                actionCell0.style.backgroundColor = "#FADEFA";
+                break;
+    }
     actionRow.appendChild(actionCell0);
+
     switch (bd) {
         case 0:
             actionCell1.innerHTML = content;
@@ -224,7 +289,12 @@ function addActionRow(act, content) {
             actionCell3.innerHTML = "";
             actionRow.appendChild(actionCell1);
             actionRow.appendChild(actionCell2);
-            actionRow.appendChild(actionCell3);
+            // actionRow.appendChild(actionCell3);
+            // actionCell1.addEventListener("mousedown", function () {
+            //     reportAllActions(teams, act);
+            //     element = document.getElementById(actionRow.id);
+            //     element.scrollIntoView(true);
+            // });
             break;
         case 1:
             actionCell1.innerHTML = "";
@@ -243,4 +313,8 @@ function addActionRow(act, content) {
             actionRow.appendChild(actionCell3);
             break;
     }
+}
+
+function runQuery() {
+
 }

@@ -9,6 +9,7 @@ function generateReport(teams) {
 
 function reportResults(teams) {	 // extract and list actions checked by user
     document.getElementById("data").innerHTML = ""; //Clear data
+    clearReport();
     setUpActionsReport();
     for (var k = 0; k < teams.length; k++) { // for each team
         var team = teams[k];
@@ -128,208 +129,85 @@ function reportResults(teams) {	 // extract and list actions checked by user
                             switch (act.type) {
                                 case "submitClicked":
                                     if ($("#action-submit-V")[0].checked) {
-                                        var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
-                                        var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
-                                        var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
-                                        var V1 = myLevel.E * act.R[0] / Rtot;
-                                        var V2 = myLevel.E * act.R[1] / Rtot;
-                                        var V3 = myLevel.E * act.R[2] / Rtot;
-                                        var success = ((Math.abs(V1 - myLevel.goalV[0]) + Math.abs(V2 - myLevel.goalV[1]) + Math.abs(V3 - myLevel.goalV[2])) < .1)
-                                        var successMsg = (success ? " submitted correct voltages." : " submitted incorrect voltages.");
-										var successMsg2 = (success ? "correct-V" : "incorrect-V");
-										// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
-										// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
-	                                    var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submit-V", act.actor.name, successMsg2];
-                                        csvActionsArray.push(newRow);
-                                        content = act.actor.styledName + successMsg;
-                                        addActionRow(act, content);
-                                    }
-                                    break;
-
-                                case "submitCorrect":
-                                    if ($("#action-submit-V")[0].checked) {
-                                        var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
-                                        var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
-                                        var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
-										// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
-										// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
-										var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submit-V", act.actor.name, "correct-Vs"];
-                                        csvActionsArray.push(newRow);
-                                        content = act.actor.styledName + " submitted correct answers.";
-                                        addActionRow(act, content);
+                                        reportSubmitVoltages(act);
                                     }
                                     break;
 
                                 case "submitER":
                                     if ($("#action-submit-ER")[0].checked) {
-                                        var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
-                                        var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
-                                        var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
-                                        preTime = act.uTime;
-
-                                        var msg = "";
-                                        var Elabel = "<mark>incorrect</mark>";
-                                        var Rlabel = "<mark>incorrect</mark>";
-                                        if ((act.ESubmitValue == myLevel.E) && (act.ESubmitUnit = "volts")) {
-                                            Elabel = "<mark>correct</mark>";
-                                        }
-                                        if ((act.RSubmitValue == myLevel.R0) && (act.RSubmitUnit = "ohms")) {
-                                            Rlabel = "<mark>correct</mark>";
-                                        }
-                                        if (myLevel.label == "C") {
-                                            msg = ", submitted " + Elabel + " value for E (" + act.ESubmitValue + " " + act.ESubmitUnit + ")<br>";
-											// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
-											// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
-	                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submit-E", act.actor.name,	, , , , , , , , , 
-												act.ESubmitValue, act.ESubmitUnit];
-                                        	csvActionsArray.push(newRow);
-
-                                        }
-                                        if (myLevel.label == "D") {
-                                            msg += ", submitted " + Elabel + " value for E (" + act.ESubmitValue + " " + act.ESubmitUnit + ")" +
-                                                " and " + Rlabel + " value for R0 (" + act.RSubmitValue + " " + act.RSubmitUnit + ").<br>";
-											// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
-											// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
-	                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "submitE-R0", act.actor.name, 	, , , , , , , , ,
-												act.ESubmitValue, act.ESubmitUnit, act.RSubmitValue, act.RSubmitUnit];
-                                        	csvActionsArray.push(newRow);
-                                        }
-                                        content = act.actor.styledName + msg;
-                                        addActionRow(act, content);
+                                        reportSubmitER(act);
                                     }
                                     break;
 
-
                                 case "resistorChange":
                                     if ($("#action-resistorChange")[0].checked) {
-                                        var Rtot = myLevel.R0 + act.newR[0] + act.newR[1] + act.newR[2];
-                                        var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
-                                        var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
-                                        // if ((act.uTime - preTime) > interval) {
-                                        //     document.getElementById("data").innerHTML += "<hr>"
-                                        // }
-                                        preTime = act.uTime;
-                                        content = styledName + " changed R" + bd + " from " + act.oldR[bd - 1] +
-                                            " to " + act.newR[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
-                                            " to " + act.newV[bd - 1] + ". (Goal is " + myLevel.goalV[bd - 1] + ")" + act.goalMsg;
-                                            addActionRow(act, content);
-										// Teacher / Date / Team / Level / Time / Action / Actor / Message / Input / Result / Old Resistance / New Resistance / 
-										// DMM Dial / Red-Blk Probes / Measurement Type / Measurement Result / Submit E-Value / Submit E-Unit / Submit R0-Value / Submit R0-Unit 
-                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, act.type, act.actor.name, , , , act.oldR[bd - 1], act.newR[bd - 1]];
-                                        csvActionsArray.push(newRow);
+                                        reportResistorChange(act);
                                     }
                                     break;
 
                                 case "message":
                                     if ($("#action-message")[0].checked) {
-                                        var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
-                                        var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
-                                        var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
-                                        // if ((act.uTime - preTime) > interval) {
-                                        //     document.getElementById("data").innerHTML += "<hr>"
-                                        // }
-                                        preTime = act.uTime;
-
-                                        content = act.actor.styledName + ", said: " + act.highlightedMsg;
-                                        addActionRow(act, content);
-                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, act.type, act.actor.name, act.msg];
-                                        csvActionsArray.push(newRow);
+                                        reportMessage(act);
                                     }
                                     break;
 
                                 case "calculation":
                                     if ($("#action-calculation")[0].checked) {
-                                        var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
-                                        var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
-                                        var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
-                                        // if ((act.uTime - preTime) > interval) {
-                                        //     document.getElementById("data").innerHTML += "<hr>"
-                                        // }
-                                        preTime = act.uTime;
-                                        content = act.actor.styledName + ", performed the calculation  " + act.highlightedMsg;
-                                        addActionRow(act, content);
-                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, act.type, act.actor.name, , act.cMsg, act.rMsg];
-                                        csvActionsArray.push(newRow);
+                                        reportCalculation(act);
                                     }
                                     break;
 
                                 case "attach-probe":
                                     if ($("#action-attach-probe")[0].checked) {
-                                        // if ((act.uTime - preTime) > interval) {
-                                        //     document.getElementById("data").innerHTML += "<hr>"
-                                        // }
-                                        preTime = act.uTime;
-                                        content = act.actor.styledName + ", attached the " + act.probeColor + " probe to " + act.location + currentMsg;
-                                        addActionRow(act, content);
+                                        reportAttachProbe(act);
                                     }
                                     break;
+                                    
                                 case "detach-probe":
                                     if ($("#action-detach-probe")[0].checked) {
-                                        // if ((act.uTime - preTime) > interval) {
-                                        //     document.getElementById("data").innerHTML += "<hr>"
-                                        // }
-                                        preTime = act.uTime;
-                                        content = act.actor.styledName + ", detached the " + act.probeColor + " probe from " + act.location + currentMsg;
-                                        addActionRow(act, content);
+                                        reportDetachProbe(act);
                                     }
                                     break;
+
                                 case "connect-lead":
-                                    if ($("#action-connect-lead")[0].checked) {
-                                        preTime = act.uTime;
-                                        content = act.actor.styledName + ", connected a lead to " + act.location + currentMsg;
-                                        addActionRow(act, content);
+                                if ($("#action-connect-lead")[0].checked) {
+                                    reportConnectLead(act);
                                     }
                                     break;
 
                                 case "disconnect-lead":
-                                    if ($("#action-disconnect-lead")[0].checked) {
-                                        preTime = act.uTime;
-                                       content = act.actor.styledName + ", disconnected a lead from " + act.location + currentMsg;
-                                       addActionRow(act, content);
+                                if ($("#action-disconnect-lead")[0].checked) {
+                                    reportDisconnectLead(act);
                                     }
-                                    break;
+                                break;
+                            
                                 case "joined-group":
-                                    if ($("#action-joined-group")[0].checked) {
-                                        content = act.actor.styledName + ", joined team " + team.name;
-                                        addActionRow(act, content);
+                                if ($("#action-joined-group")[0].checked) {
+                                    reportJoinedGroup(act);
                                     }
                                     break;
 
                                 case "opened-zoom":
-                                    if ($("#action-opened-zoom")[0].checked) {
-                                        content += act.actor.styledName + ", opened zoom view ";
-                                        addActionRow(act, content);
+                                if ($("#action-opened-zoom")[0].checked) {
+                                    reportOpenedZoom(act);
                                     }
                                     break;
                                     
                                 case "closed-zoom":
-                                    if ($("#action-closed-zoom")[0].checked) {
-                                        content = act.actor.styledName + ", closed zoom view ";
-                                        addActionRow(act, content);
+                                if ($("#action-closed-zoom")[0].checked) {
+                                    reportClosedZoom(act);
                                     }
                                     break;
 
                                 case "measurement":
-                                    if ($("#action-measurement")[0].checked) {
-                                        var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
-                                        var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
-                                        var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
-                                        var currentMsg = (act.currentFlowing ? ", current flowing" : ", current is not flowing")
-                                        var gapMsg = (act.gapMeasurement ? " (across gap)" : " (across resistor)")
-                                        content = act.actor.styledName + ", measured " + act.measurementType + ". Dial set to " + act.dialPosition +
-                                            ", probes at " + act.redPosition + " and " + act.blackPosition + 
-                                            gapMsg + currentMsg + ", reading is " + act.highlightedMsg;
-                                        addActionRow(act, content);
-                                        var newRow = [team.teacherName, levelDate, team.name, myLevel.label, act.eTime, "measurement", act.actor.name,
-                                            , , , , , act.dialPosition, act.redPosition + "-" + act.blackPosition, act.measurementType, act.msg];
-                                        csvActionsArray.push(newRow);
+                                if ($("#action-measurement")[0].checked) {
+                                    reportMeasurement(act);
                                     }
                                     break;
 
                                 case "move-dial":
-                                    if ($("#action-move-DMM-dial")[0].checked) {
-                                        content = act.actor.styledName + ", changed the DMM dial to " + act.dialPosition;
-                                        addActionRow(act, content);
+                                if ($("#action-move-DMM-dial")[0].checked) {
+                                    reportMovedDial(act);
                                     }
                                     break;
                             }
