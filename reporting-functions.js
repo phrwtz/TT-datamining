@@ -7,26 +7,26 @@ function reportResistorChange(act) {
 }
 
 function reportCalculation(act) {
-    content = act.actor.styledName + ", performed the calculation  " + act.highlightedMsg;
+    content = act.actor.styledName + " performed the calculation  " + act.highlightedMsg;
     addActionRow(act, content);
 }
 
 function reportMessage(act) {
-    content = act.actor.styledName + ", said: " + act.highlightedMsg;
+    content = act.actor.styledName + " said: " + act.highlightedMsg;
     addActionRow(act, content);
 }
 
 function reportMeasurement(act) {
     var currentMsg = (act.currentFlowing ? ", current flowing" : ", current is not flowing"),
         gapMsg = (act.gapMeasurement ? " (across gap)" : " (across resistor)")
-    content = act.actor.styledName + ", measured " + act.measurementType + ". Dial set to " + act.dialPosition +
+    content = act.actor.styledName + " measured " + act.measurementType + ". Dial set to " + act.dialPosition +
         ", probes at " + act.redPosition + " and " + act.blackPosition +
         gapMsg + currentMsg + ", reading is " + act.highlightedMsg;
     addActionRow(act, content);
 }
 
 function reportMovedDial(act) {
-    content = act.actor.styledName + ", changed the DMM dial to " + act.dialPosition;
+    content = act.actor.styledName + " changed the DMM dial to " + act.dialPosition;
     addActionRow(act, content);
 }
 
@@ -66,41 +66,41 @@ function reportSubmitER(act) {
 
 function reportAttachProbe(act) {
     var currentMsg = (act.currentFlowing ? ", current flowing" : ", current is not flowing");
-    content = act.actor.styledName + ", attached the " + act.probeColor + " probe to " + act.location + currentMsg;
+    content = act.actor.styledName + " attached the " + act.probeColor + " probe to " + act.location + currentMsg;
     addActionRow(act, content);
 }
 
 function reportDetachProbe(act) {
     var currentMsg = (act.currentFlowing ? ", current flowing" : ", current is not flowing");
-    content = act.actor.styledName + ", detached the " + act.probeColor + " probe from " + act.location + currentMsg;
+    content = act.actor.styledName + " detached the " + act.probeColor + " probe from " + act.location + currentMsg;
     addActionRow(act, content);
 }
 
 function reportConnectLead(act) {
     var currentMsg = (act.currentFlowing ? ", current flowing" : ", current is not flowing");
-    content = act.actor.styledName + ", connected a lead to " + act.location + currentMsg;
+    content = act.actor.styledName + " connected a lead to " + act.location + currentMsg;
     addActionRow(act, content);
 }
 
 
 function reportDisconnectLead(act) {
     var currentMsg = (act.currentFlowing ? ", current flowing" : ", current is not flowing");
-    content = act.actor.styledName + ", disconnected a lead from " + act.location + currentMsg;
+    content = act.actor.styledName + " disconnected a lead from " + act.location + currentMsg;
     addActionRow(act, content);
 }
 
 function reportJoinedGroup(act) {
-    content = act.actor.styledName + ", joined team " + act.team.name;
+    content = act.actor.styledName + " joined team " + act.team.name;
     addActionRow(act, content);
 }
 
 function reportOpenedZoom(act) {
-    content += act.actor.styledName + ", opened zoom view ";
+    content += act.actor.styledName + " opened zoom view ";
     addActionRow(act, content);
 }
 
 function reportClosedZoom(act) {
-    content += act.actor.styledName + ", closed zoom view ";
+    content += act.actor.styledName + " closed zoom view ";
     addActionRow(act, content);
 }
 
