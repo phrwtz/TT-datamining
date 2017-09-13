@@ -1,5 +1,6 @@
 function reportResistorChange(act) {
     var bd = parseInt(act.board) + 1;
+    myLevel = act.level;
     var content = act.actor.styledName + " changed R" + bd + " from " + act.oldR[bd - 1] +
         " to " + act.newR[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
         " to " + act.newV[bd - 1] + ". (Goal is " + myLevel.goalV[bd - 1] + ")" + act.goalMsg;
