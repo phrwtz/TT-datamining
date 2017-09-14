@@ -276,45 +276,58 @@ function addActionRow(act, content) {
         case "measurement":
             actionCell0.style.backgroundColor = "#FACBFA";
             break;
-            case "move-dial":
-                actionCell0.style.backgroundColor = "#FADEFA";
-                break;
+        case "move-dial":
+            actionCell0.style.backgroundColor = "#FADEFA";
+            break;
     }
     actionRow.appendChild(actionCell0);
 
-    switch (bd) {
-        case 0:
-            actionCell1.innerHTML = content;
-            actionCell2.innerHTML = "";
-            actionCell3.innerHTML = "";
-            actionRow.appendChild(actionCell1);
-            actionRow.appendChild(actionCell2);
-            // actionRow.appendChild(actionCell3);
-            // actionCell1.addEventListener("mousedown", function () {
-            //     reportAllActions(teams, act);
-            //     element = document.getElementById(actionRow.id);
-            //     element.scrollIntoView(true);
-            // });
-            break;
-        case 1:
-            actionCell1.innerHTML = "";
-            actionCell2.innerHTML = content;
-            actionCell3.innerHTML = "";
-            actionRow.appendChild(actionCell1);
-            actionRow.appendChild(actionCell2);
-            actionRow.appendChild(actionCell3);
-            break;
-        case 2:
-            actionCell1.innerHTML = "";
-            actionCell2.innerHTML = "";
-            actionCell3.innerHTML = content;
-            actionRow.appendChild(actionCell1);
-            actionRow.appendChild(actionCell2);
-            actionRow.appendChild(actionCell3);
-            break;
+    var cellIndex = bd;
+    var idArray = [];
+    if (act.actor.id) {
+        for (var h = 0; h < 3; h++) {
+            idArray[h] = act.team.members[h].id;
+        }
+        for (var hh = 0; hh < 3; hh++) {
+            if (act.actor.id == idArray[hh]) {
+                bd = hh;
+            }
+        }
     }
-}
 
-function runQuery() {
+        switch (bd) {
+            case 0:
+                actionCell1.innerHTML = content;
+                actionCell2.innerHTML = "";
+                actionCell3.innerHTML = "";
+                actionRow.appendChild(actionCell1);
+                actionRow.appendChild(actionCell2);
+                // actionRow.appendChild(actionCell3);
+                // actionCell1.addEventListener("mousedown", function () {
+                //     reportAllActions(teams, act);
+                //     element = document.getElementById(actionRow.id);
+                //     element.scrollIntoView(true);
+                // });
+                break;
+            case 1:
+                actionCell1.innerHTML = "";
+                actionCell2.innerHTML = content;
+                actionCell3.innerHTML = "";
+                actionRow.appendChild(actionCell1);
+                actionRow.appendChild(actionCell2);
+                actionRow.appendChild(actionCell3);
+                break;
+            case 2:
+                actionCell1.innerHTML = "";
+                actionCell2.innerHTML = "";
+                actionCell3.innerHTML = content;
+                actionRow.appendChild(actionCell1);
+                actionRow.appendChild(actionCell2);
+                actionRow.appendChild(actionCell3);
+                break;
+        }
+    }
 
-}
+    function runQuery() {
+
+    }
