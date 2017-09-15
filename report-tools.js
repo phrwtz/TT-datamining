@@ -310,6 +310,7 @@ function reportVarRefs(teams) {
                                 for (var ii = 0; ii < vrArray.length; ii++) {
                                     vr = vrArray[ii];
                                     act = vr[0];
+                                    o = ""; // String used to return other matching varRefs
                                     vrNum = vr[2];
                                     vrScore = vr[3];
                                     var t = act.type;
@@ -332,6 +333,14 @@ function reportVarRefs(teams) {
                                             break;
                                         case "measurement":
                                             t = "<span style=\"color:#0000FF;\">measurement</span>";
+                                            o = findOtherVariables(vr);
+                                            break;
+                                        case "submitClicked":
+                                            t = "<span style=\"color:#00AAAA;\">submitV</span>";
+                                            o = findOtherVariables(vr);
+                                            break;
+                                        case "submitER":
+                                            t = "<span style=\"color:#00AAAA;\">submitER</span>";
                                             o = findOtherVariables(vr);
                                             break;
                                     }
