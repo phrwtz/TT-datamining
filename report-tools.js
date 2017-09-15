@@ -7,7 +7,7 @@ function generateReport(teams) {
     reportVarRefs(teams);
 }
 
-function reportResults(teams) {	 // extract and list actions checked by user
+function reportResults(teams) { // extract and list actions checked by user
     document.getElementById("data").innerHTML = ""; //Clear data
     clearReport();
     setUpActionsReport();
@@ -15,11 +15,11 @@ function reportResults(teams) {	 // extract and list actions checked by user
         var team = teams[k];
         if ((team.members.length == 3)) {
             if ($("#team-" + team.name + team.classID)[0].checked) {
-				mssg = "report-tools: analyzing actions for " + team.name + "...";
-			    console.log(mssg);
+                mssg = "report-tools: analyzing actions for " + team.name + "...";
+                console.log(mssg);
                 for (var j = 0; j < team.levels.length; j++) {
                     var myLevel = team.levels[j];
-                    if ($("#level-" + myLevel.label)[0].checked) {	// create summary for each level
+                    if ($("#level-" + myLevel.label)[0].checked) { // create summary for each level
                         var acts = myLevel.actions;
                         var levelTime = Math.round(myLevel.endUTime - myLevel.startUTime);
                         var levelMinutes = Math.round(levelTime / 60);
@@ -27,30 +27,74 @@ function reportResults(teams) {	 // extract and list actions checked by user
                         if (levelSeconds < 10) {
                             levelSeconds = "0" + levelSeconds;
                         }
-						var myDate = myLevel.startPTime;
-						var levelDate = (myDate.getMonth()+1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();						
+                        var myDate = myLevel.startPTime;
+                        var levelDate = (myDate.getMonth() + 1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
 
-                        var messageCount = [0, 0, 0],
-                            messageTotal = 0,
-                            calculationCount = [0, 0, 0],
-                            calculationTotal = 0,
-                            resistorChangeCount = [0, 0, 0],
-                            resistorChangeTotal = 0;
+                        var messagesBeforeVsCount = [0, 0, 0],
+                            messagesBeforeVsTotal = 0,
+                            messagesAfterVsCount = [0, 0, 0],
+                            messagesAfterVsTotal = 0,
+                            messagesWithoutVsCount = [0, 0, 0],
+                            messagesWithoutVsTotal = 0,
+                            calculationsBeforeVsCount = [0, 0, 0],
+                            calculationsBeforeVsTotal = 0,
+                            calculationsAfterVsCount = [0, 0, 0],
+                            calculationsAfterVsTotal = [0],
+                            calculationsWithoutVsCount = [0, 0, 0],
+                            calculationsWithoutVsTotal = 0,
+                            resistorChangesBeforeVsCount = [0, 0, 0],
+                            resistorChangesBeforeVsTotal = 0,
+                            resistorChangesAfterVsCount = [0, 0, 0],
+                            resistorChangesAfterVsTotal = 0,
+                            resistorChangesWithoutVsCount = [0, 0, 0],
+                            resistorChangesWithoutVsTotal = 0;
                         for (var ii = 0; ii < acts.length; ii++) {
                             thisAction = acts[ii];
                             index = thisAction.actor.colIndex;
                             switch (thisAction.type) {
                                 case "message":
-                                    messageCount[index]++;
-                                    messageTotal++;
+                                    if (myLevel.attainedVs) {
+                                        if (thisAction.eTime <= myLevel.attainedVsTime) {
+                                            messagesBeforeVsCount[index]++;
+                                            messagesBeforeVsTotal++;
+                                        } else {
+                                            messagesAfterVsCount[index]++;
+                                            messagesAfterVsTotal++;
+                                        }
+                                    } else {
+                                        messagesWithoutVsCount[index]++;
+                                        messagesWithoutVsTotal++;
+                                    }
                                     break;
+
                                 case "calculation":
-                                    calculationCount[index]++;
-                                    calculationTotal++;
+                                    if (myLevel.attainedVs) {
+                                        if (thisAction.eTime <= myLevel.attainedVsTime) {
+                                            calculationsBeforeVsCount[index]++;
+                                            calculationsBeforeVsTotal++;
+                                        } else {
+                                            calculationsAfterVsCount[index]++;
+                                            calculationsAfterVsTotal++;
+                                        }
+                                    } else {
+                                        calculationsWithoutVsCount[index]++;
+                                        calculationsWithoutVsTotal++;
+                                    }
                                     break;
+
                                 case "resistorChange":
-                                    resistorChangeCount[index]++;
-                                    resistorChangeTotal++;
+                                    if (myLevel.attainedVs) {
+                                        if (thisAction.eTime <= myLevel.attainedVsTime) {
+                                            resistorChangesBeforeVsCount[index]++;
+                                            resistorChangesBeforeVsTotal++;
+                                        } else {
+                                            resistorChangesAfterVsCount[index]++;
+                                            resistorChangesAfterVsTotal++;
+                                        }
+                                    } else {
+                                        resistorChangesWithoutVsCount[index]++;
+                                        resistorChangesWithoutVsTotal++;
+                                    }
                                     break;
                             }
                         }
@@ -105,19 +149,10 @@ function reportResults(teams) {	 // extract and list actions checked by user
                             goalVMsg += "Goal voltages not chatted. ";
                         }
 
-                        document.getElementById("data").innerHTML += ("<br><br><mark>Team " +
-                            team.name + ", level " + myLevel.label + "</mark>, start time: " + myLevel.startPTime + ", duration: " +
-                            levelMinutes + ":" + levelSeconds + ", E = " + myLevel.E + ", R0 = " + myLevel.R0 + "<br>" +
-                            "goal V1 = " + myLevel.goalV[0] + ", goal V2 = " + myLevel.goalV[1] + ", goal V3 = " + myLevel.goalV[2] +
-                            ", goal R1 = " + myLevel.goalR[0] + ", goal R2 = " + myLevel.goalR[1] + ", goal R3 = " + myLevel.goalR[2] +
-                            "<br>" + goalVMsg + levelMsg + "<br>");
-                        document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent: </span>" + messageCount[0] + " + " + messageCount[1] + " + " + messageCount[2] + " = " + messageTotal + "<br>";
-                        document.getElementById("data").innerHTML += "<span style=\"color:#FF00FF;\">Calculations performed: </span>" + calculationCount[0] + " + " + calculationCount[1] + " + " + calculationCount[2] + " = " + calculationTotal + "<br>";
-                        document.getElementById("data").innerHTML += "<span style=\"color:#0000FF;\">Resistor changes: </span>" + resistorChangeCount[0] + " + " + resistorChangeCount[1] + " + " + resistorChangeCount[2] + " = " + resistorChangeTotal + "<br><br>";
-                        addLevelRow(team,myLevel);
-                        for (var i = 0; i < acts.length; i++) {	// interpret actions for each level
+                        addLevelRow(team, myLevel);
+                        for (var i = 0; i < acts.length; i++) { // interpret actions for each level
                             var act = acts[i],
-                                content = "",    
+                                content = "",
                                 bd = act.board + 1,
                                 actor = act.actor,
                                 styledName = actor.styledName,
@@ -162,7 +197,7 @@ function reportResults(teams) {	 // extract and list actions checked by user
                                         reportAttachProbe(act);
                                     }
                                     break;
-                                    
+
                                 case "detach-probe":
                                     if ($("#action-detach-probe")[0].checked) {
                                         reportDetachProbe(act);
@@ -170,49 +205,75 @@ function reportResults(teams) {	 // extract and list actions checked by user
                                     break;
 
                                 case "connect-lead":
-                                if ($("#action-connect-lead")[0].checked) {
-                                    reportConnectLead(act);
+                                    if ($("#action-connect-lead")[0].checked) {
+                                        reportConnectLead(act);
                                     }
                                     break;
 
                                 case "disconnect-lead":
-                                if ($("#action-disconnect-lead")[0].checked) {
-                                    reportDisconnectLead(act);
+                                    if ($("#action-disconnect-lead")[0].checked) {
+                                        reportDisconnectLead(act);
                                     }
-                                break;
-                            
+                                    break;
+
                                 case "joined-group":
-                                if ($("#action-joined-group")[0].checked) {
-                                    reportJoinedGroup(act);
+                                    if ($("#action-joined-group")[0].checked) {
+                                        reportJoinedGroup(act);
                                     }
                                     break;
 
                                 case "opened-zoom":
-                                if ($("#action-opened-zoom")[0].checked) {
-                                    reportOpenedZoom(act);
+                                    if ($("#action-opened-zoom")[0].checked) {
+                                        reportOpenedZoom(act);
                                     }
                                     break;
-                                    
+
                                 case "closed-zoom":
-                                if ($("#action-closed-zoom")[0].checked) {
-                                    reportClosedZoom(act);
+                                    if ($("#action-closed-zoom")[0].checked) {
+                                        reportClosedZoom(act);
                                     }
                                     break;
 
                                 case "measurement":
-                                if ($("#action-measurement")[0].checked) {
-                                    reportMeasurement(act);
+                                    if ($("#action-measurement")[0].checked) {
+                                        reportMeasurement(act);
                                     }
                                     break;
 
                                 case "move-dial":
-                                if ($("#action-move-DMM-dial")[0].checked) {
-                                    reportMovedDial(act);
+                                    if ($("#action-move-DMM-dial")[0].checked) {
+                                        reportMovedDial(act);
                                     }
                                     break;
                             }
+                        } //End of actions
+                        document.getElementById("data").innerHTML += ("<br><br><mark>Team " +
+                            team.name + ", level " + myLevel.label + "</mark>, start time: " + myLevel.startPTime + ", duration: " +
+                            levelMinutes + ":" + levelSeconds + ", E = " + myLevel.E + ", R0 = " + myLevel.R0 + "<br>" +
+                            "goal V1 = " + myLevel.goalV[0] + ", goal V2 = " + myLevel.goalV[1] + ", goal V3 = " + myLevel.goalV[2] +
+                            ", goal R1 = " + myLevel.goalR[0] + ", goal R2 = " + myLevel.goalR[1] + ", goal R3 = " + myLevel.goalR[2] +
+                            "<br>" + goalVMsg + levelMsg + "<br>");
+
+                        if (myLevel.attainedVs) {
+                            document.getElementById("data").innerHTML += "<br><span style=\"color:#0000FF;\">Resistor changes performed before voltages attained:: </span>" + resistorChangesBeforeVsCount[0] + " + " + resistorChangesBeforeVsCount[1] + " + " + resistorChangesBeforeVsCount[2] + " = " + resistorChangesBeforeVsTotal + "<br>";
+
+                            document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent before voltages attained: </span>" + messagesBeforeVsCount[0] + " + " + messagesBeforeVsCount[1] + " + " + messagesBeforeVsCount[2] + " = " + messagesBeforeVsTotal + "<br>";
+
+                            document.getElementById("data").innerHTML += "<span style=\"color:#00DD00;\">Calculations performed before voltages attained:: </span>" + calculationsBeforeVsCount[0] + " + " + calculationsBeforeVsCount[1] + " + " + calculationsBeforeVsCount[2] + " = " + calculationsBeforeVsTotal + "<br><br>";
+
+                            document.getElementById("data").innerHTML += "<span style=\"color:#0000FF;\">Resistor changes after voltages attained:: </span>" + resistorChangesAfterVsCount[0] + " + " + resistorChangesAfterVsCount[1] + " + " + resistorChangesAfterVsCount[2] + " = " + resistorChangesAfterVsTotal + "<br>";
+
+                            document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent after voltages attained: </span>" + messagesAfterVsCount[0] + " + " + messagesAfterVsCount[1] + " + " + messagesAfterVsCount[2] + " = " + messagesAfterVsTotal + "<br>";
+
+                            document.getElementById("data").innerHTML += "<span style=\"color:#00DD00;\">Calculations performed after voltages attained:: </span>" + calculationsAfterVsCount[0] + " + " + calculationsAfterVsCount[1] + " + " + calculationsAfterVsCount[2] + " = " + calculationsAfterVsTotal + "<br>";
+                        } else {
+                            document.getElementById("data").innerHTML += "<br><span style=\"color:#FF0000;\">Resistor changes: </span>" + resistorChangesWithoutVsCount[0] + " + " + resistorChangesWithoutVsCount[1] + " + " + resistorChangesWithoutVsCount[2] + " = " + resistorChangesWithoutVsTotal + "<br>";
+
+                            document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent: </span>" + messagesWithoutVsCount[0] + " + " + messagesWithoutVsCount[1] + " + " + messagesWithoutVsCount[2] + " = " + messagesWithoutVsTotal + "<br>";
+
+                            document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Calculations: </span>" + calculationsWithoutVsCount[0] + " + " + calculationsWithoutVsCount[1] + " + " + calculationsWithoutVsCount[2] + " = " + calculationsWithoutVsTotal + "<br><br>";
                         }
-                    }
+                    } //End of level
                 }
             }
         }
@@ -238,8 +299,8 @@ function reportVarRefs(teams) {
                 myLevel = team.levels[j];
                 if ($("#level-" + myLevel.label)[0].checked) {
                     document.getElementById("data").innerHTML += ("<br><mark>Variable references for team " + team.name + ", level " + myLevel.label + ":</mark><br>");
-                    varRefs = myLevel.varRefs; 
-					varRefCount = 0;
+                    varRefs = myLevel.varRefs;
+                    varRefCount = 0;
                     for (var i = 0; i < vrLabelsArray.length; i++) {
                         vrStr = vrLabelsArray[i];
                         try {
@@ -277,30 +338,30 @@ function reportVarRefs(teams) {
                                     if (o.length == 0) {
                                         oMsg = ". No other references.";
                                     } else if (o.length == 1) {
-                                            oMsg = ". One other reference: " + o[0];
-                                        } else {
-                                            oMsg += ". Other references: " + o[0];
-                                            for (var jj = 1; jj < o.length; jj++) {
-                                                oMsg += ", " + o[jj];
-                                            }
+                                        oMsg = ". One other reference: " + o[0];
+                                    } else {
+                                        oMsg += ". Other references: " + o[0];
+                                        for (var jj = 1; jj < o.length; jj++) {
+                                            oMsg += ", " + o[jj];
                                         }
+                                    }
                                     document.getElementById("data").innerHTML += ("Variable " + vrStr + " found at " + act.eTime +
-                                        " seconds in a " + t + " by " + act.actor.styledName + ", board " + bd + oMsg + "<br>" );	
-									varRefCount++;
+                                        " seconds in a " + t + " by " + act.actor.styledName + ", board " + bd + oMsg + "<br>");
+                                    varRefCount++;
                                 }
                             }
                         } catch (err) {
                             console.log(err + " in variable references report, vrStr = " + vrStr)
                         }
                     }
-					console.log("report-tools: variable references report generated with " + varRefCount + " lines");
+                    console.log("report-tools: variable references report generated with " + varRefCount + " lines");
                 }
             }
         }
     }
 }
 
-function variableInVarRef(vrStr, vrArray) { //Looks for the vrStr in vrArray. Returns true if found. 
+function variableInVarRef(vrStr, vrArray) { //Looks for the vrStr in vrArray. Returns true if found.
     for (var i = 0; i < vrArray.length; i++) {
         if (vrArray[i][1][1] == vrStr) {
             return true;
@@ -418,8 +479,8 @@ function reportSummary(teams) {
                         }
                     }
                 }
-				mssg = "report-tools: resistor-change summaries for " + team.name;
-		    	console.log(mssg);
+                mssg = "report-tools: resistor-change summaries for " + team.name;
+                console.log(mssg);
             }
         }
     }
@@ -475,9 +536,9 @@ function reportSummary(teams) {
 
 function reportActions(teams, type) {
     if ($("#summary-action-scores")[0].checked) {
-		myDate = teams[0].levels[0].startPTime;
-		levelDate = (myDate.getMonth()+1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
-		var count = 0;
+        myDate = teams[0].levels[0].startPTime;
+        levelDate = (myDate.getMonth() + 1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
+        var count = 0;
         for (var j = 0; j < teams.length; j++) {
             var team = teams[j];
             if (team.members.length == 3) {
@@ -486,29 +547,30 @@ function reportActions(teams, type) {
                     level = team.levels[i];
                     levelsArray[i] = scoreActions(level);
                 }
-				var arrTotal = [];
-				var arrNumber = [];
-				var arrAvg = [];
+                var arrTotal = [];
+                var arrNumber = [];
+                var arrAvg = [];
                 scoreTable = makeTeamTable(team, "Total message score", levelsArray, "Total", arrTotal);
                 numberTable = makeTeamTable(team, "Number of messages", levelsArray, "Number", arrNumber);
                 averageTable = makeTeamTable(team, "Average message score", levelsArray, "Average", arrAvg);
-				for (var i = 0; i < 3; i++) { // push csv data for each player on this team	
-					count += arrNumber[i];
-					// Teacher / Date / Team / Level / Time / Action / Actor / Total Mssg Score / Number Mssgs / Avg Mssg Score
-					newRow = [team.teacherName, levelDate, team.name, ,  , "MssgScores", team.members[i].name,
-								arrTotal[i], arrNumber[i], arrAvg[i]];
-				    csvSummaryArray.push(newRow);
-				}
-				var tableSummary = document.createElement("div");
-				tableSummary.className = "tableSummary";
-        	    document.body.appendChild(tableSummary);
+                for (var i = 0; i < 3; i++) { // push csv data for each player on this team
+                    count += arrNumber[i];
+                    // Teacher / Date / Team / Level / Time / Action / Actor / Total Mssg Score / Number Mssgs / Avg Mssg Score
+                    newRow = [team.teacherName, levelDate, team.name, , , "MssgScores", team.members[i].name,
+                        arrTotal[i], arrNumber[i], arrAvg[i]
+                    ];
+                    csvSummaryArray.push(newRow);
+                }
+                var tableSummary = document.createElement("div");
+                tableSummary.className = "tableSummary";
+                document.body.appendChild(tableSummary);
                 tableSummary.appendChild(scoreTable);
                 tableSummary.appendChild(numberTable);
                 tableSummary.appendChild(averageTable);
             }
         }
-	    mssg = "report-tools: " + count + " messages scored";
-		console.log(mssg);
+        mssg = "report-tools: " + count + " messages scored";
+        console.log(mssg);
     }
 }
 
@@ -519,7 +581,7 @@ function teacherReport(teams) {
         var teacher = teachers[k];
         if ($("#report-" + teacher)[0].checked) {
             reportRequested = true;
-        } 
+        }
         if (reportRequested) { // generate a report
             if (document.getElementById("tableDiv")) { // empty the tableDiv (if it exists)
                 var tableDiv = document.getElementById("tableDiv");
@@ -537,7 +599,7 @@ function teacherReport(teams) {
                 if ($("#report-" + teacher)[0].checked) {
                     //create a table for this teacher
                     var table = document.createElement("table");
-					table.className = "tableTeacher";
+                    table.className = "tableTeacher";
                     tableDiv.appendChild(table);
                     var titleRow = document.createElement("tr"); // row 1: table title
                     table.appendChild(titleRow);
@@ -565,7 +627,7 @@ function teacherReport(teams) {
                         if (myTeam.teacherName == teacher) {
                             titleCell.innerHTML = myTeam.teacherName + ", " + myTeam.class + ": Results by team and level";
                             if (myTeam.members.length == 3) { // Only report teams having three members
-                                dataRows[i] = document.createElement("tr");	 // row i+2: team, levels a, b, c, d
+                                dataRows[i] = document.createElement("tr"); // row i+2: team, levels a, b, c, d
                                 table.appendChild(dataRows[i]);
                                 dataCells[i] = [];
                                 dataCells[i][0] = document.createElement("td");
@@ -584,77 +646,85 @@ function teacherReport(teams) {
                                     dataCells[i][j].innerHTML = "Not attempted";
                                     dataRows[i].appendChild(dataCells[i][j]);
                                 }
-								var myTeamTotalTime = 0;
+                                var myTeamTotalTime = 0;
                                 for (var j = 0; j < myTeam.levels.length; j++) {
                                     myLevel = myTeam.levels[j];
                                     var levelTime = Math.round(myLevel.endUTime - myLevel.startUTime);
                                     var levelMinutes = Math.round(levelTime / 60);
                                     var levelSeconds = levelTime % 60;
-									myTeamTotalTime += levelTime;
-                                     var levelMsg = (myLevel.success ? 
-                                            "<br><font color=green>Goal voltages attained.</font>" : 
-                                                   "<br><font color=red>Goal voltages not attained.</font>");
-                                     var levelEMsg = (myLevel.successE ? 
-                                            "<br><font color=green>E correctly reported.</font>" : 
-                                                   "<br><font color=red>E not reported correctly.</font>");
-                                     var levelRMsg = (myLevel.successR ? 
-                                            "<br><font color=green>R0 correctly reported.</font>" : 
-                                                   "<br><font color=red>R0 not reported correctly.</font>");
-                                     var successMsg;
-                                     var cellContents = "Time: " + levelMinutes + ":" + levelSeconds;    
-                                     var sTime = new Date(myLevel.startUTime*1000);
-                                     var eTime = new Date(myLevel.endUTime*1000);
-                                     cellContents += "<br><small>Start: " +  sTime.getHours() + ":" + (sTime.getMinutes()<10?'0':'') + sTime.getMinutes();
-                                     cellContents += ",  End: " + eTime.getHours() + ":" + (eTime.getMinutes()<10?'0':'') + eTime.getMinutes() + "</small>";
-                                     cellContents += levelMsg;
-                                     if ((myLevel.label == "A") || myLevel.label == "B") {
-                                          successMsg = (myLevel.success ? 
-                                          "<br><b><font color=green>Level successful.</font></b>" :
-                                                 "<br><b><font color=red>Level unsuccessful.</font></b>");
-                                     }
-                                     if (myLevel.label == "C") {
-                                          cellContents += levelEMsg;
-                                          successMsg = ((myLevel.success && myLevel.successE) ? 
+                                    myTeamTotalTime += levelTime;
+                                    var levelMsg = (myLevel.success ?
+                                        "<br><font color=green>Goal voltages attained.</font>" :
+                                        "<br><font color=red>Goal voltages not attained.</font>");
+                                    var levelEMsg = (myLevel.successE ?
+                                        "<br><font color=green>E correctly reported.</font>" :
+                                        "<br><font color=red>E not reported correctly.</font>");
+                                    var levelRMsg = (myLevel.successR ?
+                                        "<br><font color=green>R0 correctly reported.</font>" :
+                                        "<br><font color=red>R0 not reported correctly.</font>");
+                                    var successMsg;
+                                    var cellContents = "Time: " + levelMinutes + ":" + levelSeconds;
+                                    var sTime = new Date(myLevel.startUTime * 1000);
+                                    var eTime = new Date(myLevel.endUTime * 1000);
+                                    cellContents += "<br><small>Start: " + sTime.getHours() + ":" + (sTime.getMinutes() < 10 ? '0' : '') + sTime.getMinutes();
+                                    cellContents += ",  End: " + eTime.getHours() + ":" + (eTime.getMinutes() < 10 ? '0' : '') + eTime.getMinutes() + "</small>";
+                                    cellContents += levelMsg;
+                                    if ((myLevel.label == "A") || myLevel.label == "B") {
+                                        successMsg = (myLevel.success ?
                                             "<br><b><font color=green>Level successful.</font></b>" :
-                                                   "<br><b><font color=red>Level unsuccessful.</font></b>");
-                                     }
-                                     if (myLevel.label == "D") {
-                                          cellContents += levelEMsg + levelRMsg;
-                                          successMsg = ((myLevel.success && myLevel.successE && myLevel.successR) ?
+                                            "<br><b><font color=red>Level unsuccessful.</font></b>");
+                                    }
+                                    if (myLevel.label == "C") {
+                                        cellContents += levelEMsg;
+                                        successMsg = ((myLevel.success && myLevel.successE) ?
                                             "<br><b><font color=green>Level successful.</font></b>" :
-                                                   "<br><b><font color=red>Level unsuccessful.</font></b>");
-                                     }
+                                            "<br><b><font color=red>Level unsuccessful.</font></b>");
+                                    }
+                                    if (myLevel.label == "D") {
+                                        cellContents += levelEMsg + levelRMsg;
+                                        successMsg = ((myLevel.success && myLevel.successE && myLevel.successR) ?
+                                            "<br><b><font color=green>Level successful.</font></b>" :
+                                            "<br><b><font color=red>Level unsuccessful.</font></b>");
+                                    }
                                     cellContents += successMsg;
                                     dataCells[i][j + 1].innerHTML = cellContents;
                                 }
-								maxLevel = "None";
-								for (var j = 0; j < myTeam.levels.length; j++) {
-                                     myLevel = myTeam.levels[j];
-                                	 if (myLevel.label == "A" && myLevel.success) {maxLevel = "A"; }
-                                	 if (myLevel.label == "B" && myLevel.success) {maxLevel = "B"; }
-                                	 if (myLevel.label == "C" && myLevel.success && myLevel.successE) {maxLevel = "C"; }
-                                	 if (myLevel.label == "D" && myLevel.success && myLevel.successE && myLevel.successR) {maxLevel = "D"; }
-                                     }
-								myDate = myLevel.startPTime
-								levelDate = (myDate.getMonth()+1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
-								// Teacher / Date / Team / Level / Time / Action / Actor / Total Mssg Score / Number Mssgs / Avg Mssg Score
-                                newRow = [myTeam.teacherName, levelDate, myTeam.name, maxLevel, Math.round(myTeamTotalTime / 6)/10, "MaxLevel"];
+                                maxLevel = "None";
+                                for (var j = 0; j < myTeam.levels.length; j++) {
+                                    myLevel = myTeam.levels[j];
+                                    if (myLevel.label == "A" && myLevel.success) {
+                                        maxLevel = "A";
+                                    }
+                                    if (myLevel.label == "B" && myLevel.success) {
+                                        maxLevel = "B";
+                                    }
+                                    if (myLevel.label == "C" && myLevel.success && myLevel.successE) {
+                                        maxLevel = "C";
+                                    }
+                                    if (myLevel.label == "D" && myLevel.success && myLevel.successE && myLevel.successR) {
+                                        maxLevel = "D";
+                                    }
+                                }
+                                myDate = myLevel.startPTime
+                                levelDate = (myDate.getMonth() + 1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
+                                // Teacher / Date / Team / Level / Time / Action / Actor / Total Mssg Score / Number Mssgs / Avg Mssg Score
+                                newRow = [myTeam.teacherName, levelDate, myTeam.name, maxLevel, Math.round(myTeamTotalTime / 6) / 10, "MaxLevel"];
                                 csvSummaryArray.push(newRow);
-								
+
                             }
                         }
                     }
                 }
             }
-			mssg = "report-tools: teacher report for " + teacher;
-			console.log(mssg);
+            mssg = "report-tools: teacher report for " + teacher;
+            console.log(mssg);
         }
     }
 }
 
 function makeSummaryArray(teams) {
     var summaryArray = ["Team", "Teacher", "Level A", "Level B", "Level C", "Level D"]
-        
+
     for (var i = 0; i < teams.length; i++) {
         myTeam = teams[i]
         myTeacher = myTeam.teacher;
@@ -663,8 +733,7 @@ function makeSummaryArray(teams) {
         for (var j = 0; j < 4; j++) {
             if (!myTeam.levels[j]) {
                 summaryRow.push("not attempted");
-            }
-            else if (!myTeam.levels[j].success) {
+            } else if (!myTeam.levels[j].success) {
                 summaryRow.push("unsuccessful");
             } else {
                 summaryRow.push("successful");
@@ -674,6 +743,6 @@ function makeSummaryArray(teams) {
         summaryArray.push(summaryRow);
     }
     downloadSummaryCSV(summaryArray);
-	mssg = "report-tools: makeSummaryArray for " + i + " teams";
-	console.log(mssg);
+    mssg = "report-tools: makeSummaryArray for " + i + " teams";
+    console.log(mssg);
 }
