@@ -360,7 +360,11 @@ function addSubmit(ro) {
         var goalV1 = myLevel.goalV[0];
         var goalV2 = myLevel.goalV[1];
         var goalV3 = myLevel.goalV[2];
-        myLevel.success = (Math.abs(V1 - goalV1) + Math.abs(V2 - goalV2) + Math.abs(V3 - goalV3) < .01)
+        var voltagesCorrectlySubmitted= (Math.abs(V1 - goalV1) + Math.abs(V2 - goalV2) + Math.abs(V3 - goalV3) < .01)
+        if (!(myLevel.success) && voltagesCorrectlySubmitted) { //If this is the first correct v submit
+            myLevel.VSuccessTime = myAction.eTime; //remember the time
+            myLevel.success = true;
+        }
         myAction.level.actions.push(myAction);
     }
 }

@@ -100,7 +100,12 @@ function reportResults(teams) { // extract and list actions checked by user
                         }
 
                         var levelMsg = (myLevel.success ? "Goal voltages attained." : "Goal voltages not attained.");
-                        var levelVMsg = (myLevel.success ? "Goal voltages correctly reported." : "Goal voltages not reported correctly.");
+                        var levelVMsg = "";
+                        if (myLevel.success) {
+                            levelVMsg = "Goal voltages correctly reported at " + myLevel.VSuccessTime + " secs."
+                        } else {
+                            levelVMsg = "Goal voltages not reported correctly."
+                        };
                         var levelEMsg = (myLevel.successE ? " E correctly reported." : " E not reported correctly.");
                         var levelRMsg = (myLevel.successR ? " R0 correctly reported." : " R0 not reported correctly.");
                         var levelMsg = "",
@@ -322,13 +327,7 @@ function reportVarRefs(teams) {
                                             o = findOtherVariables(vr);
                                             break;
                                         case "calculation":
-                                            if (variableInVarRef(vrStr, act.cvarRefs)) {
-                                                t = "<span style=\"color:#FF00FF;\">calculation input</span>";
-                                                break;
-                                            } else if (variableInVarRef(vrStr, act.rvarRefs)) {
-                                                t = "<span style=\"color:#FF00FF;\">calculation result</span>";
-                                                break;
-                                            }
+                                            t = "<span style=\"color:#FF00FF;\">calculation t</span>";
                                             o = findOtherVariables(vr);
                                             break;
                                         case "measurement":
