@@ -522,6 +522,9 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
         myLevel.attainedVsTime = 0;
         myLevel.movedAwayFromVs = false;
         myLevel.movedAwayFromVsTime = 0;
+        myLevel.members = 0;
+        myLevel.lastJoinedTime = "!";
+        myLevel.lastJoinedUTime = 0;
         addLevelValues(myLevel, ro);
         myLevel.varRefs = function() {} //List of references to known variables
         //Each property is a variable label and is associated with an array of
@@ -551,8 +554,6 @@ function addMember(myTeam, ro) { //If the member doesn't already exist, construc
         myMember = new member;
         myTeam.members.push(myMember);
         myMember.startTime = ro["time"];
-        //        myMember.startPTime = unixTimeConversion(myMember.startTime);
-        //        myMember.colIndex = colIndex; //used for identifying member when counting actions
         myMember.colIndex = myTeam.members.length - 1 // will be 0, 1, or 2
         var colorArray = ["DarkTurquoise", "Gold", "GreenYellow"];
         //from level to level. Used in identifying the member when we count or score actions.

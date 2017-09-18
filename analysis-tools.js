@@ -199,6 +199,11 @@ function duplicate(action) {
 function addJoinedGroup(ro) {
     var myAction = addAction(ro, "joined-group");
     if (!(duplicate(myAction)) && (ro["event_value"] === ro["groupname"])) { //There's at least one examnple in the data where this condition is not satisfied: a joined group action is reported for two different teams by groupname and event_value. We're going to ignore such events for the time being.
+        myLevel.members++;
+        if (myLevel.members == 3) {
+            myLevel.lastJoinedTime = myAction.eMinSecs;
+            myLevel.lastJoinedUTime = myAction.uTime;
+        }    
         myAction.level.actions.push(myAction);
     }
 }
@@ -262,12 +267,12 @@ function addRChange(ro) {
             myAction.attainedVsMsg = (totalGoalDifference < .01 ?   ", goal voltages attained, " : ", goal voltages not attained, ");
             if (Math.abs(totalGoalDifference) < .01) {
                 if (!myLevel.attainedVs) { //only record time the first time
-                    myLevel.attainedVsTime = myAction.eTime;
+                    myLevel.attainedVsTime = myAction.eMinSecs;
                 }
                 myLevel.attainedVs = true;
             } else if ((myLevel.attainedVs) && (!myLevel.movedAwayFromVs))  {
                 myLevel.movedAwayFromVs = true;
-                myLevel.movedAwayFromVsTime = myAction.eTime;
+                myLevel.movedAwayFromVsTime = myAction.eMinSecs;
             }
             if (Math.abs(newGoalDifference) < .01) {
                 myAction.goalMsg = ". Local goal met";
@@ -363,7 +368,7 @@ function addSubmit(ro) {
         var goalV3 = myLevel.goalV[2];
         voltagesCorrectlySubmitted= (Math.abs(V1 - goalV1) + Math.abs(V2 - goalV2) + Math.abs(V3 - goalV3) < .01)
         if (!(myLevel.success) && voltagesCorrectlySubmitted) { //If this is the first correct v submit
-            myLevel.VSuccessTime = myAction.eTime; //remember the time
+            myLevel.VSuccessTime = myAction.eMinSecs; //remember the time
             myLevel.success = true;
         }
         myAction.level.actions.push(myAction);

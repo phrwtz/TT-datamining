@@ -253,9 +253,9 @@ function reportResults(teams) { // extract and list actions checked by user
                             }
                         } //End of actions
                         document.getElementById("data").innerHTML += ("<br><br><mark>Team " +
-                            team.name + ", level " + myLevel.label + "</mark>, start time: " + myLevel.startPTime + ", duration: " +
-                            levelMinutes + ":" + levelSeconds + ", E = " + myLevel.E + ", R0 = " + myLevel.R0 + "<br>" +
-                            "goal V1 = " + myLevel.goalV[0] + ", goal V2 = " + myLevel.goalV[1] + ", goal V3 = " + myLevel.goalV[2] +
+                            team.name + ", level " + myLevel.label + "</mark>, start time: " + myLevel.startPTime + ", duration: " + levelMinutes + ":" + levelSeconds + ", last member joined at " +
+                            myLevel.lastJoinedTime + "<br>" +
+                            "E = " + myLevel.E + ", R0 = " + myLevel.R0 + ", goal V1 = " + myLevel.goalV[0] + ", goal V2 = " + myLevel.goalV[1] + ", goal V3 = " + myLevel.goalV[2] +
                             ", goal R1 = " + myLevel.goalR[0] + ", goal R2 = " + myLevel.goalR[1] + ", goal R3 = " + myLevel.goalR[2] +
                             "<br>" + goalVMsg + levelMsg + "<br>");
 
