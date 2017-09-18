@@ -353,7 +353,7 @@ function reportVarRefs(teams) {
                                             oMsg += ", " + o[jj];
                                         }
                                     }
-                                    document.getElementById("data").innerHTML += ("Variable " + vrStr + " found at " + act.eTime +
+                                    document.getElementById("data").innerHTML += ("Variable " + vrStr + " found at " + act.eMinSecs +
                                         " seconds in a " + t + " by " + act.actor.styledName + ", board " + bd + oMsg + "<br>");
                                     varRefCount++;
                                 }

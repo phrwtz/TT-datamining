@@ -37,8 +37,7 @@ function reportSubmitVoltages(act) {
     var V1 = myLevel.E * act.R[0] / Rtot;
     var V2 = myLevel.E * act.R[1] / Rtot;
     var V3 = myLevel.E * act.R[2] / Rtot;
-    var success = ((Math.abs(V1 - myLevel.goalV[0]) + Math.abs(V2 - myLevel.goalV[1]) + Math.abs(V3 - myLevel.goalV[2])) < .1)
-    var successMsg = (success ? " submitted correct voltages." : " submitted incorrect voltages.");
+    var successMsg = (myLevel.success ? " submitted correct voltages." : " submitted incorrect voltages.");
     content = act.actor.styledName + successMsg;
     addActionRow(act, content);
 }

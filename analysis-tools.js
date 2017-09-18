@@ -282,8 +282,10 @@ function addRChange(ro) {
             } else if (Math.abs(newGoalDifference) > Math.abs(oldGoalDifference)) {
                 myAction.goalMsg = ". Goal farther";
             }
-            myLevel.R = myAction.newR; // Update level so that we have something to compare to next time around
-            // myLevel.V = myAction.newV;
+            for (var jk = 0; jk < 3; jk++) {
+                myLevel.R[jk] = myAction.newR[jk];
+                myLevel.V[jk] = myAction.newV[jk];
+            };
             myAction.level.actions.push(myAction); //and push the action onto the level
         }
     }
@@ -359,7 +361,7 @@ function addSubmit(ro) {
         var goalV1 = myLevel.goalV[0];
         var goalV2 = myLevel.goalV[1];
         var goalV3 = myLevel.goalV[2];
-        var voltagesCorrectlySubmitted= (Math.abs(V1 - goalV1) + Math.abs(V2 - goalV2) + Math.abs(V3 - goalV3) < .01)
+        voltagesCorrectlySubmitted= (Math.abs(V1 - goalV1) + Math.abs(V2 - goalV2) + Math.abs(V3 - goalV3) < .01)
         if (!(myLevel.success) && voltagesCorrectlySubmitted) { //If this is the first correct v submit
             myLevel.VSuccessTime = myAction.eTime; //remember the time
             myLevel.success = true;

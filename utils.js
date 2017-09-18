@@ -190,8 +190,8 @@ function getVarRefs(action, text) {
     //If we're looking at the result of a calculation and it doesn't correspond to any
     //known variable, handle it differently
     if ((action.type == "calculation") && (text == action.rMsg) && (vrs[0] == "??")) {
-        vrs[0] = "uk" + action.level.ukIndex;
-        vrLabelsArray.push("uk" + action.level.ukIndex);
+        vrs[0] = "unknown" + action.level.ukIndex;
+        vrLabelsArray.push("unknown" + action.level.ukIndex);
         action.level.ukIndex++;
     }
     return vrs;
@@ -419,7 +419,7 @@ function findVars(act, numStr) {
         returnArray.push(thisVarRef);
     }
     if (!variableFound) { //if there is no match
-        thisStr = "??";
+        thisStr = "unknown";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);

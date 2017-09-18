@@ -9,7 +9,7 @@ var studentDataObjs = [];
 var timeZone = -5; //offset for Eastern Standard Time
 var vrLabelsArray = ["E", "R0", "R1", "R2", "R3", "sumRs", "sumRsPlusR0", "V0", "V1", "V2", "V3",
     "sumVs", "goalR1", "goalR2", "goalR3", "sumGoalRs", "goalV0", "goalV1", "goalV2", "goalV3", "sumGoalVs",
-    "Rtot", "goalRtot", "IA", "ImA", "goalIA", "goalImA", "??"]; //Array of varRef labels (used to label)
+    "Rtot", "goalRtot", "IA", "ImA", "goalIA", "goalImA", "unknown"]; //Array of varRef labels (used to label)
 var csvActionsArray = [["Teacher", "Date", "Team", "Level", "Time", "Action", "Actor", "Message", "Input", "Result",
 	    "Old Resistance", "New Resistance", "Dial Position", "Probe Positions", "Measurement type",
 	    "Measurement Result", "Submit E-Value", "Submit E-Unit", "Submit R0-Value", "Submit R0-Unit"]]; //col headings for Actions File Download as csv file
