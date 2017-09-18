@@ -255,7 +255,7 @@ function addActionRow(act, content) {
     var actionCell3 = document.createElement("td");
     var bd = parseInt(act.board);
     actionTable.appendChild(actionRow);
-    actionCell0.innerHTML = act.eTime;
+    actionCell0.innerHTML = act.eMinSecs;
     // actionCell0.addEventListener("mouseover", function () {
     //     showData();
     // })

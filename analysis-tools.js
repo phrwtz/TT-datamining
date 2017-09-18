@@ -120,6 +120,9 @@ function addAction(ro, type) {
     myAction.actor = myMember;
     myAction.uTime = ro["time"];
     myAction.eTime = Math.round(myAction.uTime - myLevel.startUTime);
+    var eMins = String(Math.floor(myAction.eTime / 60));
+    var eSecs = myAction.eTime % 60 > 9 ? String(myAction.eTime % 60) : "0" + String(myAction.eTime % 60);
+    myAction.eMinSecs = eMins + ":" + eSecs;
     myAction.pTime = unixTimeConversion(myAction.uTime);
     myAction.board = parseInt(ro["board"]);
     myAction.index = myLevel.actions.length; //The length of the array before the action is pushed. (The index of the action
@@ -280,11 +283,7 @@ function addRChange(ro) {
                 myAction.goalMsg = ". Goal farther";
             }
             myLevel.R = myAction.newR; // Update level so that we have something to compare to next time around
-            myLevel.V = myAction.newV;
-            if ((myLevel.R[0] == myLevel.R[1]) && (myLevel.R[1] == myLevel.R[2]) && (myLevel.label != "A")) {
-                var eTime = myAction.uTime - myLevel.startUTime;
-                console.log("All resistor values equal at time " + eTime + ". team " + myLevel.team.name + ", level " + myLevel.label + ", E/4 = " + (myLevel.E / 4) + ", all Vs = " + myAction.newV[0])
-            } 
+            // myLevel.V = myAction.newV;
             myAction.level.actions.push(myAction); //and push the action onto the level
         }
     }
@@ -331,9 +330,9 @@ function addMeasurement(ro, i) {
         myAction.measurementType = ro["measurement"];
         myAction.blackPosition = ro["black_probe"];
         myAction.redPosition = ro["red_probe"];
-        if (myAction.blackPosition.slice(1) === myAction.redPosition.slice(1) &&
-            (myAction.blackPosition[0] !== myAction.redPosition[0])) {
-            myAction.gapMeasurement = true;
+        if (myAction.blackPosition.slice(1) === myAction.redPosition.slice(1) && //same column
+            (myAction.blackPosition[0] !== myAction.redPosition[0])) { //and different row
+            myAction.gapMeasurement = true; //means measurement across a gap
         } else {
             myAction.gapMeasurement = false;
         }
