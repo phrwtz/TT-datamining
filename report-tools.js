@@ -99,10 +99,9 @@ function reportResults(teams) { // extract and list actions checked by user
                             }
                         }
 
-                        var levelMsg = (myLevel.success ? "Goal voltages attained." : "Goal voltages not attained.");
                         var levelVMsg = "";
                         if (myLevel.success) {
-                            levelVMsg = "Goal voltages correctly reported at " + myLevel.VSuccessTime + " secs."
+                            levelVMsg = "Goal voltages correctly reported at " + myLevel.VSuccessTime + "."
                         } else {
                             levelVMsg = "Goal voltages not reported correctly."
                         };
@@ -114,9 +113,9 @@ function reportResults(teams) { // extract and list actions checked by user
                             goalV2Communicated = false,
                             goalV3Communicated = false;
                         if (myLevel.movedAwayFromVs) {
-                            goalVMsg = "Attained goal voltages at " + myLevel.attainedVsTime + " secs and then moved away at " + myLevel.movedAwayFromVsTime + " secs. ";
+                            goalVMsg = "Attained goal voltages at " + myLevel.attainedVsTime + " and then moved away at " + myLevel.movedAwayFromVsTime + ". ";
                         } else if (myLevel.attainedVs) {
-                            goalVMsg = "Attained correct goal voltages at " + myLevel.attainedVsTime + " secs. "
+                            goalVMsg = "Attained correct goal voltages at " + myLevel.attainedVsTime + ". "
                         } else {
                             goalVMsg = "Never attained goal voltages. "
                         }

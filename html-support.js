@@ -189,7 +189,7 @@ function clearReport() {
     }
 }
 
-function setUpActionsReport(teams) { //Sets up a matrix with three columns into which the actions can be inserted with a different column for each actor
+function setUpActionsReport(teams) { //Sets up a table with three columns into which the actions can be inserted with a different column for each actor
     if (document.getElementById("reportDiv")) { //If reportDiv exists
         var reportDiv = document.getElementById("reportDiv"); //clear it
         while (reportDiv.firstChild) {
@@ -308,7 +308,7 @@ function addActionRow(act, content) {
             actionCell3.innerHTML = "";
             actionRow.appendChild(actionCell1);
             actionRow.appendChild(actionCell2);
-            // actionRow.appendChild(actionCell3);
+            actionRow.appendChild(actionCell3);
             // actionCell1.addEventListener("mousedown", function () {
             //     reportAllActions(teams, act);
             //     element = document.getElementById(actionRow.id);
