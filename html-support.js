@@ -89,9 +89,8 @@ function setupForm(teams) {
     onChangeStr = "onchange = \"toggleSelectAll('action')\"";
     labelStr = '<b>All actions</b><br>';
     actionData.innerHTML = "<input + " + typeStr + IDStr + onChangeStr + ">" + labelStr;
-    var actionLabels = ["message", "calculation", "resistorChange", "attach-probe", "detach-probe",
-        "connect-lead", "disconnect-lead", "measurement", "move-DMM-dial", "submit-V", "submit-ER", "joined-group",
-        "opened-zoom", "closed-zoom"
+    var actionLabels = ["activity-settings", "message", "calculation", "resistorChange", "attach-probe", "detach-probe",
+        "connect-lead", "disconnect-lead", "measurement", "move-DMM-dial", "submit-V", "submit-ER", "joined-group", "opened-zoom", "closed-zoom"
     ];
     for (var k = 0; k < actionLabels.length; k++) {
         IDStr = 'id=action-' + actionLabels[k] + " name=action>";
@@ -215,7 +214,7 @@ function addLevelRow(team, level) {
     var teamCell = document.createElement("th");
     teamCell.style.alignItems = "flex-start";
     timeCell.innerHTML = "Time";
-    teamCell.innerHTML = "Team " + team.name + ", Level " + level.label;
+    teamCell.innerHTML = "Team " + team.name + ", Level " + level.label + ",  E = " + level.E + " R0 = " + level.R0;
     teamCell.setAttribute("colspan", 3);
     headerRow.appendChild(timeCell);
     headerRow.appendChild(teamCell);
@@ -237,9 +236,9 @@ function counter(checkboxName) {
 }
 var dataWindow;
 
-function showData() {
-    dataWindow = window.open("", "myWindow", "width=200, height=100");
-    dataWindow.document.write = "<p>This the window you're looking for.</p>";
+function showData(act) {
+    dataWindow = window.open("", "myWindow", "width=500, height=400, left=500, top=100");
+    dataWindow.document.body.innerHTML = "E = " + act.E + ", R0 = " + act.R0 + "<br>R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + "<br>goalR1 = " + act.goalR[0] + ", goalR2 = " + act.goalR[1] + ", goalR3 = " + act.goalR[2] + "<br>V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + "<br>goalV1 = " + act.goalV[0] + ", goalV2 = " + act.goalV[1] + ", goalV3 = " + act.goalV[2];
 }
 
 function hideData() {
@@ -256,12 +255,12 @@ function addActionRow(act, content) {
     var bd = parseInt(act.board);
     actionTable.appendChild(actionRow);
     actionCell0.innerHTML = act.eMinSecs;
-    // actionCell0.addEventListener("mouseover", function () {
-    //     showData();
-    // })
-    // actionCell0.addEventListener("mouseout", function () {
-    //     hideData();
-    // })
+    actionCell0.addEventListener("mousedown", function () {
+        showData(act);
+    })
+    actionCell0.addEventListener("mouseup", function () {
+        hideData();
+    })
 
     switch (act.type) {
         case "message":

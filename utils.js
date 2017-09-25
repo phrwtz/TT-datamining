@@ -1,17 +1,19 @@
 function clearScreen(csvActionsArray, csvSummaryArray) { //clears data and summary tables
-    document.getElementById("data").innerHTML = "";	// clear data paragraph
-    if (document.getElementById("tableDiv")) {  // clear tableDiv division
-	   var tableDiv = document.getElementById("tableDiv");
-       while (tableDiv.firstChild) {
-           tableDiv.removeChild(tableDiv.firstChild);
+    document.getElementById("data").innerHTML = ""; // clear data paragraph
+    if (document.getElementById("tableDiv")) { // clear tableDiv division
+        var tableDiv = document.getElementById("tableDiv");
+        while (tableDiv.firstChild) {
+            tableDiv.removeChild(tableDiv.firstChild);
         }
     }
-	Array.from(document.getElementsByClassName("tableSummary")).forEach( // clear divisions of this classname
-        		function (e) {e.parentNode.removeChild(e);}
-			); 
-	csvActionsArray.length = 1;
-	csvSummaryArray.length = 1; // re-initialize the csv download files	
-	console.log("utils.js:clearScreen: csvActionsArray.length = " + csvActionsArray.length + "; csvSummaryArray.length = " + csvSummaryArray.length); 
+    Array.from(document.getElementsByClassName("tableSummary")).forEach( // clear divisions of this classname
+        function (e) {
+            e.parentNode.removeChild(e);
+        }
+    );
+    csvActionsArray.length = 1;
+    csvSummaryArray.length = 1; // re-initialize the csv download files	
+    console.log("utils.js:clearScreen: csvActionsArray.length = " + csvActionsArray.length + "; csvSummaryArray.length = " + csvSummaryArray.length);
 } // end clearScreen
 
 function initializeVarRefs(level) { //Initializes variable references for this level
@@ -526,7 +528,7 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
         myLevel.lastJoinedTime = "!";
         myLevel.lastJoinedUTime = 0;
         addLevelValues(myLevel, ro);
-        myLevel.varRefs = function() {} //List of references to known variables
+        myLevel.varRefs = function () {} //List of references to known variables
         //Each property is a variable label and is associated with an array of
         //actions (messages, calculations, measurements) that contain a reference
         //to that variable, paired with a string that defines whether the
@@ -634,189 +636,203 @@ function getLevel(ro) { //assumes that groupName and levelName are properties of
             myLevel.team = myTeam;
             myLevel.actions = [];
             myLevel.success = false;
+            myLevel.E = 0;
+            myLevel.R0 = 0;
         }
     }
     return myLevel;
 }
 
 function addLevelValues(myLevel, ro) {
+    var teamName = ro["groupname"];
     if (ro["event"] == "model values") {
         myLevel.goalR = [parseInt(ro["GoalR1"]), parseInt(ro["GoalR2"]), parseInt(ro["GoalR3"])];
         myLevel.goalV = [parseFloat(ro["V1"]), parseFloat(ro["V2"]), parseFloat(ro["V3"])];
     }
     if (ro["event"] == "Activity Settings") {
-        //     console.log("In addLevelValues. Level name = " + myLevel.name + ", level " + myLevel.label);
-        myLevel.E = parseInt(ro["E"]);
-        myLevel.R0 = parseInt(ro["R0"]);
-        myLevel.initR = [parseInt(ro["r1"]), parseInt(ro["r2"]), parseInt(ro["r3"])];
-        myLevel.R = [];
-        for (var i = 0; i < myLevel.initR.length; i++) {
-            myLevel.R[i] = myLevel.initR[i];
+
+        //Check to see whether this level already has a value for E and R0
+
+        if ((myLevel.E) && (myLevel.E != 0) && (myLevel.E != parseInt(ro["E"]))) {
+            console.log("Team " + teamName + ", level " + myLevel.label + ", E changed from " + myLevel.E + " to " + parseInt(ro["E"]) + " at " + (ro["time"] - myLevel.startUTime) + " seconds.")
+        };
+        
+         if ((myLevel.R0) && (myLevel.R0 != 0) && (myLevel.R0 != parseInt(ro["R0"]))) {
+            console.log("Team " + teamName + ", level " + myLevel.label + ", R0 changed from " + myLevel.R0 + " to " + parseInt(ro["R0"]) + " at " + (ro["time"] - myLevel.startUTime) + " seconds.")
+            };
+                 
+                myLevel.E = parseInt(ro["E"]);
+                myLevel.R0 = parseInt(ro["R0"]);
+                myLevel.initR = [parseInt(ro["r1"]), parseInt(ro["r2"]), parseInt(ro["r3"])];
+                myLevel.R = [];
+                for (var i = 0; i < myLevel.initR.length; i++) {
+                    myLevel.R[i] = myLevel.initR[i];
+                }
+                myLevel.V = findVValues(myLevel.E, myLevel.R0, myLevel.R);
+            }
         }
-        myLevel.V = findVValues(myLevel.E, myLevel.R0, myLevel.R);
-    }
-}
 
-//Check to see whether the team at this row is in the teams array
-function findTeam(teams, ro) {
-    var teamName = ro["groupname"];
-    for (var i = 0; i < teams.length; i++) {
-        if (teams[i].name == teamName) {
-            return teams[i];
-        } else {
-            //            console.log("No such team!" + teamName);
+        //Check to see whether the team at this row is in the teams array
+        function findTeam(teams, ro) {
+            var teamName = ro["groupname"];
+            for (var i = 0; i < teams.length; i++) {
+                if (teams[i].name == teamName) {
+                    return teams[i];
+                } else {
+                    //            console.log("No such team!" + teamName);
+                }
+            }
         }
-    }
-}
 
 
-function getMemberDataObj(userID) { //Takes the userID and returns the studentData object for that ID
-    var memberDataObject = function() {};
-    for (var i = 0; i < studentDataObjs.length; i++) {
-        if (studentDataObjs[i]["UserID"] == userID) {
-            memberDataObject = studentDataObjs[i];
+        function getMemberDataObj(userID) { //Takes the userID and returns the studentData object for that ID
+            var memberDataObject = function () {};
+            for (var i = 0; i < studentDataObjs.length; i++) {
+                if (studentDataObjs[i]["UserID"] == userID) {
+                    memberDataObject = studentDataObjs[i];
+                }
+            }
+            return memberDataObject;
         }
-    }
-    return memberDataObject;
-}
 
-//Check to see whether name is in the members array for some team. If so, return the member.
-function findMember(id) {
-    for (var j = 0; j < teams.length; j++) {
-        team = teams[j];
-        for (var i = 0; i < team.members.length; i++) {
-            if (team.members[i].id == id) {
-                return team.members[i];
+        //Check to see whether name is in the members array for some team. If so, return the member.
+        function findMember(id) {
+            for (var j = 0; j < teams.length; j++) {
+                team = teams[j];
+                for (var i = 0; i < team.members.length; i++) {
+                    if (team.members[i].id == id) {
+                        return team.members[i];
+                    } else {
+                        //        console.log("no such member!" + name);
+                    }
+                }
+            }
+        }
+
+        function unixTimeConversion(uTime) {
+            // Create a new JavaScript Date object based on the timestamp
+            // multiplied by 1000 so that the argument is in milliseconds, not seconds.
+            var date = new Date(uTime * 1000);
+            var year = date.getFullYear();
+            var month = date.getMonth() + 1;
+            var day = date.getDate();
+            var hours = date.getHours();
+            var minutes = date.getMinutes();
+            var seconds = date.getSeconds();
+            var milliseconds = date.getMilliseconds();
+
+            var formattedTime = month + "/" + day + "/" + year + " " +
+                hours + ':' + minutes + ":" + seconds + "." + milliseconds;
+            return (formattedTime);
+        }
+
+        function arrayToObjects(rows) { //takes and array with a header and some data and returns objects
+            var headers = rows[0];
+
+            function rowObj() {};
+            var rowObjs = [];
+            for (i = 1; i < rows.length; i++) {
+                currentRow = new rowObj;
+                var row = rows[i];
+                if (row.length == headers.length) {
+                    for (j = 0; j < row.length; j++) {
+                        currentRow[headers[j]] = row[j];
+                    }
+                }
+                rowObjs.push(currentRow);
+            }
+            return rowObjs;
+        }
+
+        //returns A for level 2, B for level 3, and so forth
+        function getAlphabeticLabel(index) {
+            var alphaArray = ["A", "B", "C", "D"];
+            if ((index >= 2) && (index <= 5)) {
+                return alphaArray[index - 2];
             } else {
-                //        console.log("no such member!" + name);
+                alert("Alphabetic label array index out of range." + index)
             }
         }
-    }
-}
 
-function unixTimeConversion(uTime) {
-    // Create a new JavaScript Date object based on the timestamp
-    // multiplied by 1000 so that the argument is in milliseconds, not seconds.
-    var date = new Date(uTime * 1000);
-    var year = date.getFullYear();
-    var month = date.getMonth()+1;
-    var day = date.getDate();
-    var hours = date.getHours();
-    var minutes = date.getMinutes();
-    var seconds = date.getSeconds();
-    var milliseconds = date.getMilliseconds();
+        function testScore(varStr) {
+            var act = new action;
+            var lvl = new level;
+            lvl.number = 1;
+            lvl.label = "A";
+            act.board = 2;
+            act.level = lvl;
+            console.log(score(varStr, act));
+        }
 
-    var formattedTime = month + "/" + day + "/" + year + " " +
-        hours + ':' + minutes + ":" + seconds + "." + milliseconds;
-    return (formattedTime);
-}
+        //     function download(x) {
+        //     var data = [["Team", "Level"], ["Animals", "A"]];
+        //     var fileName = "csvFile.csv";
+        //     var lineArray = [];
+        //     data.forEach(function (infoArray, index) {
+        //     var line = infoArray.join(",");
+        //     lineArray.push(index == 0 ? "data:text/csv;charset=utf-8," + line : line);
+        // });
+        //     var csvContent = lineArray.join("\n");
+        //     saveData()(csvContent, fileName);
+        // }
 
-function arrayToObjects(rows) { //takes and array with a header and some data and returns objects
-    var headers = rows[0];
-
-    function rowObj() {};
-    var rowObjs = [];
-    for (i = 1; i < rows.length; i++) {
-        currentRow = new rowObj;
-        var row = rows[i];
-        if (row.length == headers.length) {
-            for (j = 0; j < row.length; j++) {
-                currentRow[headers[j]] = row[j];
+        function saveData(data) {
+            var a = document.createElement("a");
+            document.body.appendChild(a);
+            a.style = "display: none";
+            return function (data, fileName) {
+                var blob = new Blob([data], {
+                    type: "text/csv;encoding:utf-8"
+                });
+                var url = window.URL.createObjectURL(blob);
+                a.href = url;
+                a.download = fileName;
+                a.click();
+                window.URL.revokeObjectURL(url);
             }
         }
-        rowObjs.push(currentRow);
-    }
-    return rowObjs;
-}
 
-//returns A for level 2, B for level 3, and so forth
-function getAlphabeticLabel(index) {
-    var alphaArray = ["A", "B", "C", "D"];
-    if ((index >= 2) && (index <= 5)) {
-        return alphaArray[index - 2];
-    } else {
-        alert("Alphabetic label array index out of range." + index)
-    }
-}
+        function downloadLogCSV(csvDataArray) {
+            var truncatedFilename = fileName.slice(0, (fileName.length - 4));
+            csvDataFilename = truncatedFilename + ".LOGS.csv";
+            if (csvDataArray.length < 2) {
+                alert("Run a query of team(s), level(s), and action(s) BEFORE downloading a LOG report file");
+                return;
+            }
+            var csvContent = '';
+            // Loop through the data array and build the csv file to be downloaded
+            // Columns are separated by "," and rows are separated by "\n"
+            csvDataArray.forEach(function (infoArray, index) {
+                dataString = infoArray.join(",");
+                csvContent += index < csvDataArray.length ? dataString + "\n" : dataString;
+            })
+            saveData()(csvContent, csvDataFilename);
+            console.log("util.js: csv of log data (" + csvDataArray.length + " records) created and saved.");
+        }
 
-function testScore(varStr) {
-    var act = new action;
-    var lvl = new level;
-    lvl.number = 1;
-    lvl.label = "A";
-    act.board = 2;
-    act.level = lvl;
-    console.log(score(varStr, act));
-}
+        function downloadSummaryCSV(csvSummaryArray) {
+            var truncatedFilename = fileName.slice(0, (fileName.length - 4));
+            var csvSummaryFilename = truncatedFilename + ".SUMMARY.csv";
+            if (csvSummaryArray.length < 2) {
+                alert("Produce a Message or Teacher report BEFORE downloading a SUMMARY report file.");
+                return;
+            }
+            var csvContent = '';
+            // Loop through the data array and build the csv file to be downloaded
+            // Columns are separated by "," and rows are separated by "\n"
+            csvSummaryArray.forEach(function (infoArray, index) {
+                dataString = infoArray.join(",");
+                csvContent += index < csvSummaryArray.length ? dataString + "\n" : dataString;
+            })
+            saveData()(csvContent, csvSummaryFilename);
+            console.log("util.js: csv of summary data (" + csvSummaryArray.length + " created and saved.");
 
-//     function download(x) {
-//     var data = [["Team", "Level"], ["Animals", "A"]];
-//     var fileName = "csvFile.csv";
-//     var lineArray = [];
-//     data.forEach(function (infoArray, index) {
-//     var line = infoArray.join(",");
-//     lineArray.push(index == 0 ? "data:text/csv;charset=utf-8," + line : line);
-// });
-//     var csvContent = lineArray.join("\n");
-//     saveData()(csvContent, fileName);
-// }
+        }
 
-    function saveData (data) {
-    var a = document.createElement("a");
-    document.body.appendChild(a);
-    a.style = "display: none";
-    return function (data, fileName) {
-     var blob = new Blob([data], {type: "text/csv;encoding:utf-8"});
-        var url = window.URL.createObjectURL(blob);
-        a.href = url;
-        a.download = fileName;
-        a.click();
-        window.URL.revokeObjectURL(url);
-    }
-}
-
-function downloadLogCSV(csvDataArray) { 
-    var truncatedFilename = fileName.slice(0, (fileName.length - 4));
-    csvDataFilename = truncatedFilename + ".LOGS.csv";
-    if (csvDataArray.length < 2) {
-        alert("Run a query of team(s), level(s), and action(s) BEFORE downloading a LOG report file");
-        return;
-    }
-   var csvContent = '';
-    // Loop through the data array and build the csv file to be downloaded
-    // Columns are separated by "," and rows are separated by "\n"
-    csvDataArray.forEach(function(infoArray, index) {
-        dataString = infoArray.join(",");
-        csvContent += index < csvDataArray.length ? dataString + "\n" : dataString;
-    })
-    saveData()(csvContent,csvDataFilename);
-	console.log("util.js: csv of log data (" + csvDataArray.length + " records) created and saved.");
-}
-
-function downloadSummaryCSV(csvSummaryArray) {
-    var truncatedFilename = fileName.slice(0, (fileName.length - 4));
-    var csvSummaryFilename = truncatedFilename + ".SUMMARY.csv";
-    if (csvSummaryArray.length < 2) {
-        alert("Produce a Message or Teacher report BEFORE downloading a SUMMARY report file.");
-        return;
-    }
-    var csvContent = '';
-    // Loop through the data array and build the csv file to be downloaded
-    // Columns are separated by "," and rows are separated by "\n"
-    csvSummaryArray.forEach(function(infoArray, index) {
-        dataString = infoArray.join(",");
-        csvContent += index < csvSummaryArray.length ? dataString + "\n" : dataString;
-    	})
-    saveData()(csvContent,csvSummaryFilename);
-	console.log("util.js: csv of summary data (" + csvSummaryArray.length + " created and saved.");
-
-}
-
-function sortByTime(a, b) {
-    if (a[5] === b[5]) {
-        return 0;
-    }
-    else {
-        return (a[5] < b[5]) ? -1 : 1;
-    }
-}
+        function sortByTime(a, b) {
+            if (a[5] === b[5]) {
+                return 0;
+            } else {
+                return (a[5] < b[5]) ? -1 : 1;
+            }
+        }

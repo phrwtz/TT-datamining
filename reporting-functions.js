@@ -3,7 +3,7 @@ function reportResistorChange(act) {
     myLevel = act.level;
     var content = act.actor.styledName + " changed R" + bd + " from " + act.oldR[bd - 1] +
         " to " + act.newR[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
-        " to " + act.newV[bd - 1] + ". (Goal is " + myLevel.goalV[bd - 1] + ")" + act.goalMsg;
+        " to " + act.newV[bd - 1] + ". (Goal is " + act.goalV[bd - 1] + ")" + act.goalMsg;
     addActionRow(act, content);
 }
 
@@ -14,6 +14,13 @@ function reportCalculation(act) {
 
 function reportMessage(act) {
     content = act.actor.styledName + " said: " + act.highlightedMsg;
+    addActionRow(act, content);
+}
+
+function reportActivitySettings(act) {
+    var team = act.team;
+    level = act.level;
+    content = "Activity settings: E = " + act.E + ", R0 = " + act.R0;
     addActionRow(act, content);
 }
 
@@ -32,12 +39,14 @@ function reportMovedDial(act) {
 }
 
 function reportSubmitVoltages(act) {
-    var myLevel = act.level;
-    var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
-    var V1 = myLevel.E * act.R[0] / Rtot;
-    var V2 = myLevel.E * act.R[1] / Rtot;
-    var V3 = myLevel.E * act.R[2] / Rtot;
-    var successMsg = (myLevel.success ? " submitted correct voltages." : " submitted incorrect voltages.");
+    var V1 = act.V[0];
+    var V2 = act.V[1];
+    var V3 = act.V[2];
+    var goalV1 = act.goalV[0];
+    var goalV2 = act.goalV[1];
+    var goalV3 = act.goalV[2];
+    var voltagesCorrectlySubmitted = (Math.abs(V1 - goalV1) + Math.abs(V2 - goalV2) + Math.abs(V3 - goalV3) < .01)
+    var successMsg = (voltagesCorrectlySubmitted ? " submitted correct voltages." : " submitted incorrect voltages.");
     content = act.actor.styledName + successMsg;
     addActionRow(act, content);
 }
@@ -105,13 +114,12 @@ function reportClosedZoom(act) {
 }
 
 function reportCircuitState(act) { //Reports on voltages and current at the moment of act
-    myLevel = act.level;
-    var Rtot = myLevel.R0 + act.R[0] + act.R[1] + act.R[2];
-    var current = Math.round((myLevel.E / Rtot) * 1000000) / 1000;
-    var V0 = Math.round((myLevel.E * myLevel.R0 / Rtot) * 1000) / 1000;
-    var V1 = myLevel.E * act.R[0] / Rtot;
-    var V2 = myLevel.E * act.R[1] / Rtot;
-    var V3 = myLevel.E * act.R[2] / Rtot;
+    var Rtot = act.R0 + act.R[0] + act.R[1] + act.R[2];
+    var current = Math.round((act.E / Rtot) * 1000000) / 1000;
+    var V0 = Math.round((act.E * act.R0 / Rtot) * 1000) / 1000;
+    var V1 = act.E * act.R[0] / Rtot;
+    var V2 = act.E * act.R[1] / Rtot;
+    var V3 = act.E * act.R[2] / Rtot;
 }
 
 function openNewWindow() {

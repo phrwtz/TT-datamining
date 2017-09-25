@@ -6,6 +6,12 @@ function analyze(rowObjs) {
         var type = ro["type"];
         var time = ro["time"];
         switch (ev) {
+            case "Activity Settings":
+                addActivitySettings(ro);
+                break;
+            case "model values":
+                addModelValues(ro);
+                break;
             case "Joined Group":
                 addJoinedGroup(ro);
                 break;
@@ -110,9 +116,15 @@ function addAction(ro, type) {
     var myAction = new action;
     myAction.R = [];
     myAction.V = [];
+    myAction.goalR = [];
+    myAction.goalV = [];
+    myAction.E = myLevel.E;
+    myAction.R0 = myLevel.R0;
     for (var j = 0; j < 3; j++) {
         myAction.R[j] = myLevel.R[j];
         myAction.V[j] = myLevel.V[j];
+        myAction.goalR[j] = myLevel.goalR[j]; //goal values may change during the level if something goes wrong
+        myAction.goalV[j] = myLevel.goalV[j];
     }
     myAction.type = type;
     myAction.team = myTeam;
@@ -196,6 +208,34 @@ function duplicate(action) {
     return dup //If any of the checked previous action matches, there is a duplicate
 }
 
+function addActivitySettings(ro) {
+    var myAction = addAction(ro, "activity-settings");
+    if (!(duplicate(myAction))) {
+        myAction.E = ro["E"];
+        myAction.R0 = ro["R0"];
+        myLevel.E = ro["E"];
+        myLevel.R0 = parseInt(ro["R0"]);
+        myAction.level.actions.push(myAction);
+    }
+}
+
+function addModelValues(ro) {
+    var myAction = addAction(ro, "model-values");
+    if (!(duplicate(myAction))) {
+        myAction.E = ro["E"];
+        myAction.R0 = ro["R0"];
+        myLevel.E = ro["E"];
+  //      myLevel.R0 = parseInt(ro["R0"]);
+        myLevel.goalV[0] = parseFloat(ro["V1"]);
+        myLevel.goalV[1] = parseFloat(ro["V2"]);
+        myLevel.goalV[2] = parseFloat(ro["V3"]);
+        myLevel.goalR[0] = parseInt(ro["GoalR1"]);
+        myLevel.goalR[1] = parseInt(ro["GoalR2"]);
+        myLevel.goalR[2] = parseInt(ro["GoalR3"]);
+        myAction.level.actions.push(myAction);
+    }
+}
+
 function addJoinedGroup(ro) {
     var myAction = addAction(ro, "joined-group");
     if (!(duplicate(myAction)) && (ro["event_value"] === ro["groupname"])) { //There's at least one examnple in the data where this condition is not satisfied: a joined group action is reported for two different teams by groupname and event_value. We're going to ignore such events for the time being.
@@ -203,7 +243,7 @@ function addJoinedGroup(ro) {
         if (myLevel.members == 3) {
             myLevel.lastJoinedTime = myAction.eMinSecs;
             myLevel.lastJoinedUTime = myAction.uTime;
-        }    
+        }
         myAction.level.actions.push(myAction);
     }
 }
@@ -253,26 +293,28 @@ function addRChange(ro) {
             newGoalDifference;
         for (var i = 0; i < 3; i++) {
             myAction.oldR[i] = myLevel.R[i];
-            myAction.newR[i] = myAction.oldR[i];
+            myAction.newR[i] = myAction.oldR[i]; // Only one R is going to change
         }
         myAction.newR[bd] = parseInt(ro["value"]); //Then set the value for the changed R
-        myAction.oldV = findVValues(myLevel.E, myLevel.R0, myAction.oldR);
-        myAction.newV = findVValues(myLevel.E, myLevel.R0, myAction.newR)
+        myAction.oldV = findVValues(myAction.E, myAction.R0, myAction.oldR);
+        myAction.newV = findVValues(myAction.E, myAction.R0, myAction.newR)
 
         if ((!(isNaN(myAction.newR[0])) && !(isNaN(myAction.newR[1])) && !(isNaN(myAction.newR[2]))) &&
             ((myAction.newR[0] != myAction.oldR[0]) || (myAction.newR[1] != myAction.oldR[1]) || (myAction.newR[2] != myAction.oldR[2]))) {
-            oldGoalDifference = myAction.oldV[bd] - myLevel.goalV[bd];
-            newGoalDifference = myAction.newV[bd] - myLevel.goalV[bd];
-            totalGoalDifference = Math.abs(myAction.newV[0] - myLevel.goalV[0]) + Math.abs(myAction.newV[1] - myLevel.goalV[1]) + Math.abs(myAction.newV[2] - myLevel.goalV[2]);
-            myAction.attainedVsMsg = (totalGoalDifference < .01 ?   ", goal voltages attained, " : ", goal voltages not attained, ");
+            oldGoalDifference = myAction.oldV[bd] - myAction.goalV[bd];
+            newGoalDifference = myAction.newV[bd] - myAction.goalV[bd];
+            totalGoalDifference = Math.abs(myAction.newV[0] - myAction.goalV[0]) + Math.abs(myAction.newV[1] - myAction.goalV[1]) + Math.abs(myAction.newV[2] - myAction.goalV[2]);
+            myAction.attainedVsMsg = (totalGoalDifference < .01 ? ", goal voltages attained, " : ", goal voltages not attained, ");
             if (Math.abs(totalGoalDifference) < .01) {
                 if (!myLevel.attainedVs) { //only record time the first time
-                    myLevel.attainedVsTime = myAction.eMinSecs;
+                    myLevel.attainedVsTime = myAction.eTime;
+                    myLevel.attainedVseMinSecs = myAction.eMinSecs;
                 }
                 myLevel.attainedVs = true;
-            } else if ((myLevel.attainedVs) && (!myLevel.movedAwayFromVs))  {
+            } else if ((myLevel.attainedVs) && (!myLevel.movedAwayFromVs)) {
                 myLevel.movedAwayFromVs = true;
-                myLevel.movedAwayFromVsTime = myAction.eMinSecs;
+                myLevel.movedAwayFromVsTime = myAction.eTime;
+                myLevel.movedAwayFromVsMinSecs = myAction.eMinSecs;
             }
             if (Math.abs(newGoalDifference) < .01) {
                 myAction.goalMsg = ". Local goal met";
@@ -288,8 +330,10 @@ function addRChange(ro) {
                 myAction.goalMsg = ". Goal farther";
             }
             for (var jk = 0; jk < 3; jk++) {
-                myLevel.R[jk] = myAction.newR[jk];
-                myLevel.V[jk] = myAction.newV[jk];
+                myAction.R[jk] = myAction.newR[jk];
+                myLevel.R[jk] = myAction.newR[jk]; //Save the new values in the level (they will become the old values for the next resistor change event)
+                myAction.V[jk] = myAction.newV[jk];
+                myLevel.V[jk] = myAction.newV[jk]; //Save the new values in the level (they will become the old values for the next resistor change event)
             };
             myAction.level.actions.push(myAction); //and push the action onto the level
         }
@@ -300,9 +344,6 @@ function addMessage(ro) {
     var myAction = addAction(ro, "message");
     if (!(duplicate(myAction))) {
         myAction.msg = ro["event_value"];
-        if(myAction.msg == "Yeah") {
-            console.log("stop")
-        };
         myAction.varRefs = getVarRefs(myAction, myAction.msg);
         myAction.score = scoreAction(myAction);
         myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
@@ -315,17 +356,17 @@ function addMessage(ro) {
 function addCalculation(ro) {
     myAction = addAction(ro, "calculation");
     if (!(duplicate(myAction))) {
-    myAction.cMsg = ro["calculation"];
-    myAction.rMsg = ro["result"];
-    myAction.msg = myAction.cMsg +  " = " + myAction.rMsg    
-    myAction.cvarRefs = getVarRefs(myAction, myAction.cMsg);   
-    myAction.rvarRefs = getVarRefs(myAction, myAction.rMsg);
-    myAction.varRefs = myAction.cvarRefs.concat(myAction.rvarRefs);
-    myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
-    myAction.score = scoreAction(myAction);
-    myAction.R = myAction.level.R;
-    myAction.V = myAction.level.V;
-    myAction.level.actions.push(myAction);
+        myAction.cMsg = ro["calculation"];
+        myAction.rMsg = ro["result"];
+        myAction.msg = myAction.cMsg + " = " + myAction.rMsg
+        myAction.cvarRefs = getVarRefs(myAction, myAction.cMsg);
+        myAction.rvarRefs = getVarRefs(myAction, myAction.rMsg);
+        myAction.varRefs = myAction.cvarRefs.concat(myAction.rvarRefs);
+        myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
+        myAction.score = scoreAction(myAction);
+        myAction.R = myAction.level.R;
+        myAction.V = myAction.level.V;
+        myAction.level.actions.push(myAction);
     }
 }
 
@@ -360,16 +401,18 @@ function addSubmit(ro) {
     var myAction = addAction(ro, "submitClicked");
     if (!duplicate(myAction)) {
         myLevel = myAction.level;
-        var V1 = myLevel.V[0];
-        var V2 = myLevel.V[1];
-        var V3 = myLevel.V[2];
-        var goalV1 = myLevel.goalV[0];
-        var goalV2 = myLevel.goalV[1];
-        var goalV3 = myLevel.goalV[2];
-        voltagesCorrectlySubmitted= (Math.abs(V1 - goalV1) + Math.abs(V2 - goalV2) + Math.abs(V3 - goalV3) < .01)
-        if (!(myLevel.success) && voltagesCorrectlySubmitted) { //If this is the first correct v submit
-            myLevel.VSuccessTime = myAction.eMinSecs; //remember the time
-            myLevel.success = true;
+        var V1 = myAction.V[0];
+        var V2 = myAction.V[1];
+        var V3 = myAction.V[2];
+        var goalV1 = myAction.goalV[0];
+        var goalV2 = myAction.goalV[1];
+        var goalV3 = myAction.goalV[2];
+        var voltagesCorrectlySubmitted = (Math.abs(V1 - goalV1) + Math.abs(V2 - goalV2) + Math.abs(V3 - goalV3) < .01)
+        if (voltagesCorrectlySubmitted) { //if they've got the right voltages
+            if (!(myLevel.success)) { //and this is the first time
+                myLevel.VSuccessTime = myAction.eMinSecs; //remember the time
+            }
+            myLevel.success = true; //set success true
         }
         myAction.level.actions.push(myAction);
     }
