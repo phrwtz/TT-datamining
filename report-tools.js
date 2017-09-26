@@ -21,7 +21,7 @@ function reportResults(teams) { // extract and list actions checked by user
                     var myLevel = team.levels[j];
                     if ($("#level-" + myLevel.label)[0].checked) { // create summary for each level
                         var acts = myLevel.actions;
-                        var levelTime = Math.round(myLevel.endUTime - myLevel.startUTime);
+                        var levelTime = Math.round(myLevel.endUTime - myLevel.lastJoinedUTime);
                         var levelMinutes = Math.round(levelTime / 60);
                         var levelSeconds = levelTime % 60;
                         if (levelSeconds < 10) {
@@ -258,8 +258,7 @@ function reportResults(teams) { // extract and list actions checked by user
                             }
                         } //End of actions
                         document.getElementById("data").innerHTML += ("<br><br><mark>Team " +
-                            team.name + ", level " + myLevel.label + "</mark>, start time: " + myLevel.startPTime + ", duration: " + levelMinutes + ":" + levelSeconds + ", last member joined at " +
-                            myLevel.lastJoinedTime + "<br>" + goalVMsg + levelMsg + "<br>");
+                            team.name + ", level " + myLevel.label + "</mark>, start time: " + myLevel.startPTime + ", last member joined at " + myLevel.lastJoinedTime + ", duration: " + levelMinutes + ":" + levelSeconds + "<br>" + goalVMsg + levelMsg + "<br>");
                         // "E = " + myLevel.E + ", R0 = " + myLevel.R0 + ", goal V1 = " + myLevel.goalV[0] + ", goal V2 = " + myLevel.goalV[1] + ", goal V3 = " + myLevel.goalV[2] +
                         // ", goal R1 = " + myLevel.goalR[0] + ", goal R2 = " + myLevel.goalR[1] + ", goal R3 = " + myLevel.goalR[2] +
 

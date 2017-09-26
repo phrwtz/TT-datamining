@@ -347,8 +347,8 @@ function addMessage(ro) {
         myAction.varRefs = getVarRefs(myAction, myAction.msg);
         myAction.score = scoreAction(myAction);
         myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
-        myAction.R = myAction.level.R;
-        myAction.V = myAction.level.V;
+        // myAction.R = findRValues(ro, myAction.level.R);
+        // myAction.V = findVValues(myAction.E, myAction.R9, myAction.R);
         myAction.level.actions.push(myAction);
     }
 }

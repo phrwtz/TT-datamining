@@ -237,8 +237,8 @@ function counter(checkboxName) {
 var dataWindow;
 
 function showData(act) {
-    dataWindow = window.open("", "myWindow", "width=500, height=400, left=500, top=100");
-    dataWindow.document.body.innerHTML = "E = " + act.E + ", R0 = " + act.R0 + "<br>R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + "<br>goalR1 = " + act.goalR[0] + ", goalR2 = " + act.goalR[1] + ", goalR3 = " + act.goalR[2] + "<br>V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + "<br>goalV1 = " + act.goalV[0] + ", goalV2 = " + act.goalV[1] + ", goalV3 = " + act.goalV[2];
+    dataWindow = window.open("", "myWindow", "left=500, top=15, width=400, height=150");
+    dataWindow.document.body.innerHTML = act.team.name + " level " + act.level.label + ". E = " + act.E + ", R0 = " + act.R0 + "<br><br>goalR1 = " + act.goalR[0] + ", goalR2 = " + act.goalR[1] + ", goalR3 = " + act.goalR[2] + "<br>goalV1 = " + act.goalV[0] + ", goalV2 = " + act.goalV[1] + ", goalV3 = " + act.goalV[2] + "<br><br>R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + "<br>V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2];
 }
 
 function hideData() {
@@ -252,6 +252,10 @@ function addActionRow(act, content) {
     var actionCell1 = document.createElement("td");
     var actionCell2 = document.createElement("td");
     var actionCell3 = document.createElement("td");
+    actionCell0.width = "4%";
+    actionCell1.width = "32%";
+    actionCell2.width = "32%";
+    actionCell3.width = "32%";
     var bd = parseInt(act.board);
     actionTable.appendChild(actionRow);
     actionCell0.innerHTML = act.eMinSecs;
