@@ -10,6 +10,7 @@ function generateReport(teams) {
 function findSummaryData(myLevel) { //Runs through all the actions in myLevel collecting summary data
     // Set up variables
     var acts = myLevel.actions;
+    var team = myLevel.team;
     var levelTime = Math.round(myLevel.endUTime - myLevel.lastJoinedUTime);
     var levelMinutes = Math.round(levelTime / 60);
     var levelSeconds = levelTime % 60;
@@ -162,8 +163,8 @@ function findSummaryData(myLevel) { //Runs through all the actions in myLevel co
 
     document.getElementById("data").innerHTML += ("<br><br><mark>Team " +
         team.name + ", level " + myLevel.label + "</mark>, start time: " + myLevel.startPTime + ", last member joined at " + myLevel.lastJoinedTime + ", duration: " + levelMinutes + ":" + levelSeconds + "<br>" + goalVMsg + levelMsg + "<br>");
-    if (myLevel.errorMsgMsg != "") {
-        document.getElementById("data").innerHTML += ("<br>" + myLevel.errorMsgMsg)
+    if (myLevel.errorMsg != "") {
+        document.getElementById("data").innerHTML += ("<br>" + myLevel.errorMsg)
     }
 
     if (myLevel.attainedVs) {
@@ -693,7 +694,7 @@ function teacherReport(teams) {
                             var myTeamTotalTime = 0;
                             for (var j = 0; j < myTeam.levels.length; j++) {
                                 myLevel = myTeam.levels[j];
-                                var levelTime = Math.round(myLevel.endUTime - myLevel.startUTime);
+                                var levelTime = Math.round(myLevel.endUTime - myLevel.lastJoinedUTime);
                                 var levelMinutes = Math.round(levelTime / 60);
                                 var levelSeconds = levelTime % 60;
                                 myTeamTotalTime += levelTime;
@@ -707,11 +708,7 @@ function teacherReport(teams) {
                                     "<br><font color=green>R0 correctly reported.</font>" :
                                     "<br><font color=red>R0 not reported correctly.</font>");
                                 var successMsg;
-                                var cellContents = "Time: " + levelMinutes + ":" + levelSeconds;
-                                var sTime = new Date(myLevel.startUTime * 1000);
-                                var eTime = new Date(myLevel.endUTime * 1000);
-                                cellContents += "<br><small>Start: " + sTime.getHours() + ":" + (sTime.getMinutes() < 10 ? '0' : '') + sTime.getMinutes();
-                                cellContents += ",  End: " + eTime.getHours() + ":" + (eTime.getMinutes() < 10 ? '0' : '') + eTime.getMinutes() + "</small>";
+                                var cellContents = "Duration: " + levelMinutes + ":" + levelSeconds;
                                 cellContents += levelMsg;
                                 if ((myLevel.label == "A") || myLevel.label == "B") {
                                     successMsg = (myLevel.success ?
