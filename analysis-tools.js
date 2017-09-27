@@ -211,10 +211,6 @@ function duplicate(action) {
 function addActivitySettings(ro) {
     var myAction = addAction(ro, "activity-settings");
     if (!(duplicate(myAction))) {
-        myAction.E = ro["E"];
-        myAction.R0 = ro["R0"];
-        myLevel.E = ro["E"];
-        myLevel.R0 = parseInt(ro["R0"]);
         myAction.level.actions.push(myAction);
     }
 }

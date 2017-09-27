@@ -7,286 +7,310 @@ function generateReport(teams) {
     reportVarRefs(teams);
 }
 
+function findSummaryData(myLevel) { //Runs through all the actions in myLevel collecting summary data
+    // Set up variables
+    var acts = myLevel.actions;
+    var levelTime = Math.round(myLevel.endUTime - myLevel.lastJoinedUTime);
+    var levelMinutes = Math.round(levelTime / 60);
+    var levelSeconds = levelTime % 60;
+    if (levelSeconds < 10) {
+        levelSeconds = "0" + levelSeconds;
+    }
+    var myDate = myLevel.startPTime;
+    var levelDate = (myDate.getMonth() + 1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
+
+    var messagesBeforeVsCount = [0, 0, 0],
+        messagesBeforeVsTotal = 0,
+        messagesAfterVsCount = [0, 0, 0],
+        messagesAfterVsTotal = 0,
+        messagesWithoutVsCount = [0, 0, 0],
+        messagesWithoutVsTotal = 0,
+        calculationsBeforeVsCount = [0, 0, 0],
+        calculationsBeforeVsTotal = 0,
+        calculationsAfterVsCount = [0, 0, 0],
+        calculationsAfterVsTotal = [0],
+        calculationsWithoutVsCount = [0, 0, 0],
+        calculationsWithoutVsTotal = 0,
+        resistorChangesBeforeVsCount = [0, 0, 0],
+        resistorChangesBeforeVsTotal = 0,
+        resistorChangesAfterVsCount = [0, 0, 0],
+        resistorChangesAfterVsTotal = 0,
+        resistorChangesWithoutVsCount = [0, 0, 0],
+        resistorChangesWithoutVsTotal = 0,
+        joinedGroupCount = 0,
+        levelVMsg = "";
+    myLevel.errorMsg = ""; //This one is added to the level so that we can report it in the level row.
+    // Run through actions compiling level summary data  
+    for (var ii = 0; ii < acts.length; ii++) {
+        thisAction = acts[ii];
+        index = thisAction.actor.colIndex;
+        switch (thisAction.type) {
+            //Count messages before and after voltage attained success (if any)
+            case "message":
+                if (myLevel.attainedVs) {
+                    if (thisAction.eTime <= myLevel.attainedVsTime) {
+                        messagesBeforeVsCount[index]++;
+                        messagesBeforeVsTotal++;
+                    } else {
+                        messagesAfterVsCount[index]++;
+                        messagesAfterVsTotal++;
+                    }
+                } else {
+                    messagesWithoutVsCount[index]++;
+                    messagesWithoutVsTotal++;
+                }
+                break;
+                //Same for calculations and resistor changes
+            case "calculation":
+                if (myLevel.attainedVs) {
+                    if (thisAction.eTime <= myLevel.attainedVsTime) {
+                        calculationsBeforeVsCount[index]++;
+                        calculationsBeforeVsTotal++;
+                    } else {
+                        calculationsAfterVsCount[index]++;
+                        calculationsAfterVsTotal++;
+                    }
+                } else {
+                    calculationsWithoutVsCount[index]++;
+                    calculationsWithoutVsTotal++;
+                }
+                break;
+
+            case "resistorChange":
+                if (myLevel.attainedVs) {
+                    if (thisAction.eTime <= myLevel.attainedVsTime) {
+                        resistorChangesBeforeVsCount[index]++;
+                        resistorChangesBeforeVsTotal++;
+                    } else {
+                        resistorChangesAfterVsCount[index]++;
+                        resistorChangesAfterVsTotal++;
+                    }
+                } else {
+                    resistorChangesWithoutVsCount[index]++;
+                    resistorChangesWithoutVsTotal++;
+                }
+                break;
+
+            case "joined-group":
+                joinedGroupCount++;
+                break;
+        } //End of switch body
+    } //Next action
+
+    //Tag levels with technical problems by creating an error message
+    if (joinedGroupCount > 3) {
+        myLevel.errorMsg += "<b><font color=red>Error! More than three joined=group actions! (Note: this may not be a problem.)</font></b><br>"
+    }
+    if (myLevel.levelValuesChanged) {
+        myLevel.errorMsg += "<b><font color=red>  Error! Level values Changed! Check activity-settings actions.</font></b><br>"
+    }
+    //Create summary messages for this level
+    if (myLevel.success) {
+        levelVMsg = "Goal voltages correctly reported at " + myLevel.VSuccessTime + "."
+    } else {
+        levelVMsg = "Goal voltages not reported correctly."
+    };
+    var levelEMsg = (myLevel.successE ? " E correctly reported." : " E not reported correctly.");
+    var levelRMsg = (myLevel.successR ? " R0 correctly reported." : " R0 not reported correctly.");
+    var levelMsg = "",
+        goalVMsg,
+        goalV1Communicated = false,
+        goalV2Communicated = false,
+        goalV3Communicated = false;
+    if (myLevel.movedAwayFromVs) {
+        goalVMsg = "Attained goal voltages at " + myLevel.attainedVseMinSecs + " and then moved away at " + myLevel.movedAwayFromVsMinSecs + ". ";
+    } else if (myLevel.attainedVs) {
+        goalVMsg = "Attained correct goal voltages at " + myLevel.attainedVseMinSecs + ". "
+    } else {
+        goalVMsg = "Never attained goal voltages. "
+    }
+    if ((myLevel.label == "A") || (myLevel.label == "B")) {
+        levelMsg = levelVMsg;
+    }
+    if (myLevel.label == "C") {
+        levelMsg = levelVMsg + levelEMsg;
+    }
+    if (myLevel.label == "D") {
+        levelMsg = levelVMsg + levelEMsg + levelRMsg;
+    }
+    for (var i = 0; i < myLevel.varRefs["goalV1"].length; i++) {
+        if (myLevel.varRefs["goalV1"][i][0].type == "message") {
+            goalV1Communicated = true;
+            break;
+        }
+    }
+    for (i = 0; i < myLevel.varRefs["goalV2"].length; i++) {
+        if (myLevel.varRefs["goalV2"][i][0].type == "message") {
+            goalV2Communicated = true;
+            break;
+        }
+    }
+
+    for (i = 0; i < myLevel.varRefs["goalV3"].length; i++) {
+        if (myLevel.varRefs["goalV3"][i][0].type == "message") {
+            goalV3Communicated = true;
+            break;
+        }
+    }
+    if ((goalV1Communicated) && (goalV2Communicated) && (goalV3Communicated)) {
+        goalVMsg += " Goal voltages chatted. ";
+    } else {
+        goalVMsg += "Goal voltages not chatted. ";
+    }
+
+    // Print summary
+
+    document.getElementById("data").innerHTML += ("<br><br><mark>Team " +
+        team.name + ", level " + myLevel.label + "</mark>, start time: " + myLevel.startPTime + ", last member joined at " + myLevel.lastJoinedTime + ", duration: " + levelMinutes + ":" + levelSeconds + "<br>" + goalVMsg + levelMsg + "<br>");
+    if (myLevel.errorMsgMsg != "") {
+        document.getElementById("data").innerHTML += ("<br>" + myLevel.errorMsgMsg)
+    }
+
+    if (myLevel.attainedVs) {
+        document.getElementById("data").innerHTML += "<br><span style=\"color:#0000FF;\">Resistor changes performed before voltages attained:: </span>" + resistorChangesBeforeVsCount[0] + " + " + resistorChangesBeforeVsCount[1] + " + " + resistorChangesBeforeVsCount[2] + " = " + resistorChangesBeforeVsTotal + "<br>";
+
+        document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent before voltages attained: </span>" + messagesBeforeVsCount[0] + " + " + messagesBeforeVsCount[1] + " + " + messagesBeforeVsCount[2] + " = " + messagesBeforeVsTotal + "<br>";
+
+        document.getElementById("data").innerHTML += "<span style=\"color:#00DD00;\">Calculations performed before voltages attained:: </span>" + calculationsBeforeVsCount[0] + " + " + calculationsBeforeVsCount[1] + " + " + calculationsBeforeVsCount[2] + " = " + calculationsBeforeVsTotal + "<br><br>";
+
+        document.getElementById("data").innerHTML += "<span style=\"color:#0000FF;\">Resistor changes after voltages attained:: </span>" + resistorChangesAfterVsCount[0] + " + " + resistorChangesAfterVsCount[1] + " + " + resistorChangesAfterVsCount[2] + " = " + resistorChangesAfterVsTotal + "<br>";
+
+        document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent after voltages attained: </span>" + messagesAfterVsCount[0] + " + " + messagesAfterVsCount[1] + " + " + messagesAfterVsCount[2] + " = " + messagesAfterVsTotal + "<br>";
+
+        document.getElementById("data").innerHTML += "<span style=\"color:#00DD00;\">Calculations performed after voltages attained:: </span>" + calculationsAfterVsCount[0] + " + " + calculationsAfterVsCount[1] + " + " + calculationsAfterVsCount[2] + " = " + calculationsAfterVsTotal + "<br>";
+    } else {
+        document.getElementById("data").innerHTML += "<br><span style=\"color:#FF0000;\">Resistor changes: </span>" + resistorChangesWithoutVsCount[0] + " + " + resistorChangesWithoutVsCount[1] + " + " + resistorChangesWithoutVsCount[2] + " = " + resistorChangesWithoutVsTotal + "<br>";
+
+        document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent: </span>" + messagesWithoutVsCount[0] + " + " + messagesWithoutVsCount[1] + " + " + messagesWithoutVsCount[2] + " = " + messagesWithoutVsTotal + "<br>";
+
+        document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Calculations: </span>" + calculationsWithoutVsCount[0] + " + " + calculationsWithoutVsCount[1] + " + " + calculationsWithoutVsCount[2] + " = " + calculationsWithoutVsTotal + "<br><br>";
+    }
+} // End of findSummaryData function
+
 function reportResults(teams) { // extract and list actions checked by user
     document.getElementById("data").innerHTML = ""; //Clear data
     clearReport();
     setUpActionsReport();
     for (var k = 0; k < teams.length; k++) { // for each team
         var team = teams[k];
-        if ((team.members.length == 3)) {
-            if ($("#team-" + team.name + team.classID)[0].checked) {
-                mssg = "report-tools: analyzing actions for " + team.name + "...";
-                console.log(mssg);
-                for (var j = 0; j < team.levels.length; j++) {
-                    var myLevel = team.levels[j];
-                    if ($("#level-" + myLevel.label)[0].checked) { // create summary for each level
-                        var acts = myLevel.actions;
-                        var levelTime = Math.round(myLevel.endUTime - myLevel.lastJoinedUTime);
-                        var levelMinutes = Math.round(levelTime / 60);
-                        var levelSeconds = levelTime % 60;
-                        if (levelSeconds < 10) {
-                            levelSeconds = "0" + levelSeconds;
-                        }
-                        var myDate = myLevel.startPTime;
-                        var levelDate = (myDate.getMonth() + 1) + "/" + myDate.getDate() + "/" + myDate.getFullYear();
-
-                        var messagesBeforeVsCount = [0, 0, 0],
-                            messagesBeforeVsTotal = 0,
-                            messagesAfterVsCount = [0, 0, 0],
-                            messagesAfterVsTotal = 0,
-                            messagesWithoutVsCount = [0, 0, 0],
-                            messagesWithoutVsTotal = 0,
-                            calculationsBeforeVsCount = [0, 0, 0],
-                            calculationsBeforeVsTotal = 0,
-                            calculationsAfterVsCount = [0, 0, 0],
-                            calculationsAfterVsTotal = [0],
-                            calculationsWithoutVsCount = [0, 0, 0],
-                            calculationsWithoutVsTotal = 0,
-                            resistorChangesBeforeVsCount = [0, 0, 0],
-                            resistorChangesBeforeVsTotal = 0,
-                            resistorChangesAfterVsCount = [0, 0, 0],
-                            resistorChangesAfterVsTotal = 0,
-                            resistorChangesWithoutVsCount = [0, 0, 0],
-                            resistorChangesWithoutVsTotal = 0;
-                        for (var ii = 0; ii < acts.length; ii++) {
-                            thisAction = acts[ii];
-                            index = thisAction.actor.colIndex;
-                            switch (thisAction.type) {
-                                case "message":
-                                    if (myLevel.attainedVs) {
-                                        if (thisAction.eTime <= myLevel.attainedVsTime) {
-                                            messagesBeforeVsCount[index]++;
-                                            messagesBeforeVsTotal++;
-                                        } else {
-                                            messagesAfterVsCount[index]++;
-                                            messagesAfterVsTotal++;
-                                        }
-                                    } else {
-                                        messagesWithoutVsCount[index]++;
-                                        messagesWithoutVsTotal++;
-                                    }
-                                    break;
-
-                                case "calculation":
-                                    if (myLevel.attainedVs) {
-                                        if (thisAction.eTime <= myLevel.attainedVsTime) {
-                                            calculationsBeforeVsCount[index]++;
-                                            calculationsBeforeVsTotal++;
-                                        } else {
-                                            calculationsAfterVsCount[index]++;
-                                            calculationsAfterVsTotal++;
-                                        }
-                                    } else {
-                                        calculationsWithoutVsCount[index]++;
-                                        calculationsWithoutVsTotal++;
-                                    }
-                                    break;
-
-                                case "resistorChange":
-                                    if (myLevel.attainedVs) {
-                                        if (thisAction.eTime <= myLevel.attainedVsTime) {
-                                            resistorChangesBeforeVsCount[index]++;
-                                            resistorChangesBeforeVsTotal++;
-                                        } else {
-                                            resistorChangesAfterVsCount[index]++;
-                                            resistorChangesAfterVsTotal++;
-                                        }
-                                    } else {
-                                        resistorChangesWithoutVsCount[index]++;
-                                        resistorChangesWithoutVsTotal++;
-                                    }
-                                    break;
-                            }
-                        }
-
-                        var levelVMsg = "";
-                        if (myLevel.success) {
-                            levelVMsg = "Goal voltages correctly reported at " + myLevel.VSuccessTime + "."
-                        } else {
-                            levelVMsg = "Goal voltages not reported correctly."
-                        };
-                        var levelEMsg = (myLevel.successE ? " E correctly reported." : " E not reported correctly.");
-                        var levelRMsg = (myLevel.successR ? " R0 correctly reported." : " R0 not reported correctly.");
-                        var levelMsg = "",
-                            goalVMsg,
-                            goalV1Communicated = false,
-                            goalV2Communicated = false,
-                            goalV3Communicated = false;
-                        if (myLevel.movedAwayFromVs) {
-                            goalVMsg = "Attained goal voltages at " + myLevel.attainedVseMinSecs + " and then moved away at " + myLevel.movedAwayFromVsMinSecs + ". ";
-                        } else if (myLevel.attainedVs) {
-                            goalVMsg = "Attained correct goal voltages at " + myLevel.attainedVseMinSecs + ". "
-                        } else {
-                            goalVMsg = "Never attained goal voltages. "
-                        }
-                        if ((myLevel.label == "A") || (myLevel.label == "B")) {
-                            levelMsg = levelVMsg;
-                        }
-                        if (myLevel.label == "C") {
-                            levelMsg = levelVMsg + levelEMsg;
-                        }
-                        if (myLevel.label == "D") {
-                            levelMsg = levelVMsg + levelEMsg + levelRMsg;
-                        }
-                        for (var i = 0; i < myLevel.varRefs["goalV1"].length; i++) {
-                            if (myLevel.varRefs["goalV1"][i][0].type == "message") {
-                                goalV1Communicated = true;
+        if ($("#team-" + team.name + team.classID)[0].checked) {
+            mssg = "report-tools: analyzing actions for " + team.name + "...";
+            console.log(mssg);
+            for (var j = 0; j < team.levels.length; j++) {
+                var myLevel = team.levels[j];
+                if ($("#level-" + myLevel.label)[0].checked) { // create summary for each level
+                    findSummaryData(myLevel);
+                    addLevelRow(team, myLevel);
+                    var acts = myLevel.actions;
+                    //Now run through the actions a second time, publishing each in a separate row if it has been selected
+                    for (var i = 0; i < acts.length; i++) {
+                        var act = acts[i],
+                            content = "",
+                            bd = act.board + 1,
+                            actor = act.actor,
+                            styledName = actor.styledName,
+                            currentMsg = (act.currentFlowing ? ". Current is flowing. " : ". Current is not flowing."),
+                            preTime, //Used to decide when to insert a horizontal line in the output
+                            uTime = act.uTime,
+                            eTime = Math.round((act.uTime - myLevel.startUTime) * 10) / 10, //Elapsed time since start of level
+                            interval = 45; //Maximum interval between logged actions for considering them linked.
+                        switch (act.type) {
+                            case "submitClicked":
+                                if ($("#action-submit-V")[0].checked) {
+                                    reportSubmitVoltages(act);
+                                }
                                 break;
-                            }
-                        }
-                        for (i = 0; i < myLevel.varRefs["goalV2"].length; i++) {
-                            if (myLevel.varRefs["goalV2"][i][0].type == "message") {
-                                goalV2Communicated = true;
+
+                            case "submitER":
+                                if ($("#action-submit-ER")[0].checked) {
+                                    reportSubmitER(act);
+                                }
                                 break;
-                            }
-                        }
 
-                        for (i = 0; i < myLevel.varRefs["goalV3"].length; i++) {
-                            if (myLevel.varRefs["goalV3"][i][0].type == "message") {
-                                goalV3Communicated = true;
+                            case "resistorChange":
+                                if ($("#action-resistorChange")[0].checked) {
+                                    reportResistorChange(act);
+                                }
                                 break;
-                            }
-                        }
-                        if ((goalV1Communicated) && (goalV2Communicated) && (goalV3Communicated)) {
-                            goalVMsg += " Goal voltages chatted. ";
-                        } else {
-                            goalVMsg += "Goal voltages not chatted. ";
-                        }
 
-                        addLevelRow(team, myLevel);
-                        for (var i = 0; i < acts.length; i++) { // interpret actions for each level
-                            var act = acts[i],
-                                content = "",
-                                bd = act.board + 1,
-                                actor = act.actor,
-                                styledName = actor.styledName,
-                                currentMsg = (act.currentFlowing ? ". Current is flowing. " : ". Current is not flowing."),
-                                preTime, //Used to decide when to insert a horizontal line in the output
-                                uTime = act.uTime,
-                                eTime = Math.round((act.uTime - myLevel.startUTime) * 10) / 10, //Elapsed time since start of level
-                                interval = 45; //Maximum interval between logged actions for considering them linked.
-                            switch (act.type) {
-                                case "submitClicked":
-                                    if ($("#action-submit-V")[0].checked) {
-                                        reportSubmitVoltages(act);
-                                    }
-                                    break;
+                            case "message":
+                                if ($("#action-message")[0].checked) {
+                                    reportMessage(act);
+                                }
+                                break;
 
-                                case "submitER":
-                                    if ($("#action-submit-ER")[0].checked) {
-                                        reportSubmitER(act);
-                                    }
-                                    break;
+                            case "calculation":
+                                if ($("#action-calculation")[0].checked) {
+                                    reportCalculation(act);
+                                }
+                                break;
 
-                                case "resistorChange":
-                                    if ($("#action-resistorChange")[0].checked) {
-                                        reportResistorChange(act);
-                                    }
-                                    break;
+                            case "attach-probe":
+                                if ($("#action-attach-probe")[0].checked) {
+                                    reportAttachProbe(act);
+                                }
+                                break;
 
-                                case "message":
-                                    if ($("#action-message")[0].checked) {
-                                        reportMessage(act);
-                                    }
-                                    break;
+                            case "detach-probe":
+                                if ($("#action-detach-probe")[0].checked) {
+                                    reportDetachProbe(act);
+                                }
+                                break;
 
-                                case "calculation":
-                                    if ($("#action-calculation")[0].checked) {
-                                        reportCalculation(act);
-                                    }
-                                    break;
+                            case "connect-lead":
+                                if ($("#action-connect-lead")[0].checked) {
+                                    reportConnectLead(act);
+                                }
+                                break;
 
-                                case "attach-probe":
-                                    if ($("#action-attach-probe")[0].checked) {
-                                        reportAttachProbe(act);
-                                    }
-                                    break;
+                            case "disconnect-lead":
+                                if ($("#action-disconnect-lead")[0].checked) {
+                                    reportDisconnectLead(act);
+                                }
+                                break;
 
-                                case "detach-probe":
-                                    if ($("#action-detach-probe")[0].checked) {
-                                        reportDetachProbe(act);
-                                    }
-                                    break;
+                            case "joined-group":
+                                if ($("#action-joined-group")[0].checked) {
+                                    reportJoinedGroup(act);
+                                }
+                                break;
 
-                                case "connect-lead":
-                                    if ($("#action-connect-lead")[0].checked) {
-                                        reportConnectLead(act);
-                                    }
-                                    break;
+                            case "opened-zoom":
+                                if ($("#action-opened-zoom")[0].checked) {
+                                    reportOpenedZoom(act);
+                                }
+                                break;
 
-                                case "disconnect-lead":
-                                    if ($("#action-disconnect-lead")[0].checked) {
-                                        reportDisconnectLead(act);
-                                    }
-                                    break;
+                            case "closed-zoom":
+                                if ($("#action-closed-zoom")[0].checked) {
+                                    reportClosedZoom(act);
+                                }
+                                break;
 
-                                case "joined-group":
-                                    if ($("#action-joined-group")[0].checked) {
-                                        reportJoinedGroup(act);
-                                    }
-                                    break;
+                            case "measurement":
+                                if ($("#action-measurement")[0].checked) {
+                                    reportMeasurement(act);
+                                }
+                                break;
 
-                                case "opened-zoom":
-                                    if ($("#action-opened-zoom")[0].checked) {
-                                        reportOpenedZoom(act);
-                                    }
-                                    break;
+                            case "move-dial":
+                                if ($("#action-move-DMM-dial")[0].checked) {
+                                    reportMovedDial(act);
+                                }
+                                break;
 
-                                case "closed-zoom":
-                                    if ($("#action-closed-zoom")[0].checked) {
-                                        reportClosedZoom(act);
-                                    }
-                                    break;
-
-                                case "measurement":
-                                    if ($("#action-measurement")[0].checked) {
-                                        reportMeasurement(act);
-                                    }
-                                    break;
-
-                                case "move-dial":
-                                    if ($("#action-move-DMM-dial")[0].checked) {
-                                        reportMovedDial(act);
-                                    }
-                                    break;
-
-                                case "activity-settings":
-                                    if ($("#action-activity-settings")[0].checked) {
-                                        reportActivitySettings(act);
-                                    }
-                                    break;
-                            }
-                        } //End of actions
-                        document.getElementById("data").innerHTML += ("<br><br><mark>Team " +
-                            team.name + ", level " + myLevel.label + "</mark>, start time: " + myLevel.startPTime + ", last member joined at " + myLevel.lastJoinedTime + ", duration: " + levelMinutes + ":" + levelSeconds + "<br>" + goalVMsg + levelMsg + "<br>");
-                        // "E = " + myLevel.E + ", R0 = " + myLevel.R0 + ", goal V1 = " + myLevel.goalV[0] + ", goal V2 = " + myLevel.goalV[1] + ", goal V3 = " + myLevel.goalV[2] +
-                        // ", goal R1 = " + myLevel.goalR[0] + ", goal R2 = " + myLevel.goalR[1] + ", goal R3 = " + myLevel.goalR[2] +
-
-                        if (myLevel.attainedVs) {
-                            document.getElementById("data").innerHTML += "<br><span style=\"color:#0000FF;\">Resistor changes performed before voltages attained:: </span>" + resistorChangesBeforeVsCount[0] + " + " + resistorChangesBeforeVsCount[1] + " + " + resistorChangesBeforeVsCount[2] + " = " + resistorChangesBeforeVsTotal + "<br>";
-
-                            document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent before voltages attained: </span>" + messagesBeforeVsCount[0] + " + " + messagesBeforeVsCount[1] + " + " + messagesBeforeVsCount[2] + " = " + messagesBeforeVsTotal + "<br>";
-
-                            document.getElementById("data").innerHTML += "<span style=\"color:#00DD00;\">Calculations performed before voltages attained:: </span>" + calculationsBeforeVsCount[0] + " + " + calculationsBeforeVsCount[1] + " + " + calculationsBeforeVsCount[2] + " = " + calculationsBeforeVsTotal + "<br><br>";
-
-                            document.getElementById("data").innerHTML += "<span style=\"color:#0000FF;\">Resistor changes after voltages attained:: </span>" + resistorChangesAfterVsCount[0] + " + " + resistorChangesAfterVsCount[1] + " + " + resistorChangesAfterVsCount[2] + " = " + resistorChangesAfterVsTotal + "<br>";
-
-                            document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent after voltages attained: </span>" + messagesAfterVsCount[0] + " + " + messagesAfterVsCount[1] + " + " + messagesAfterVsCount[2] + " = " + messagesAfterVsTotal + "<br>";
-
-                            document.getElementById("data").innerHTML += "<span style=\"color:#00DD00;\">Calculations performed after voltages attained:: </span>" + calculationsAfterVsCount[0] + " + " + calculationsAfterVsCount[1] + " + " + calculationsAfterVsCount[2] + " = " + calculationsAfterVsTotal + "<br>";
-                        } else {
-                            document.getElementById("data").innerHTML += "<br><span style=\"color:#FF0000;\">Resistor changes: </span>" + resistorChangesWithoutVsCount[0] + " + " + resistorChangesWithoutVsCount[1] + " + " + resistorChangesWithoutVsCount[2] + " = " + resistorChangesWithoutVsTotal + "<br>";
-
-                            document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Messages sent: </span>" + messagesWithoutVsCount[0] + " + " + messagesWithoutVsCount[1] + " + " + messagesWithoutVsCount[2] + " = " + messagesWithoutVsTotal + "<br>";
-
-                            document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Calculations: </span>" + calculationsWithoutVsCount[0] + " + " + calculationsWithoutVsCount[1] + " + " + calculationsWithoutVsCount[2] + " = " + calculationsWithoutVsTotal + "<br><br>";
-                        }
-                    } //End of level
-                }
-            }
-        }
-    }
-}
+                            case "activity-settings":
+                                if ($("#action-activity-settings")[0].checked) {
+                                    reportActivitySettings(act);
+                                }
+                                break;
+                        } //End of switch block
+                    } //Next action
+                } //End of level checkbox checked
+            } //Next level
+        } //End of team checkbox checked
+    } // Next team
+} // End of function
 
 function reportVarRefs(teams) {
     var team,

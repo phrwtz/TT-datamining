@@ -628,6 +628,7 @@ function getLevel(ro) { //assumes that groupName and levelName are properties of
             var myLevel = myTeam.levels[j];
         } else {
             myLevel = new level;
+            myLevel.levelValuesChanged = false;
             myLevel.startUTime = ro["time"];
             var startDate = new Date(parseFloat(myLevel.startUTime * 1000));
             myLevel.startPTime = startDate;
@@ -655,11 +656,8 @@ function addLevelValues(myLevel, ro) {
 
         if ((myLevel.E) && (myLevel.E != 0) && (myLevel.E != parseInt(ro["E"]))) {
             console.log("Team " + teamName + ", level " + myLevel.label + ", E changed from " + myLevel.E + " to " + parseInt(ro["E"]) + " at " + (ro["time"] - myLevel.startUTime) + " seconds.")
+            myLevel.levelValuesChanged = true;
         };
-        
-         if ((myLevel.R0) && (myLevel.R0 != 0) && (myLevel.R0 != parseInt(ro["R0"]))) {
-            console.log("Team " + teamName + ", level " + myLevel.label + ", R0 changed from " + myLevel.R0 + " to " + parseInt(ro["R0"]) + " at " + (ro["time"] - myLevel.startUTime) + " seconds.")
-            };
                  
                 myLevel.E = parseInt(ro["E"]);
                 myLevel.R0 = parseInt(ro["R0"]);
