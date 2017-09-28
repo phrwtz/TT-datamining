@@ -100,8 +100,13 @@ function findSummaryData(myLevel) { //Runs through all the actions in myLevel co
 
     //Tag levels with technical problems by creating an error message
     if (joinedGroupCount > 3) {
-        myLevel.errorMsg += "<b><font color=red>Error! More than three joined=group actions! (Note: this may not be a problem.)</font></b><br>"
+        myLevel.errorMsg += "<b><font color=red>Error! More than three joined-group actions! (Note: this may not be a problem.)</font></b><br>"
     }
+
+    if (joinedGroupCount < 3) {
+        myLevel.errorMsg += "<b><font color=red>Error! Fewer than three joined-group actions! Duration may be incorrectly reported.</font></b><br>"
+    }
+
     if (myLevel.levelValuesChanged) {
         myLevel.errorMsg += "<b><font color=red>  Error! Level values Changed! Check activity-settings actions.</font></b><br>"
     }

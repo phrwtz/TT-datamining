@@ -525,7 +525,7 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
         myLevel.movedAwayFromVs = false;
         myLevel.movedAwayFromVsTime = 0;
         myLevel.members = 0;
-        myLevel.lastJoinedTime = "!";
+        myLevel.lastJoinedTime = 0;
         myLevel.lastJoinedUTime = 0;
         addLevelValues(myLevel, ro);
         myLevel.varRefs = function () {} //List of references to known variables
