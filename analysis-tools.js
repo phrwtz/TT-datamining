@@ -117,6 +117,7 @@ function addAction(ro, type) {
     myAction.R = [];
     myAction.V = [];
     myAction.goalR = [];
+    myAction.goalRIndex = [];
     myAction.goalV = [];
     myAction.E = myLevel.E;
     myAction.R0 = myLevel.R0;
@@ -124,6 +125,8 @@ function addAction(ro, type) {
         myAction.R[j] = myLevel.R[j];
         myAction.V[j] = myLevel.V[j];
         myAction.goalR[j] = myLevel.goalR[j]; //goal values may change during the level if something goes wrong
+        grStr = myAction.goalR[j].toString();
+        myAction.goalRIndex[j] = resIndex[grStr];
         myAction.goalV[j] = myLevel.goalV[j];
     }
     myAction.type = type;
@@ -221,7 +224,7 @@ function addModelValues(ro) {
         myAction.E = ro["E"];
         myAction.R0 = ro["R0"];
         myLevel.E = ro["E"];
-  //      myLevel.R0 = parseInt(ro["R0"]);
+        //      myLevel.R0 = parseInt(ro["R0"]);
         myLevel.goalV[0] = parseFloat(ro["V1"]);
         myLevel.goalV[1] = parseFloat(ro["V2"]);
         myLevel.goalV[2] = parseFloat(ro["V3"]);
@@ -331,6 +334,7 @@ function addRChange(ro) {
                 myAction.V[jk] = myAction.newV[jk];
                 myLevel.V[jk] = myAction.newV[jk]; //Save the new values in the level (they will become the old values for the next resistor change event)
             };
+            myAction.resDist = resDist(myAction); // The number of resistances we are away from the closest approach to the goal V
             myAction.level.actions.push(myAction); //and push the action onto the level
         }
     }

@@ -1,9 +1,21 @@
 function reportResistorChange(act) {
     var bd = parseInt(act.board) + 1;
+    var resDistStr;
+    if (act.resDist == 0) {
+        resDistStr = "";
+    }
+    if (act.resDist == 1) {
+        resDistStr = act.resDist + " resistance away from goal."
+    }
+    if (act.resDist > 1) {
+        resDistStr = act.resDist + " resistances away from goal."
+    }
+
+
     myLevel = act.level;
     var content = act.actor.styledName + " changed R" + bd + " from " + act.oldR[bd - 1] +
         " to " + act.newR[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
-        " to " + act.newV[bd - 1] + ". (Goal is " + act.goalV[bd - 1] + ")" + act.goalMsg;
+        " to " + act.newV[bd - 1] + ". (Goal is " + act.goalV[bd - 1] + ")" + act.goalMsg + ". " + resDistStr;
     addActionRow(act, content);
 }
 
@@ -123,7 +135,7 @@ function reportCircuitState(act) { //Reports on voltages and current at the mome
 }
 
 function openNewWindow() {
-   var wnd = window.open("https://action-window.org") 
+    var wnd = window.open("https://action-window.org")
 }
 
 function reportAllActions(teams, act) { //Reports all actions for the team and level of act. Then scrolls to act.
@@ -196,6 +208,128 @@ function reportAllActions(teams, act) { //Reports all actions for the team and l
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+var resIndex = {};
+resIndex["10"] = 1;
+resIndex["12"] = 2;
+resIndex["15"] = 3;
+resIndex["18"] = 4;
+resIndex["22"] = 5;
+resIndex["27"] = 6;
+resIndex["33"] = 7;
+resIndex["39"] = 8;
+resIndex["47"] = 9;
+resIndex["56"] = 10;
+resIndex["68"] = 11;
+resIndex["82"] = 12;
+
+resIndex["100"] = 13;
+resIndex["120"] = 14;
+resIndex["150"] = 15;
+resIndex["180"] = 16;
+resIndex["220"] = 17;
+resIndex["270"] = 18;
+resIndex["330"] = 19;
+resIndex["390"] = 20;
+resIndex["470"] = 21;
+resIndex["560"] = 22;
+resIndex["680"] = 23;
+resIndex["820"] = 24;
+
+resIndex["1000"] = 25;
+resIndex["1200"] = 26;
+resIndex["1500"] = 27;
+resIndex["1800"] = 28;
+resIndex["2200"] = 29;
+resIndex["2700"] = 30;
+resIndex["3300"] = 31;
+resIndex["3900"] = 32;
+resIndex["4700"] = 33;
+resIndex["5600"] = 34;
+resIndex["6800"] = 35;
+resIndex["8200"] = 36;
+
+resIndex["10000"] = 37;
+resIndex["12000"] = 38;
+resIndex["15000"] = 39;
+resIndex["18000"] = 40;
+resIndex["22000"] = 41;
+resIndex["27000"] = 42;
+resIndex["33000"] = 43;
+resIndex["39000"] = 44;
+resIndex["47000"] = 45;
+resIndex["56000"] = 46;
+resIndex["68000"] = 47;
+resIndex["82000"] = 48;
+
+resIndex["100000"] = 49;
+resIndex["120000"] = 50;
+resIndex["150000"] = 51;
+resIndex["180000"] = 52;
+resIndex["220000"] = 53;
+resIndex["270000"] = 54;
+resIndex["330000"] = 55;
+resIndex["390000"] = 56;
+resIndex["470000"] = 57;
+resIndex["560000"] = 58;
+resIndex["680000"] = 50;
+resIndex["820000"] = 60;
+
+resIndex["1000000"] = 61;
+resIndex["1200000"] = 62;
+resIndex["1500000"] = 63;
+resIndex["1800000"] = 64;
+resIndex["2200000"] = 65;
+resIndex["2700000"] = 66;
+resIndex["3300000"] = 67;
+resIndex["3900000"] = 68;
+resIndex["4700000"] = 69;
+resIndex["5600000"] = 70;
+resIndex["6800000"] = 71;
+resIndex["8200000"] = 72;
+
+var resArray = [10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82,
+    100, 120, 150, 180, 220, 270, 330, 390, 470, 560, 680, 820,
+    1000, 1200, 1500, 1800, 2200, 2700, 3300, 3900, 4700, 5600, 6800, 8200,
+    10000, 12000, 15000, 18000, 22000, 27000, 33000, 39000, 47000, 56000, 68000, 82000,
+    100000, 120000, 150000, 180000, 220000, 270000, 330000, 390000, 470000, 560000, 680000, 820000,
+    1000000, 1200000, 1500000, 1800000, 2200000, 2700000, 3300000, 3900000, 4700000, 5600000, 6800000, 8200000];
+0
+
+function resDist(act) { //Returns the number of legal resistor values between the current one and the one that overshoots or undershoots the goal voltage. It will be 0 if the current resistance gets the user as close as possible to the goal voltage on that side, 1 if there is only one legal resistance value that provides a voltage on the same side of the goal voltage, and so forth.
+    var gV = act.goalV[act.board]; // the goal voltage for this board
+    var V = act.V[act.board]; // the actual voltage
+    var R = act.R[act.board]; // the actual resistance
+    var Ra = act.R[(act.board + 1) % 3] // the actual resistance of one of the other two boards
+    var Rb = act.R[(act.board + 2) % 3] // the actual resistance of the other board
+    var E = act.E;
+    var R0 = act.R0;
+    var index = resIndex[R.toString()]; // the index of the actual resistance
+
+    if (V == gV) {
+        return 0;
+    }
+
+    if (V < gV) { // We're below the goal voltage
+        for (var i = 1; resArray[index + i]; i++) { // Raise R until we reach the goal voltage
+            Rtest = resArray[index - 1 + i]
+            Vtest = E * Rtest / (R0 + Ra + Rb + Rtest);
+            if (Vtest >= gV) { // If we've either arrived at the goal voltage or overshot it
+                return i; // return the number of resistors we've tried out in achieving that.
+            }
+        }
+    }
+
+    if (V > gV) { // We're above the goal voltage
+        for (var i = -1; resArray[index + i]; i--) { // Lower R until we reach the goal voltage
+            Rtest = resArray[index - 1 + i] // Array starts at 0,
+            Vtest = E * Rtest / (R0 + Ra + Rb + Rtest);
+            if (Vtest <= gV) { // If we've either arrived at the goal voltage or undershot it
+                return -i; // return the number of resistors we've tried out in achieving that.
             }
         }
     }
