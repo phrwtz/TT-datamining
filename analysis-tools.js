@@ -194,8 +194,8 @@ function duplicate(action) {
         checkTime,
         checkType,
         checkTeam,
-        checkbackLength = Math.min(actions.length, 5);
-    for (var i = 1; i < checkbackLength; i++) { //check five actions back
+        checkbackLength = 5;
+    for (var i = 1; (actions[thisAct.index - i] && i < checkbackLength); i++) { //check five actions back or as far back as there are actions in the list
         //or fewer if there aren't that many actions on the stack
         checkAct = actions[thisAct.index - i];
         if (checkAct.id && checkAct.uTime && checkAct.type) {

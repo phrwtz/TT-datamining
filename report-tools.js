@@ -38,6 +38,9 @@ function findSummaryData(myLevel) { //Runs through all the actions in myLevel co
         resistorChangesAfterVsTotal = 0,
         resistorChangesWithoutVsCount = [0, 0, 0],
         resistorChangesWithoutVsTotal = 0,
+        sumResistorDistancesFromGoal = [0, 0, 0],
+        totalResistanceChanges = [0, 0, 0],
+        averageResistanceDistances = [0, 0, 0],
         joinedGroupCount = 0,
         levelVMsg = "";
     myLevel.errorMsg = ""; //This one is added to the level so that we can report it in the level row.
@@ -81,14 +84,20 @@ function findSummaryData(myLevel) { //Runs through all the actions in myLevel co
                 if (myLevel.attainedVs) {
                     if (thisAction.eTime <= myLevel.attainedVsTime) {
                         resistorChangesBeforeVsCount[index]++;
+                        totalResistanceChanges[index]++;
                         resistorChangesBeforeVsTotal++;
+                        sumResistorDistancesFromGoal[index] += thisAction.resDist;
                     } else {
                         resistorChangesAfterVsCount[index]++;
+                        totalResistanceChanges[index]++;
                         resistorChangesAfterVsTotal++;
+                        sumResistorDistancesFromGoal[index] += thisAction.resDist;
                     }
                 } else {
                     resistorChangesWithoutVsCount[index]++;
+                    totalResistanceChanges[index]++;
                     resistorChangesWithoutVsTotal++;
+                    sumResistorDistancesFromGoal[index] += thisAction.resDist;
                 }
                 break;
 
@@ -97,6 +106,11 @@ function findSummaryData(myLevel) { //Runs through all the actions in myLevel co
                 break;
         } //End of switch body
     } //Next action
+
+    for (var u = 0; u < 3; u++) {
+        averageResistanceDistances[u] = Math.round(10 * sumResistorDistancesFromGoal[u] / totalResistanceChanges[u]) / 10;
+        totalAverageResDist = Math.round(10 * (sumResistorDistancesFromGoal[0] + sumResistorDistancesFromGoal[1] + sumResistorDistancesFromGoal[2]) / (totalResistanceChanges[0] + totalResistanceChanges[1] + totalResistanceChanges[2])) / 10;
+    }
 
     //Tag levels with technical problems by creating an error message
     if (joinedGroupCount > 3) {
@@ -168,9 +182,12 @@ function findSummaryData(myLevel) { //Runs through all the actions in myLevel co
 
     document.getElementById("data").innerHTML += ("<br><br><mark>Team " +
         team.name + ", level " + myLevel.label + "</mark>, start time: " + myLevel.startPTime + ", last member joined at " + myLevel.lastJoinedTime + ", duration: " + levelMinutes + ":" + levelSeconds + "<br>" + goalVMsg + levelMsg + "<br>");
+
     if (myLevel.errorMsg != "") {
-        document.getElementById("data").innerHTML += ("<br>" + myLevel.errorMsg)
+        document.getElementById("data").innerHTML += (myLevel.errorMsg);
     }
+
+    document.getElementById("data").innerHTML += "Average resistor distances from goal = " + averageResistanceDistances[0] + ", " + averageResistanceDistances[1] + ", " + averageResistanceDistances[2] + ". <span style = \"color:#FF0000;\"><b>Team average = " + totalAverageResDist + "</b></span><br>";
 
     if (myLevel.attainedVs) {
         document.getElementById("data").innerHTML += "<br><span style=\"color:#0000FF;\">Resistor changes performed before voltages attained:: </span>" + resistorChangesBeforeVsCount[0] + " + " + resistorChangesBeforeVsCount[1] + " + " + resistorChangesBeforeVsCount[2] + " = " + resistorChangesBeforeVsTotal + "<br>";
@@ -191,6 +208,7 @@ function findSummaryData(myLevel) { //Runs through all the actions in myLevel co
 
         document.getElementById("data").innerHTML += "<span style=\"color:#FF0000;\">Calculations: </span>" + calculationsWithoutVsCount[0] + " + " + calculationsWithoutVsCount[1] + " + " + calculationsWithoutVsCount[2] + " = " + calculationsWithoutVsTotal + "<br><br>";
     }
+
 } // End of findSummaryData function
 
 function reportResults(teams) { // extract and list actions checked by user
