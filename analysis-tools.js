@@ -214,23 +214,32 @@ function duplicate(action) {
 function addActivitySettings(ro) {
     var myAction = addAction(ro, "activity-settings");
     if (!(duplicate(myAction))) {
-        myAction.level.actions.push(myAction);
+        if (!(duplicate(myAction))) {
+            myLevel = myAction.level;
+            myLevel.E = parseInt(ro["E"]);
+            myLevel.R0 = parseInt(ro["R0"]);
+            myAction.R0 = parseInt(ro["R0"]);
+            myAction.E = parseInt(ro["E"]);
+            myLevel.actions.push(myAction);
+        }
     }
 }
 
 function addModelValues(ro) {
     var myAction = addAction(ro, "model-values");
     if (!(duplicate(myAction))) {
-        myAction.E = ro["E"];
-        myAction.R0 = ro["R0"];
-        myLevel.E = ro["E"];
-        //      myLevel.R0 = parseInt(ro["R0"]);
+        myLevel.E = parseInt(ro["E"]);
         myLevel.goalV[0] = parseFloat(ro["V1"]);
         myLevel.goalV[1] = parseFloat(ro["V2"]);
         myLevel.goalV[2] = parseFloat(ro["V3"]);
         myLevel.goalR[0] = parseInt(ro["GoalR1"]);
         myLevel.goalR[1] = parseInt(ro["GoalR2"]);
         myLevel.goalR[2] = parseInt(ro["GoalR3"]);
+        myAction.E = myLevel.E;
+        for (var i = 9; i < 3; i++) {
+            myAction.goalV[i] = myLevel.goalV[i];
+            myAction.goalR[i] = myLevel.goalR[i];
+        }
         myAction.level.actions.push(myAction);
     }
 }
