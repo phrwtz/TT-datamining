@@ -305,9 +305,7 @@ var resArray = [10, 12, 15, 18, 22, 27, 33, 39, 47, 56, 68, 82,
     100, 120, 150, 180, 220, 270, 330, 390, 470, 560, 680, 820,
     1000, 1200, 1500, 1800, 2200, 2700, 3300, 3900, 4700, 5600, 6800, 8200,
     10000, 12000, 15000, 18000, 22000, 27000, 33000, 39000, 47000, 56000, 68000, 82000,
-    100000, 120000, 150000, 180000, 220000, 270000, 330000, 390000, 470000, 560000, 680000, 820000,
-    1000000, 1200000, 1500000, 1800000, 2200000, 2700000, 3300000, 3900000, 4700000, 5600000, 6800000, 8200000];
-0
+    100000, 120000, 150000, 180000, 220000, 270000, 330000, 390000, 470000, 560000, 680000, 820000, 1000000, 1200000, 1500000, 1800000, 2200000, 2700000, 3300000, 3900000, 4700000, 5600000, 6800000, 8200000];
 
 function resDist(act) { //Returns the number of legal resistor values between the current one and the one that overshoots or undershoots the goal voltage. It will be 0 if the current resistance gets the user as close as possible to the goal voltage on that side, 1 if there is only one legal resistance value that provides a voltage on the same side of the goal voltage, and so forth.
     var gV = act.goalV[act.board]; // the goal voltage for this board
