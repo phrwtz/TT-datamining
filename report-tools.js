@@ -378,7 +378,7 @@ function reportVarRefs(teams) {
                                             o = findOtherVariables(vr);
                                             break;
                                         case "calculation":
-                                            t = "<span style=\"color:#FF00FF;\">calculation t</span>";
+                                            t = "<span style=\"color:#FF00FF;\">calculation</span>";
                                             o = findOtherVariables(vr);
                                             break;
                                         case "measurement":

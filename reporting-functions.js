@@ -1,21 +1,30 @@
 function reportResistorChange(act) {
     var bd = parseInt(act.board) + 1;
-    var resDistStr;
-    if (act.resDist == 0) {
-        resDistStr = "";
-    }
+    var resDistStr = "";
+    var resJumpStr = "";
+
     if (act.resDist == 1) {
-        resDistStr = act.resDist + " resistance away from goal."
+        resDistStr = act.resDist + " resistance value away from goal."
     }
     if (act.resDist > 1) {
-        resDistStr = act.resDist + " resistances away from goal."
+        resDistStr = act.resDist + " resistance values away from goal."
+    }
+
+    if (Math.abs(act.resJump) == 1) {
+        resJumpStr = "<br>Moved to neighboring resistance value."
+    }
+    if (act.resJump > 1) {
+        resJumpStr = "<br>Moved " + act.resJump + " resistance values higher."
+    }
+    if (act.resJump < -1) {
+        resJumpStr = "<br>Moved " + (0 - act.resJump) + " resistance values lower."
     }
 
 
     myLevel = act.level;
     var content = act.actor.styledName + " changed R" + bd + " from " + act.oldR[bd - 1] +
         " to " + act.newR[bd - 1] + ", V" + (bd) + " changed from " + act.oldV[bd - 1] +
-        " to " + act.newV[bd - 1] + ". (Goal is " + act.goalV[bd - 1] + ")" + act.goalMsg + ". " + resDistStr;
+        " to " + act.newV[bd - 1] + ". (Goal is " + act.goalV[bd - 1] + ")" + act.goalMsg + ". " + resDistStr + resJumpStr;
     addActionRow(act, content);
 }
 

@@ -343,6 +343,9 @@ function addRChange(ro) {
                 myAction.V[jk] = myAction.newV[jk];
                 myLevel.V[jk] = myAction.newV[jk]; //Save the new values in the level (they will become the old values for the next resistor change event)
             };
+            var oldRIndex = resIndex[myAction.oldR[bd].toString()];
+            var newRIndex = resIndex[myAction.newR[bd].toString()];
+            myAction.resJump = newRIndex - oldRIndex;
             myAction.resDist = resDist(myAction); // The number of resistances we are away from the closest approach to the goal V
             myAction.level.actions.push(myAction); //and push the action onto the level
         }
