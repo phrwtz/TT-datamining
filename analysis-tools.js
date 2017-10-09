@@ -498,5 +498,7 @@ function keepLevelValues(myAction) {
     for (var i = 0; i < 3; i++){
         myAction.R[i] = myLevel.R[i];
         myAction.V[i] = myLevel.V[i];
+        myAction.goalR[i] = myLevel.goalR[i];
+        myAction.goalV[i] = myLevel.goalV[i];
     }
 }
