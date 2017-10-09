@@ -252,6 +252,7 @@ function addJoinedGroup(ro) {
             myLevel.lastJoinedTime = myAction.eMinSecs;
             myLevel.lastJoinedUTime = myAction.uTime;
         }
+        keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
     }
 }
@@ -259,6 +260,7 @@ function addJoinedGroup(ro) {
 function addOpenedZoom(ro) {
     var myAction = addAction(ro, "opened-zoom");
     if (!(duplicate(myAction))) {
+        keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
     }
 }
@@ -266,6 +268,7 @@ function addOpenedZoom(ro) {
 function addClosedZoom(ro) {
     var myAction = addAction(ro, "closed-zoom");
     if (!(duplicate(myAction))) {
+        keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
     }
 }
@@ -274,6 +277,7 @@ function addConnectLead(ro) {
     var myAction = addAction(ro, "connect-lead");
     if (!(duplicate(myAction))) {
         myAction.location = ro["location"];
+        keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
     } else {
         //        console.log("Passed over a connect lead action at . " + myAction.time);
@@ -284,6 +288,7 @@ function addDisconnectLead(ro) {
     var myAction = addAction(ro, "disconnect-lead");
     if (!(duplicate(myAction))) {
         myAction.location = ro["location"];
+        keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
     }
 }
@@ -359,8 +364,7 @@ function addMessage(ro) {
         myAction.varRefs = getVarRefs(myAction, myAction.msg);
         myAction.score = scoreAction(myAction);
         myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
-        // myAction.R = findRValues(ro, myAction.level.R);
-        // myAction.V = findVValues(myAction.E, myAction.R9, myAction.R);
+        keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
     }
 }
@@ -376,8 +380,7 @@ function addCalculation(ro) {
         myAction.varRefs = myAction.cvarRefs.concat(myAction.rvarRefs);
         myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
         myAction.score = scoreAction(myAction);
-        myAction.R = myAction.level.R;
-        myAction.V = myAction.level.V;
+        keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
     }
 }
@@ -401,10 +404,7 @@ function addMeasurement(ro, i) {
         myAction.msg = ro["result"].replace(/\s/g, '');
         myAction.varRefs = getVarRefs(myAction, myAction.msg);
         myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
-
-        myAction.r1 = ro["r1"];
-        myAction.r2 = ro["r2"];
-        myAction.r3 = ro["r3"];
+        keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
     }
 }
@@ -426,6 +426,7 @@ function addSubmit(ro) {
             }
             myLevel.success = true; //set success true
         }
+        keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
     }
 }
@@ -446,7 +447,8 @@ function addSubmitER(ro) {
         myAction.varRefs = [];
         myAction.varRefs.push(getVarRefs(myAction, myAction.ESubmitValue));
         myAction.varRefs.push(getVarRefs(myAction, myAction.RSubmitValue));
-        myAction.level.actions.push(myAction);
+        keepLevelValues(myAction);
+        myAction.level.actions.push(myAction); myAction.R[0] = myAction.level.R[0];
     }
 }
 
@@ -459,6 +461,7 @@ function addAttachProbe(ro) {
     if (!(duplicate(myAction))) {
         myAction.location = ro["location"];
         myAction.probeColor = ro["color"];
+        keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
     } else {
         //        console.log("Passed over an attach probe action at . " + myAction.time);
@@ -471,6 +474,7 @@ function addDetachProbe(ro, i) {
     if (!(duplicate(myAction))) {
         myAction.location = ro["location"];
         myAction.probeColor = ro["color"];
+        keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
     } else {
         //        console.log("Passed over a detach probe action at . " + myAction.time);
@@ -482,9 +486,17 @@ function addMovedDial(ro, i) {
     //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
     if (!(duplicate(myAction))) {
         myAction.dialPosition = ro["value"];
-        myAction.r1 = ro["r1"];
-        myAction.r2 = ro["r2"];
-        myAction.r3 = ro["r3"];
+        keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
+    }
+}
+    
+function keepLevelValues(myAction) {
+    myLevel = myAction.level;
+    myAction.E = myLevel.E;
+    myAction.R0 = myLevel.R0;
+    for (var i = 0; i < 3; i++){
+        myAction.R[i] = myLevel.R[i];
+        myAction.V[i] = myLevel.V[i];
     }
 }
