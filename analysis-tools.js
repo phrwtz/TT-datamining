@@ -121,6 +121,12 @@ function addAction(ro, type) {
     myAction.goalV = [];
     myAction.E = myLevel.E;
     myAction.R0 = myLevel.R0;
+    if (ro["parameters"]) {
+        po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+        myLevel.R[0] = po["r1"];
+        myLevel.R[1] = po["r2"];
+        myLevel.R[2] = po["r3"];
+        }
     for (var j = 0; j < 3; j++) {
         myAction.R[j] = myLevel.R[j];
         myAction.V[j] = myLevel.V[j];
