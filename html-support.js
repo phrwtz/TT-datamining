@@ -70,7 +70,7 @@ function setupForm(teams) {
     teamData.innerHTML = "<input " + typeStr + IDStr + onChangeStr + ">" + labelStr;
     for (var i = 0; i < teams.length; i++) {
         IDStr = 'id=team-' + teams[i].name + teams[i].classID + ' name=team>';
-        labelStr = teams[i].name + "(" + teams[i].classID + ")<br>";
+        labelStr = (teams[i].classID ? teams[i].name + "(" + teams[i].classID + ")<br>" : teams[i].name + "<br>");
         teamData.innerHTML += "<input " + typeStr + IDStr + labelStr;
     }
     // Levels
