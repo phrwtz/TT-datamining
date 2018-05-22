@@ -378,8 +378,33 @@ function reportVarRefs(teams) {
                                             o = findOtherVariables(vr);
                                             break;
                                         case "calculation":
-                                            t = "<span style=\"color:#FF00FF;\">calculation</span>";
-                                            o = findOtherVariables(vr);
+                                            var vrInInput = false;
+                                            var vrInResult = false;
+                                            //Check to see whether the varRef is in the input of the calculation
+                                            for (var kk = 0; kk < act.cvarRefs.length; kk++) {
+                                                for (var kkk = 0; kkk < act.cvarRefs[kk].length; kkk++) {
+                                                    if (act.cvarRefs[kk][kkk][1] == vrStr) {
+                                                        vrInInput = true;
+                                                    }
+                                                }
+                                            }
+                                            //Check to see whether the varRef is in the result of the calculation
+                                            for (var rr = 0; rr < act.rvarRefs.length; rr++) {
+                                                for (var rrr = 0; rrr < act.rvarRefs[rr].length; rrr++) {
+                                                    if (act.rvarRefs[rr][rrr][1] == vrStr) {
+                                                        vrInResult = true;
+                                                    }
+                                                }
+                                            }
+                                            //Insert appropriate text. (Note: if varRef is in both we report that it's in the result.)
+                                            if (vrInInput) {
+                                                t = "<span style=\"color:#FF00FF;\">calculation input</span>";
+                                                o = findOtherVariables(vr);
+                                            }
+                                            if (vrInResult) {
+                                                t = "<span style=\"color:#FF00FF;\">calculation result</span>";
+                                                o = findOtherVariables(vr);
+                                            }
                                             break;
                                         case "measurement":
                                             t = "<span style=\"color:#0000FF;\">measurement</span>";
@@ -406,6 +431,9 @@ function reportVarRefs(teams) {
                                     }
                                     document.getElementById("data").innerHTML += ("Variable " + vrStr + " found at " + act.eMinSecs +
                                         " seconds in a " + t + " by " + act.actor.styledName + ", board " + bd + oMsg + "<br>");
+                                    if (t == "calculation") {
+                                        console.log("vrInInput = " + vrInInput + ", vrInResult = " + vrInResult);
+                                    };
                                     varRefCount++;
                                 }
                             }
