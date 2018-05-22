@@ -121,9 +121,10 @@ function addAction(ro, type) {
     myAction.goalV = [];
     myAction.E = myLevel.E;
     myAction.R0 = myLevel.R0;
-    if (ro["parameters"]) {
+    if ((type != "resistorChange") & ro["parameters"]) {
         po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-        myLevel.R[0] = po["r1"];
+        myLevel.R[0] = po["r1"]; //These are strings. They are the resistance values
+        //after the action has taken place.
         myLevel.R[1] = po["r2"];
         myLevel.R[2] = po["r3"];
         }
