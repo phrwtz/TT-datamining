@@ -111,7 +111,7 @@ function makeTeamTable(team, title, levelData, type, arrMssgScores) {
         }
     }
 
-    //And the sixth cell of the fifth row contain the total of totals or the average
+    //And the sixth cell of the fifth row contains the total of totals or the average
     //of averages
     dataCells[3][5].setAttribute("style", "color:red");
     for (var i = 0; i < totalRowScores.length; i++) {
@@ -156,11 +156,10 @@ function scoreActions(level) {
         type,
         actor,
         score;
-
     for (var i = 0; i < level.actions.length; i++) {
         act = level.actions[i];
         type = act.type;
-        if (type == "message") {
+        if (type == "message") { // only analyze messages
             actor = act.actor;
             index = actor.colIndex;
             score = act.score;

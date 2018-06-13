@@ -21,16 +21,16 @@ function setupForm(teams) {
         var checkDiv = document.createElement("div");
         checkDiv.id = "checkDiv";
     }
-	var checkForm = document.createElement("form");	// coming soon: enter name
+    var checkForm = document.createElement("form"); // coming soon: enter name
     checkForm.ID = "checkForm";
-	checkForm.style.margin = "5px";
+    checkForm.style.margin = "5px";
     var checkTeacher = document.createElement("input");
     checkTeacher.ID = "checkTeacher";
-	checkTeacher.value = "...coming soon: enter teacher name here";	
-	checkTeacher.style.width = "250px";
-  //checkForm.appendChild(checkTeacher);
-  var checkTable = document.createElement("table");
-	checkTable.style.margin = "5px";
+    checkTeacher.value = "...coming soon: enter teacher name here";
+    checkTeacher.style.width = "250px";
+    //checkForm.appendChild(checkTeacher);
+    var checkTable = document.createElement("table");
+    checkTable.style.margin = "5px";
     var headerRow = document.createElement("tr");
     var checkBoxRow = document.createElement("tr");
     var headerCell1 = document.createElement("th");
@@ -39,7 +39,7 @@ function setupForm(teams) {
     var headerCell4 = document.createElement("th");
     var headerCell5 = document.createElement("th");
     var headerCell6 = document.createElement("th");
-	
+
     headerCell1.innerHTML = "Teams";
     headerCell2.innerHTML = "Levels";
     headerCell3.innerHTML = "Actions";
@@ -61,19 +61,19 @@ function setupForm(teams) {
     var varRefData = document.createElement("td");
     var teacherData = document.createElement("td");
 
-    var typeStr = 'type="checkbox"  '; 
-	
-	// Teams
+    var typeStr = 'type="checkbox"  ';
+
+    // Teams
     var IDStr = 'id="all-teams" name="team" ';
     var onChangeStr = "onchange = \"toggleSelectAll('team')\"";
     var labelStr = '<b>All teams</b><br>';
     teamData.innerHTML = "<input " + typeStr + IDStr + onChangeStr + ">" + labelStr;
     for (var i = 0; i < teams.length; i++) {
         IDStr = 'id=team-' + teams[i].name + teams[i].classID + ' name=team>';
-        labelStr = teams[i].name + "<br>";
+        labelStr = (teams[i].classID ? teams[i].name + "(" + teams[i].classID + ")<br>" : teams[i].name + "<br>");
         teamData.innerHTML += "<input " + typeStr + IDStr + labelStr;
     }
-	// Levels
+    // Levels
     IDStr = 'id="all-levels" name="level" ';
     onChangeStr = "onchange = \"toggleSelectAll('level')\"";
     labelStr = '<b>All levels</b><br>';
@@ -84,20 +84,20 @@ function setupForm(teams) {
         labelStr = levelLabels[j] + "<br>";
         levelData.innerHTML += "<input " + typeStr + IDStr + labelStr;
     }
-	// Actions
+    // Actions
     IDStr = 'id="all-actions" name="action" ';
     onChangeStr = "onchange = \"toggleSelectAll('action')\"";
     labelStr = '<b>All actions</b><br>';
     actionData.innerHTML = "<input + " + typeStr + IDStr + onChangeStr + ">" + labelStr;
-    var actionLabels = ["message", "calculation", "resistorChange", "attach-probe", "detach-probe",
-        "connect-lead", "disconnect-lead", "measurement", "move-DMM-dial", "submit-V", "submit-ER", "joined-group"
+    var actionLabels = ["activity-settings", "message", "calculation", "resistorChange", "attach-probe", "detach-probe",
+        "connect-lead", "disconnect-lead", "measurement", "move-DMM-dial", "submit-V", "submit-ER", "joined-group", "opened-zoom", "closed-zoom"
     ];
     for (var k = 0; k < actionLabels.length; k++) {
         IDStr = 'id=action-' + actionLabels[k] + " name=action>";
         labelStr = actionLabels[k] + "<br>";
         actionData.innerHTML += "<input " + typeStr + IDStr + labelStr;
     }
-	// Variable Refs
+    // Variable Refs
     IDStr = 'id="all-varRefs" name="varRef" ';
     onChangeStr = "onchange = \"toggleSelectAll('varRef')\"";
     labelStr = '<b>All refs</b><br>';
@@ -107,7 +107,7 @@ function setupForm(teams) {
         labelStr = vrLabelsArray[kk] + "<br>";
         varRefData.innerHTML += "<input + " + typeStr + IDStr + labelStr;
     }
-	// Summary Data
+    // Summary Data
     var summaryNames = ["rChg", "iRep", "results"];
     var summaryIDs = ["resistor-change", "action-scores", "teacher-report"];
     var summaryLabels = ["Resistor changes", "Message scores"];
@@ -116,7 +116,7 @@ function setupForm(teams) {
         labelStr = summaryLabels[l] + "<br>";
         summaryData.innerHTML += "<input " + typeStr + IDStr + labelStr;
     }
-	//Teacher Reports
+    //Teacher Reports
     IDStr = 'id="all-teachers" name="teachers" ';
     onChangeStr = "onchange = \"toggleSelectAll('teachers')\"";
     labelStr = '<b>All teachers</b><br>';
@@ -152,10 +152,10 @@ function setupForm(teams) {
 
     var clearText = document.createTextNode("Clear screen");
     clearButton.appendChild(clearText);
-    clearButton.setAttribute("onclick", "clearScreen(csvActionsArray, csvSummaryArray); return false;");
+    clearButton.setAttribute("onclick", "clearScreen(csvActionsArray, csvSummaryArray); clearReport(); return false;");
     checkForm.appendChild(clearButton);
     console.log("html-support setupForm: check-boxes form created");
-  
+
     var downLoadText = document.createTextNode("Actions File download");
     downLoadButton.appendChild(downLoadText);
     downLoadButton.setAttribute("onclick", "downloadLogCSV(csvActionsArray); return false;");
@@ -169,12 +169,175 @@ function setupForm(teams) {
     var strategyText = document.createTextNode("Find guess and check");
     strategyButton.appendChild(strategyText);
     strategyButton.setAttribute("onclick", "findGuessAndCheck(teams); return false;");
-    checkForm.appendChild(strategyButton);
+    //  checkForm.appendChild(strategyButton);
     console.log("guess and check search completed");
-  
+
     var p = document.createElement("p");
     p.id = "data";
     checkDiv.appendChild(p);
 
     console.log("html-support: user selection form and action buttons created");
+}
+
+function clearReport() {
+    if (document.getElementById("reportDiv")) {
+        var reptDiv = document.getElementById("reportDiv")
+        while (reptDiv.firstChild) {
+            reptDiv.removeChild(reptDiv.firstChild);
+        }
+    }
+}
+
+function setUpActionsReport(teams) { //Sets up a table with three columns into which the actions can be inserted with a different column for each actor
+    if (document.getElementById("reportDiv")) { //If reportDiv exists
+        var reportDiv = document.getElementById("reportDiv"); //clear it
+        while (reportDiv.firstChild) {
+            reportDiv.removeChild(reportDiv.firstChild);
+        }
+    } else { //otherwise create one
+        var reportDiv = document.createElement("div");
+        reportDiv.id = "reportDiv";
+        document.body.appendChild(reportDiv);
+    }
+    var actionTable = document.createElement("table");
+    actionTable.id = "actionTable";
+    reportDiv.appendChild(actionTable);
+}
+
+
+var rowIndex = counter();
+
+function addLevelRow(team, level) {
+    var headerRow = document.createElement("tr");
+    headerRow.style.backgroundColor = "#DDFFDD";
+    var timeCell = document.createElement("th");
+    var teamCell = document.createElement("th");
+    teamCell.style.alignItems = "flex-start";
+    timeCell.innerHTML = "Time";
+    teamCell.innerHTML = "Team " + team.name + ", Level " + level.label + ", " + level.errorMsg;
+    teamCell.setAttribute("colspan", 3);
+    headerRow.appendChild(timeCell);
+    headerRow.appendChild(teamCell);
+    actionTable = reportDiv.firstChild;
+    actionTable.appendChild(headerRow);
+    rowIndex.reset();
+}
+
+function counter(checkboxName) {
+    n = 0;
+    return {
+        count: function () {
+            return n++;
+        },
+        reset: function () {
+            return n = 1
+        }
+    };
+}
+var dataWindow;
+
+function showData(act) {
+    dataWindow = window.open("", "myWindow", "left=500, top=15, width=400, height=150");
+    var currentFlowingMsg = (act.currentFlowing ? ".  Current flowing." : ".  Current not flowing.");
+    dataWindow.document.body.innerHTML = act.team.name + " level " + act.level.label + ". E = " + act.E + ", R0 = " + act.R0 + "<br><br>goalR1 = " + act.goalR[0] + ", goalR2 = " + act.goalR[1] + ", goalR3 = " + act.goalR[2] + "<br>goalV1 = " + act.goalV[0] + ", goalV2 = " + act.goalV[1] + ", goalV3 = " + act.goalV[2] + "<br><br>R1 = " + act.R[0] + ", R2 = " + act.R[1] + ", R3 = " + act.R[2] + "<br>V1 = " + act.V[0] + ", V2 = " + act.V[1] + ", V3 = " + act.V[2] + currentFlowingMsg;
+}
+
+function hideData() {
+    dataWindow.close();
+}
+
+function addActionRow(act, content) {
+    var actionRow = document.createElement("tr");
+    actionRow.id = 'row-' + rowIndex.count();
+    var actionCell0 = document.createElement("td");
+    var actionCell1 = document.createElement("td");
+    var actionCell2 = document.createElement("td");
+    var actionCell3 = document.createElement("td");
+    actionCell0.width = "4%";
+    actionCell1.width = "32%";
+    actionCell2.width = "32%";
+    actionCell3.width = "32%";
+    var bd = parseInt(act.board);
+    actionTable.appendChild(actionRow);
+    actionCell0.innerHTML = act.eMinSecs;
+    actionCell0.addEventListener("mousedown", function () {
+        showData(act);
+    })
+    actionCell0.addEventListener("mouseup", function () {
+        hideData();
+    })
+
+    switch (act.type) {
+        case "message":
+            actionCell0.style.backgroundColor = "#F9D593";
+            break;
+        case "resistorChange":
+            actionCell0.style.backgroundColor = "#B5F3A9";
+            break;
+        case "calculation":
+            actionCell0.style.backgroundColor = "#B3F3F6";
+            break;
+        case "measurement":
+            actionCell0.style.backgroundColor = "#FACBFA";
+            break;
+        case "move-dial":
+            actionCell0.style.backgroundColor = "#FADEFA";
+            break;
+        case "opened-zoom":
+            actionCell0.style.backgroundColor = "#D9D6FF";
+            break;
+        case "closed-zoom":
+            actionCell0.style.backgroundColor = "#D9D6FF";
+            break;
+    }
+    actionRow.appendChild(actionCell0);
+
+    var cellIndex = bd;
+    var idArray = [];
+    if (act.actor.id) {
+        for (var h = 0; h < 3; h++) {
+            idArray[h] = act.team.members[h].id;
+        }
+        for (var hh = 0; hh < 3; hh++) {
+            if (act.actor.id == idArray[hh]) {
+                bd = hh;
+            }
+        }
+    }
+
+    switch (bd) {
+        case 0:
+            actionCell1.innerHTML = content;
+            actionCell2.innerHTML = "";
+            actionCell3.innerHTML = "";
+            actionRow.appendChild(actionCell1);
+            actionRow.appendChild(actionCell2);
+            actionRow.appendChild(actionCell3);
+            // actionCell1.addEventListener("mousedown", function () {
+            //     reportAllActions(teams, act);
+            //     element = document.getElementById(actionRow.id);
+            //     element.scrollIntoView(true);
+            // });
+            break;
+        case 1:
+            actionCell1.innerHTML = "";
+            actionCell2.innerHTML = content;
+            actionCell3.innerHTML = "";
+            actionRow.appendChild(actionCell1);
+            actionRow.appendChild(actionCell2);
+            actionRow.appendChild(actionCell3);
+            break;
+        case 2:
+            actionCell1.innerHTML = "";
+            actionCell2.innerHTML = "";
+            actionCell3.innerHTML = content;
+            actionRow.appendChild(actionCell1);
+            actionRow.appendChild(actionCell2);
+            actionRow.appendChild(actionCell3);
+            break;
+    }
+}
+
+function runQuery() {
+
 }

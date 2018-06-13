@@ -1,17 +1,19 @@
 function clearScreen(csvActionsArray, csvSummaryArray) { //clears data and summary tables
-    document.getElementById("data").innerHTML = "";	// clear data paragraph
-    if (document.getElementById("tableDiv")) {  // clear tableDiv division
-	   var tableDiv = document.getElementById("tableDiv");
-       while (tableDiv.firstChild) {
-           tableDiv.removeChild(tableDiv.firstChild);
+    document.getElementById("data").innerHTML = ""; // clear data paragraph
+    if (document.getElementById("tableDiv")) { // clear tableDiv division
+        var tableDiv = document.getElementById("tableDiv");
+        while (tableDiv.firstChild) {
+            tableDiv.removeChild(tableDiv.firstChild);
         }
     }
-	Array.from(document.getElementsByClassName("tableSummary")).forEach( // clear divisions of this classname
-        		function (e) {e.parentNode.removeChild(e);}
-			); 
-	csvActionsArray.length = 1;
-	csvSummaryArray.length = 1; // re-initialize the csv download files	
-	console.log("utils.js:clearScreen: csvActionsArray.length = " + csvActionsArray.length + "; csvSummaryArray.length = " + csvSummaryArray.length); 
+    Array.from(document.getElementsByClassName("tableSummary")).forEach( // clear divisions of this classname
+        function (e) {
+            e.parentNode.removeChild(e);
+        }
+    );
+    csvActionsArray.length = 1;
+    csvSummaryArray.length = 1; // re-initialize the csv download files	
+    console.log("utils.js:clearScreen: csvActionsArray.length = " + csvActionsArray.length + "; csvSummaryArray.length = " + csvSummaryArray.length);
 } // end clearScreen
 
 function initializeVarRefs(level) { //Initializes variable references for this level
@@ -165,8 +167,8 @@ function highlightMessage(act, text) { //Highlights the variable names, if any, 
 
 function getVarRefs(action, text) {
     //returns an array (possibly empty) of variable references contained in text.
-    //(the message of a message action, the input or output of a calculation, or the
-    //result of a measurement.)
+    //(the message of a message action, the input or output of a calculation, the
+    //result of a measurement, or the E and/or R value submitted at levels C and D.)
     //A variable reference is an array consisting of the action in which the
     //reference occurs, a string representing the variable that is matched, a string
     //representing the number that was matched, and a numerical score indicating whether
@@ -184,14 +186,14 @@ function getVarRefs(action, text) {
         //nums is an array of strings representing all the numbers in text
         for (var i = 0; i < nums.length; i++) {
             vrs[i] = findVars(action, nums[i]); //matches the numbers to the variables.
-            //returns an array of varRefs;
+            //puts an array of varRefs into level.varRefs
         }
     }
     //If we're looking at the result of a calculation and it doesn't correspond to any
     //known variable, handle it differently
     if ((action.type == "calculation") && (text == action.rMsg) && (vrs[0] == "??")) {
-        vrs[0] = "uk" + action.level.ukIndex;
-        vrLabelsArray.push("uk" + action.level.ukIndex);
+        vrs[0] = "unknown" + action.level.ukIndex;
+        vrLabelsArray.push("unknown" + action.level.ukIndex);
         action.level.ukIndex++;
     }
     return vrs;
@@ -207,16 +209,16 @@ function findVars(act, numStr) {
     var num = parseFloat(numStr);
     var myLevel = act.level;
     var returnArray = [];
-    var E = myLevel.E,
-        R0 = myLevel.R0,
-        goalV1 = myLevel.goalV[0],
-        goalV2 = myLevel.goalV[1],
-        goalV3 = myLevel.goalV[2],
-        goalV0 = E - goalV1 - goalV2 - goalV3,
+    var E = parseInt(act.E),
+        R0 = parseInt(act.R0),
+        goalV1 = act.goalV[0],
+        goalV2 = act.goalV[1],
+        goalV3 = act.goalV[2],
         sumGoalVs = goalV1 + goalV2 + goalV3,
-        goalR1 = myLevel.goalR[0],
-        goalR2 = myLevel.goalR[1],
-        goalR3 = myLevel.goalR[2],
+        goalV0 = E - sumGoalVs,
+        goalR1 = act.goalR[0],
+        goalR2 = act.goalR[1],
+        goalR3 = act.goalR[2],
         sumGoalRs = goalR1 + goalR2 + goalR3,
         R1 = act.R[0],
         R2 = act.R[1],
@@ -236,7 +238,7 @@ function findVars(act, numStr) {
         goalImA = 1000 * goalIA;
     //tol is how close two numbers have to be to considered "about equal"
     //Note: we compare tol to |x - y| / (x + y) so it's a relative value
-    var tol = .01,
+    var tol = .001,
         thisStr = "";
     var variableFound = false;
     if (about(num, E, tol)) {
@@ -264,6 +266,7 @@ function findVars(act, numStr) {
         variableFound = true;
         thisStr = "R2";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
+        act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
     }
     if (about(num, R3, tol)) {
@@ -418,7 +421,7 @@ function findVars(act, numStr) {
         returnArray.push(thisVarRef);
     }
     if (!variableFound) { //if there is no match
-        thisStr = "??";
+        thisStr = "unknown";
         thisVarRef = [act, thisStr, numStr, score(thisStr, act)];
         act.level.varRefs[thisStr].push(thisVarRef);
         returnArray.push(thisVarRef);
@@ -429,6 +432,7 @@ function findVars(act, numStr) {
 function makeTeams(rowObjs) { //parse the row objects array looking for and populating teams
     for (i = 0; i < rowObjs.length; i++) {
         var ro = rowObjs[i];
+		// console.log("makeTeams check at row " + i + ", event: " + ro.event);
         if ((ro["event"] == "Activity Settings") || (ro["event"] == "Joined Group") ||
             (ro["event"] == "model options") || (ro["event"] == "model name") ||
             (ro["event"] == "model values") || (ro["event"] == "Selected board") ||
@@ -448,19 +452,31 @@ function about(num, target, tol) {
     return (Math.abs((num - target) / Math.abs(num + target)) < tol)
 }
 
+// program changes resulted in various names for the levels
+// here we boil it down to level number 2, 3, 4, or 5
+function getLevelNumber(levelName) { 
+	var ver1 = ["2", "3", "4", "5"]; // version 1: level2, level3, etc.
+	var ver2 = ["A", "B", "C", "D"]; // version 2: levelA, levelB, etc.
+	var levelChar = levelName.charAt(levelName.indexOf("level")+5);
+	if (ver1.includes(levelChar)) { return parseInt(levelChar); }
+	else if (ver2.includes(levelChar)) { return parseInt(ver2.indexOf(levelChar)) + 2; }
+	else return 0; // tutorial
+}
+
 //We invoke this function when the event is "Selected Username" or "Joined Group"
 //we construct a new team from ro and add it to teams array.
 //If we already have a team with that name, we use it.
 function addTeam(ro) {
-    var userID = ro["username"].slice(0, 5); //First five characters are the user id
+    var userID = ro["username"].slice(0, ro["username"].indexOf("@")); // user id precedes @
     var myClass = getMemberDataObj(userID)["Class"];
     var classID = getMemberDataObj(userID)["Class ID"];
     var teacher = getMemberDataObj(userID)["Teachers"];
     var inTeams = false;
     var groupName = ro["groupname"];
-    var levelNumber = ro["levelName"].charAt(ro["levelName"].length - 1); //number = 1 ... 4
-
-
+    var levelNumber = getLevelNumber(ro["levelName"]); //number = 2 ... 5
+	if (levelNumber == 0) {return "tutorial";} // ignore tutorial records for now
+	// console.log("addTeam: levelName=" + ro["levelName"] + ", levelNumber=" + levelNumber);
+	
     //check to see whether we already have a team with this name in this class
     for (var j = 0; j < teams.length; j++) {
 
@@ -475,7 +491,7 @@ function addTeam(ro) {
             break;
         }
     }
-    if (!inTeams) { //if a team with this name and class is not in the teams array
+    if (!inTeams) { //if a team with this name and class is not in the teams array 
         myTeam = new team; //make a new one
         teams.push(myTeam); //and put it on the array
         myTeam.name = groupName;
@@ -484,6 +500,7 @@ function addTeam(ro) {
         myTeam.levels = [];
         myTeam.members = [];
         myTeam.teacher = teacher;
+		// console.log("addTeam: team #" + teams.length + ": " + groupName );
     }
     addLevel(myTeam, ro); //add level, if new
     addMember(myTeam, ro)
@@ -491,10 +508,12 @@ function addTeam(ro) {
 
 function addLevel(myTeam, ro) { //construct a new level from ro and add it to levels array.
     //If we already have a level with that number, use it
-    //   console.log("Adding a level");
+    // console.log("Adding a level to " + myTeam.name);
     var inLevels = false;
     //Check to see whether we already have a level with this number in this team
-    var num = ro["levelName"].charAt(ro["levelName"].length - 1);
+    // var num = ro["levelName"].charAt(ro["levelName"].length - 1); // **********  PROBLEM HERE WITH 2018 VERSION levelName values
+    var num = getLevelNumber(ro["levelName"]); //number = 2 ... 5
+ 	// console.log("addLevel: levelName=" + ro["levelName"] + ", levelNumber=" + num);
     for (j = 0; j < myTeam.levels.length; j++) {
         if (myTeam.levels[j].number == num) {
             inLevels = true;
@@ -504,15 +523,14 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
             break;
         }
     }
-    if (!inLevels) { //if not, add this level
-        var myLevel = new level;
-        //       console.log("new level, not in teams");
+    if (!inLevels && num !=0) { //if not found AND not tutorial, add this level
+        var myLevel = new level; 
         myTeam.levels.push(myLevel);
         myLevel.startUTime = ro["time"];
         var startDate = new Date(parseFloat(myLevel.startUTime * 1000));
         myLevel.startPTime = startDate;
         myLevel.number = num;
-        myLevel.label = getAlphabeticLabel(num);
+        myLevel.label = getAlphabeticLabel(num); 
         myLevel.team = myTeam;
         myLevel.success = false;
         myLevel.successE = false;
@@ -521,8 +539,11 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
         myLevel.attainedVsTime = 0;
         myLevel.movedAwayFromVs = false;
         myLevel.movedAwayFromVsTime = 0;
+        myLevel.members = 0;
+        myLevel.lastJoinedTime = 0;
+        myLevel.lastJoinedUTime = 0;
         addLevelValues(myLevel, ro);
-        myLevel.varRefs = function() {} //List of references to known variables
+        myLevel.varRefs = function () {} //List of references to known variables
         //Each property is a variable label and is associated with an array of
         //actions (messages, calculations, measurements) that contain a reference
         //to that variable, paired with a string that defines whether the
@@ -530,13 +551,15 @@ function addLevel(myTeam, ro) { //construct a new level from ro and add it to le
         //team member, or unknown.
         initializeVarRefs(myLevel); //Set all the arrays empty
         myLevel.actions = [];
+		// console.log("addLevel: team " + myTeam.name + ", Level " + myLevel.number );
+
     }
 }
 
 function addMember(myTeam, ro) { //If the member doesn't already exist, construct a
     //new member from ro and add it to the members array
     //    var po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
-    var userID = ro["username"].slice(0, 5); //First five characters are the user id
+    var userID = ro["username"].slice(0, ro["username"].indexOf("@")); // user id precedes @
     //Check to see whether we already have a member with this id in this team
     inMembers = false;
     for (j = 0; j < myTeam.members.length; j++) {
@@ -550,8 +573,6 @@ function addMember(myTeam, ro) { //If the member doesn't already exist, construc
         myMember = new member;
         myTeam.members.push(myMember);
         myMember.startTime = ro["time"];
-        //        myMember.startPTime = unixTimeConversion(myMember.startTime);
-        //        myMember.colIndex = colIndex; //used for identifying member when counting actions
         myMember.colIndex = myTeam.members.length - 1 // will be 0, 1, or 2
         var colorArray = ["DarkTurquoise", "Gold", "GreenYellow"];
         //from level to level. Used in identifying the member when we count or score actions.
@@ -579,9 +600,6 @@ function addMember(myTeam, ro) { //If the member doesn't already exist, construc
                 break;
             }
         }
-        if (myMember.studentName == "") {
-            console.log("Student id " + myMember.id + " not found, Team = " + myTeam.name);
-        }
         myMember.team = myTeam;
         myTeam.teacherName = myMember.teacherName.replace(" ", "_");
         myTeam.classID = myMember.classID;
@@ -604,6 +622,7 @@ function addMember(myTeam, ro) { //If the member doesn't already exist, construc
         if (myMember.color) {
             myMember.styledName = "<span style= \"background-color: " + myMember.color + "\">" + myMember.name + "</span>";
         }
+		// console.log("addMember: team " + myTeam.name + ", Member " + myMember.name );
     }
     if (ro["event"] == "Selected board") {
         myMember.board = parseInt(ro["board"]) + 1;
@@ -616,7 +635,9 @@ function addMember(myTeam, ro) { //If the member doesn't already exist, construc
 
 function getLevel(ro) { //assumes that groupName and levelName are properties of ro
     var teamName = ro["groupname"];
-    var levelNumber = ro["levelName"].charAt(ro["levelName"].length - 1);;
+    // var levelNumber = ro["levelName"].charAt(ro["levelName"].length - 1);;
+    var levelNumber = getLevelNumber(ro["levelName"]); //number = 2 ... 5
+	console.log("getLevel: levelName=" + ro["levelName"] + ", levelNumber=" + levelNumber);
     for (var i = 0; i < teams.length; i++) {
         if (teams[i].name == teamName) {
             myTeam = teams[i];
@@ -627,6 +648,7 @@ function getLevel(ro) { //assumes that groupName and levelName are properties of
             var myLevel = myTeam.levels[j];
         } else {
             myLevel = new level;
+            myLevel.levelValuesChanged = false;
             myLevel.startUTime = ro["time"];
             var startDate = new Date(parseFloat(myLevel.startUTime * 1000));
             myLevel.startPTime = startDate;
@@ -635,18 +657,29 @@ function getLevel(ro) { //assumes that groupName and levelName are properties of
             myLevel.team = myTeam;
             myLevel.actions = [];
             myLevel.success = false;
+            myLevel.E = 0;
+            myLevel.R0 = 0;
         }
     }
     return myLevel;
 }
 
 function addLevelValues(myLevel, ro) {
+    var teamName = ro["groupname"];
+    // console.log("addLevelValues for " + teamName);
     if (ro["event"] == "model values") {
         myLevel.goalR = [parseInt(ro["GoalR1"]), parseInt(ro["GoalR2"]), parseInt(ro["GoalR3"])];
         myLevel.goalV = [parseFloat(ro["V1"]), parseFloat(ro["V2"]), parseFloat(ro["V3"])];
     }
     if (ro["event"] == "Activity Settings") {
-        //     console.log("In addLevelValues. Level name = " + myLevel.name + ", level " + myLevel.label);
+
+        //Check to see whether this level already has a value for E and R0
+
+        if ((myLevel.E) && (myLevel.E != 0) && (myLevel.E != parseInt(ro["E"]))) {
+           // console.log("Team " + teamName + ", level " + myLevel.label + ", E changed from " + myLevel.E + " to " + parseInt(ro["E"]) + " at " + (ro["time"] - myLevel.startUTime) + " seconds.")
+            myLevel.levelValuesChanged = true;
+        };
+                 
         myLevel.E = parseInt(ro["E"]);
         myLevel.R0 = parseInt(ro["R0"]);
         myLevel.initR = [parseInt(ro["r1"]), parseInt(ro["r2"]), parseInt(ro["r3"])];
@@ -672,7 +705,7 @@ function findTeam(teams, ro) {
 
 
 function getMemberDataObj(userID) { //Takes the userID and returns the studentData object for that ID
-    var memberDataObject = function() {};
+    var memberDataObject = function () {};
     for (var i = 0; i < studentDataObjs.length; i++) {
         if (studentDataObjs[i]["UserID"] == userID) {
             memberDataObject = studentDataObjs[i];
@@ -700,7 +733,7 @@ function unixTimeConversion(uTime) {
     // multiplied by 1000 so that the argument is in milliseconds, not seconds.
     var date = new Date(uTime * 1000);
     var year = date.getFullYear();
-    var month = date.getMonth()+1;
+    var month = date.getMonth() + 1;
     var day = date.getDate();
     var hours = date.getHours();
     var minutes = date.getMinutes();
@@ -715,7 +748,7 @@ function unixTimeConversion(uTime) {
 function arrayToObjects(rows) { //takes and array with a header and some data and returns objects
     var headers = rows[0];
 
-    function rowObj() {};
+	function rowObj() {};
     var rowObjs = [];
     for (i = 1; i < rows.length; i++) {
         currentRow = new rowObj;
@@ -762,12 +795,14 @@ function testScore(varStr) {
 //     saveData()(csvContent, fileName);
 // }
 
-    function saveData (data) {
+function saveData(data) {
     var a = document.createElement("a");
     document.body.appendChild(a);
     a.style = "display: none";
     return function (data, fileName) {
-     var blob = new Blob([data], {type: "text/csv;encoding:utf-8"});
+        var blob = new Blob([data], {
+            type: "text/csv;encoding:utf-8"
+        });
         var url = window.URL.createObjectURL(blob);
         a.href = url;
         a.download = fileName;
@@ -776,22 +811,22 @@ function testScore(varStr) {
     }
 }
 
-function downloadLogCSV(csvDataArray) { 
+function downloadLogCSV(csvDataArray) {
     var truncatedFilename = fileName.slice(0, (fileName.length - 4));
     csvDataFilename = truncatedFilename + ".LOGS.csv";
     if (csvDataArray.length < 2) {
         alert("Run a query of team(s), level(s), and action(s) BEFORE downloading a LOG report file");
         return;
     }
-   var csvContent = '';
+    var csvContent = '';
     // Loop through the data array and build the csv file to be downloaded
     // Columns are separated by "," and rows are separated by "\n"
-    csvDataArray.forEach(function(infoArray, index) {
+    csvDataArray.forEach(function (infoArray, index) {
         dataString = infoArray.join(",");
         csvContent += index < csvDataArray.length ? dataString + "\n" : dataString;
     })
-    saveData()(csvContent,csvDataFilename);
-	console.log("util.js: csv of log data (" + csvDataArray.length + " records) created and saved.");
+    saveData()(csvContent, csvDataFilename);
+    console.log("util.js: csv of log data (" + csvDataArray.length + " records) created and saved.");
 }
 
 function downloadSummaryCSV(csvSummaryArray) {
@@ -804,20 +839,19 @@ function downloadSummaryCSV(csvSummaryArray) {
     var csvContent = '';
     // Loop through the data array and build the csv file to be downloaded
     // Columns are separated by "," and rows are separated by "\n"
-    csvSummaryArray.forEach(function(infoArray, index) {
+    csvSummaryArray.forEach(function (infoArray, index) {
         dataString = infoArray.join(",");
         csvContent += index < csvSummaryArray.length ? dataString + "\n" : dataString;
-    	})
-    saveData()(csvContent,csvSummaryFilename);
-	console.log("util.js: csv of summary data (" + csvSummaryArray.length + " created and saved.");
+    })
+    saveData()(csvContent, csvSummaryFilename);
+    console.log("util.js: csv of summary data (" + csvSummaryArray.length + " created and saved.");
 
 }
 
 function sortByTime(a, b) {
     if (a[5] === b[5]) {
         return 0;
-    }
-    else {
+    } else {
         return (a[5] < b[5]) ? -1 : 1;
     }
 }
