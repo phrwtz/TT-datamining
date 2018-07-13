@@ -739,14 +739,14 @@ function teacherReport(teams) {
                             table.appendChild(dataRows[i]);
                             dataCells[i] = [];
                             dataCells[i][0] = document.createElement("td");
-                            if (myTeam.members[0].studentName.toUpperCase() != "N/A") {
-                                dataCells[i][0].innerHTML = "<b>" + myTeam.name + "</b><br>" +
-                                    myTeam.members[0].studentName + "<br>" + myTeam.members[1].studentName + "<br>" +
+							if (myTeam.members[0].name) { // if the first member name exists...
+                                dataCells[i][0].innerHTML = "<b>" + myTeam.name + "</b><br>&nbsp;" +
+                                    myTeam.members[0].name + "<br>&nbsp;" + myTeam.members[1].name + "<br>&nbsp;" +
+                                    myTeam.members[2].name; }
+                            else if (myTeam.members[0].studentName && myTeam.members[0].studentName != "N/A" && myTeam.members[0].studentName != "n/a" ) {
+                                dataCells[i][0].innerHTML = "<b>" + myTeam.name + "</b><br>&nbsp;" +
+                                    myTeam.members[0].studentName + "<br>&nbsp;" + myTeam.members[1].studentName + "<br>&nbsp;" +
                                     myTeam.members[2].studentName;
-                            } else {
-                                dataCells[i][0].innerHTML = "<b>" + myTeam.name + "</b><br>" +
-                                    myTeam.members[0].name + "<br>" + myTeam.members[1].name + "<br>" +
-                                    myTeam.members[2].name;
                             }
                             dataRows[i].appendChild(dataCells[i][0]);
                             for (var j = 1; j < 5; j++) {
