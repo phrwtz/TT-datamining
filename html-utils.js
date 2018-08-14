@@ -156,11 +156,10 @@ function scoreActions(level) {
         type,
         actor,
         score;
-
     for (var i = 0; i < level.actions.length; i++) {
         act = level.actions[i];
         type = act.type;
-        if (type == "message") {
+        if (type == "message") { // only analyze messages
             actor = act.actor;
             index = actor.colIndex;
             score = act.score;
