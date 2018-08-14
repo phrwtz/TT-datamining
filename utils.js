@@ -666,6 +666,7 @@ function getLevel(ro) { //assumes that groupName and levelName are properties of
 
 function addLevelValues(myLevel, ro) {
     var teamName = ro["groupname"];
+
     // console.log("addLevelValues for " + teamName);
     if (ro["event"] == "model values") {
         myLevel.goalR = [parseInt(ro["GoalR1"]), parseInt(ro["GoalR2"]), parseInt(ro["GoalR3"])];
@@ -687,22 +688,18 @@ function addLevelValues(myLevel, ro) {
         for (var i = 0; i < myLevel.initR.length; i++) {
             myLevel.R[i] = myLevel.initR[i];
         }
-        myLevel.V = findVValues(myLevel.E, myLevel.R0, myLevel.R);
-    }
-}
 
-//Check to see whether the team at this row is in the teams array
-function findTeam(teams, ro) {
-    var teamName = ro["groupname"];
-    for (var i = 0; i < teams.length; i++) {
-        if (teams[i].name == teamName) {
-            return teams[i];
-        } else {
-            //            console.log("No such team!" + teamName);
+        //Check to see whether the team at this row is in the teams array
+        function findTeam(teams, ro) {
+            var teamName = ro["groupname"];
+            for (var i = 0; i < teams.length; i++) {
+                if (teams[i].name == teamName) {
+                    return teams[i];
+                } else {
+                    //            console.log("No such team!" + teamName);
+                }
+            }
         }
-    }
-}
-
 
 function getMemberDataObj(userID) { //Takes the userID and returns the studentData object for that ID
     var memberDataObject = function () {};
@@ -710,23 +707,20 @@ function getMemberDataObj(userID) { //Takes the userID and returns the studentDa
         if (studentDataObjs[i]["UserID"] == userID) {
             memberDataObject = studentDataObjs[i];
         }
-    }
-    return memberDataObject;
-}
 
-//Check to see whether name is in the members array for some team. If so, return the member.
-function findMember(id) {
-    for (var j = 0; j < teams.length; j++) {
-        team = teams[j];
-        for (var i = 0; i < team.members.length; i++) {
-            if (team.members[i].id == id) {
-                return team.members[i];
-            } else {
-                //        console.log("no such member!" + name);
+        //Check to see whether name is in the members array for some team. If so, return the member.
+        function findMember(id) {
+            for (var j = 0; j < teams.length; j++) {
+                team = teams[j];
+                for (var i = 0; i < team.members.length; i++) {
+                    if (team.members[i].id == id) {
+                        return team.members[i];
+                    } else {
+                        //        console.log("no such member!" + name);
+                    }
+                }
             }
         }
-    }
-}
 
 function unixTimeConversion(uTime) {
     // Create a new JavaScript Date object based on the timestamp
@@ -757,31 +751,29 @@ function arrayToObjects(rows) { //takes and array with a header and some data an
             for (j = 0; j < row.length; j++) {
                 currentRow[headers[j]] = row[j];
             }
+            return rowObjs;
         }
-        rowObjs.push(currentRow);
-    }
-    return rowObjs;
-}
 
-//returns A for level 2, B for level 3, and so forth
-function getAlphabeticLabel(index) {
-    var alphaArray = ["A", "B", "C", "D"];
-    if ((index >= 2) && (index <= 5)) {
-        return alphaArray[index - 2];
-    } else {
-        alert("Alphabetic label array index out of range." + index)
-    }
-}
+        //returns A for level 2, B for level 3, and so forth
+        function getAlphabeticLabel(index) {
+            var alphaArray = ["A", "B", "C", "D"];
+            if ((index >= 2) && (index <= 5)) {
+                return alphaArray[index - 2];
+            } else {
+                alert("Alphabetic label array index out of range." + index)
+            }
+        }
 
-function testScore(varStr) {
-    var act = new action;
-    var lvl = new level;
-    lvl.number = 1;
-    lvl.label = "A";
-    act.board = 2;
-    act.level = lvl;
-    console.log(score(varStr, act));
-}
+        function testScore(varStr) {
+            var act = new action;
+            var lvl = new level;
+            lvl.number = 1;
+            lvl.label = "A";
+            act.board = 2;
+            act.level = lvl;
+            console.log(score(varStr, act));
+        }
+
 
 //     function download(x) {
 //     var data = [["Team", "Level"], ["Animals", "A"]];
@@ -846,7 +838,23 @@ function downloadSummaryCSV(csvSummaryArray) {
     saveData()(csvContent, csvSummaryFilename);
     console.log("util.js: csv of summary data (" + csvSummaryArray.length + " created and saved.");
 
-}
+        function downloadSummaryCSV(csvSummaryArray) {
+            var truncatedFilename = fileName.slice(0, (fileName.length - 4));
+            var csvSummaryFilename = truncatedFilename + ".SUMMARY.csv";
+            if (csvSummaryArray.length < 2) {
+                alert("Produce a Message or Teacher report BEFORE downloading a SUMMARY report file.");
+                return;
+            }
+            var csvContent = '';
+            // Loop through the data array and build the csv file to be downloaded
+            // Columns are separated by "," and rows are separated by "\n"
+            csvSummaryArray.forEach(function (infoArray, index) {
+                dataString = infoArray.join(",");
+                csvContent += index < csvSummaryArray.length ? dataString + "\n" : dataString;
+            })
+            saveData()(csvContent, csvSummaryFilename);
+            console.log("util.js: csv of summary data (" + csvSummaryArray.length + " created and saved.");
+
 
 function sortByTime(a, b) {
     if (a[5] === b[5]) {
@@ -855,3 +863,4 @@ function sortByTime(a, b) {
         return (a[5] < b[5]) ? -1 : 1;
     }
 }
+

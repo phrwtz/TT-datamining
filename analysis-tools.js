@@ -267,6 +267,7 @@ function addJoinedGroup(ro) {
 
 function addOpenedZoom(ro) {
     var myAction = addAction(ro, "opened-zoom");
+
     if (!(duplicate(myAction))) {
         keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
@@ -510,3 +511,4 @@ function keepLevelValues(myAction) {
         myAction.goalV[i] = myLevel.goalV[i];
     }
 }
+

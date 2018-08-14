@@ -420,6 +420,20 @@ function reportVarRefs(teams) {
                                             t = "<span style=\"color:#00AAAA;\">submitER</span>";
                                             o = findOtherVariables(vr);
                                             break;
+                                        case "submitER":
+                                            t = "<span style=\"color:#00AAAA;\">submitER</span>";
+                                            o = findOtherVariables(vr);
+                                            break;
+                                    }
+                                    if (o.length == 0) {
+                                        oMsg = ". No other references.";
+                                    } else if (o.length == 1) {
+                                        oMsg = ". One other reference: " + o[0];
+                                    } else {
+                                        oMsg += ". Other references: " + o[0];
+                                        for (var jj = 1; jj < o.length; jj++) {
+                                            oMsg += ", " + o[jj];
+                                        }
                                     }
                                     if (o.length == 0) {
                                         oMsg = ". No other references.";
@@ -636,6 +650,7 @@ function reportActions(teams, type) {
                     level = team.levels[i];
                     levelsArray[i] = scoreActions(level);
                 }
+
 				console.dir(levelsArray);
                 var arrTotal = [];
                 var arrNumber = [];
@@ -653,6 +668,7 @@ function reportActions(teams, type) {
                 }
                 var tableSummary = document.createElement("div");
                 tableSummary.className = "tableSummary";
+
 				var tableRow = document.createElement("tr"); // contains all three: scoreTable, numberTable, averageTable
 				var tableCell = document.createElement("th");
 
@@ -720,6 +736,7 @@ function teacherReport(teams) {
                 headerCells[2].innerHTML = "Level B";
                 headerCells[3].innerHTML = "Level C";
                 headerCells[4].innerHTML = "Level D";
+
 
 
                 var dataRows = []; //table rows that will contain a team name and level data
@@ -795,7 +812,6 @@ function teacherReport(teams) {
                                         "<br><b><font color=red>Level unsuccessful.</font></b>");
                                 }
                                 cellContents += successMsg;	
-								
                                 dataCells[i][j + 1].innerHTML = cellContents;
                             }
                             maxLevel = "None";
@@ -853,4 +869,5 @@ function makeSummaryArray(teams) {
     downloadSummaryCSV(summaryArray);
     mssg = "report-tools: makeSummaryArray for " + i + " teams";
     console.log(mssg);
+
 }
