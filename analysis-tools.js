@@ -1,5 +1,6 @@
 //This is where we do all the analysis of the files once the raw data has been parsed
 function analyze(rowObjs) {
+	console.log("analyze: looking for actions...");
     for (var i = 0; i < rowObjs.length; i++) {
         var ro = rowObjs[i];
         var ev = ro["event"];
@@ -79,7 +80,7 @@ function addAction(ro, type) {
         return;
     }
     var levelFound = false;
-    var number = ro["levelName"].charAt(ro["levelName"].length - 1);
+	var number = getLevelNumber(ro["levelName"]); //number = 2 ... 5  changed with MC3PA!
     for (var i = 0; i < myTeam.levels.length; i++) {
         if (myTeam.levels[i].number == number) {
             myLevel = myTeam.levels[i];
@@ -91,7 +92,7 @@ function addAction(ro, type) {
         // console.log("No level found in add action. Team = " + myTeam.name + ", level number = " + number);
         return;
     }
-    var memberID = ro["username"].slice(0, 5);
+    var memberID = ro["username"].slice(0, ro["username"].indexOf("@")); // memberID precedes @, changed with MC3PA!
     var memberFound = false;
     for (var j = 0; j < myTeam.members.length; j++) {
         if (myTeam.members[j].id == memberID) {
@@ -121,6 +122,13 @@ function addAction(ro, type) {
     myAction.goalV = [];
     myAction.E = myLevel.E;
     myAction.R0 = myLevel.R0;
+    if ((type != "resistorChange") & ro["parameters"]) {
+        po = JSON.parse(ro["parameters"].replace(/=>/g, ":").replace(/nil/g, "\"nil\""));
+        myLevel.R[0] = po["r1"]; //These are strings. They are the resistance values
+        //after the action has taken place.
+        myLevel.R[1] = po["r2"];
+        myLevel.R[2] = po["r3"];
+        }
     for (var j = 0; j < 3; j++) {
         myAction.R[j] = myLevel.R[j];
         myAction.V[j] = myLevel.V[j];
@@ -259,6 +267,7 @@ function addJoinedGroup(ro) {
 
 function addOpenedZoom(ro) {
     var myAction = addAction(ro, "opened-zoom");
+
     if (!(duplicate(myAction))) {
         keepLevelValues(myAction);
         myAction.level.actions.push(myAction);
@@ -360,7 +369,7 @@ function addRChange(ro) {
 function addMessage(ro) {
     var myAction = addAction(ro, "message");
     if (!(duplicate(myAction))) {
-        myAction.msg = ro["event_value"];
+		if (ro["message"]){myAction.msg = ro["message"];} else {myAction.msg = ro["event_value"];}
         myAction.varRefs = getVarRefs(myAction, myAction.msg);
         myAction.score = scoreAction(myAction);
         myAction.highlightedMsg = highlightMessage(myAction, myAction.msg);
@@ -502,3 +511,4 @@ function keepLevelValues(myAction) {
         myAction.goalV[i] = myLevel.goalV[i];
     }
 }
+

@@ -30,10 +30,10 @@ function parseCSV() {
             }
             reader.onloadend = function(e) {
 
-                console.log("parse-file: file loaded");
                 fileName = fileInput.files[0].name;
+                console.log("Loading log file " + fileName + "...");
                 var obj = Papa.parse(e.target.result);
-                console.log("parse-file: data parsed");
+                console.log("Log data parsed.");
                 
             //Sort obj by time
                 var headerArray = obj.data[0];               
@@ -47,19 +47,20 @@ function parseCSV() {
                 
             //Turn the rows into objects
                 rowObjs = arrayToObjects(dataPlusHeaderArray);
-                console.log("parse-file: row objects created");
-                teams = makeTeams(rowObjs);
+                console.log(rowObjs.length + " row objects created. Finding teams...");
+                teams = makeTeams(rowObjs);	// identify teams and members, actions taken by them
                 for (var i = 0; i < teams.length; i++) {
+					console.log("Identified " + teams[i].members.length + " members in " + teams[i].name);
                     if (teams[i].members.length == 3) {
                         filteredTeams.push(teams[i]);
                     }
                 }
                 teams = filteredTeams;
-                console.log("parse-file: " + teams.length + " teams found");
-                changes = analyze(rowObjs);
+                console.log("After maketeams, out of " + teams.length + " teams found, " + filteredTeams.length + " have the required 3-members");
+                changes = analyze(rowObjs); // adding actions to the arrays
                 console.log("parse-file: analysis complete");
                 setupForm(teams);
-                console.log("parse-file: form set up");
+                console.log("Form set up completed.");
             }
             reader.readAsText(fileInput.files[0]);
         } else {
